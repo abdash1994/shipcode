@@ -269,6 +269,24 @@ textarea.code:focus{border-color:var(--accent);outline:none}
 .vz-t tr.cur td{background:var(--accent-soft)} .vz-t tr.hit td{background:var(--ok-soft)} .vz-t tr.gone td{opacity:.3;text-decoration:line-through}
 .vz-t td:first-child{color:var(--fg)}
 .null{color:var(--bad);font-family:var(--f-mono);font-weight:600}
+
+/* readiness, reps, journal, rebuild */
+.areas{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.areas li{display:flex;flex-direction:column;gap:4px}
+.areas .an{display:flex;justify-content:space-between;gap:10px;font-size:.92rem;font-weight:500}
+.areas li.upcoming{opacity:.5}
+.areas li.ready .sbar span{background:var(--ok)} .areas li.solid .sbar span{background:var(--accent)} .areas li.building .sbar span{background:var(--warn)}
+.sbar.sm{height:6px}
+.jl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.jl li{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.jl li:first-child{border-top:0}
+#ltimer.over{color:var(--warn);font-weight:600}
+.hint.warn{color:var(--warn);font-weight:500}
+.pz{border:2px dashed var(--warn);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.pz-chosen{margin:0;padding-left:26px;display:flex;flex-direction:column;gap:4px}
+.pz-pool{display:flex;flex-direction:column;gap:4px;border-top:1px dashed var(--line);padding-top:8px}
+.pzl{width:100%;text-align:left;font-family:var(--f-mono);font-size:.8rem;white-space:pre;overflow-x:auto;padding:7px 10px;border:2px solid var(--line);border-radius:8px;background:var(--surface);cursor:pointer;min-height:36px}
+.pzl:hover{border-color:var(--accent)} .pzl.right{border-color:var(--ok);background:var(--ok-soft)} .pzl.wrong{border-color:var(--bad);background:var(--bad-soft)}
 /* labs */
 .warm{border-left:3px solid var(--warn)}
 .labs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
@@ -957,19 +975,19 @@ const labsOf=n=>LABS[n]||[];
 const ALL_LABS=Object.values(LABS).flat();
 const labById=id=>ALL_LABS.find(L=>L.id===id);
 function stageOf(L){if(L.kind==="sql")return "sql";if(L.bug)return "bug";if(L.mock)return "solo";if(L.day<=14)return "guided";if(L.day<=21)return "pattern";return "solo";}
-const PHASES={guided:["predict","order","pattern","code"],pattern:["predict","pattern","code"],sql:["predict","code"],bug:["code"],solo:["code"],redo:["code"]};
+const PHASES={guided:["predict","order","pattern","code"],pattern:["predict","pattern","code"],sql:["predict","code"],bug:["code"],solo:["code"],redo:["code"],mixed:["pattern","approach","code"]};
 const ERR_ROWS=[["SyntaxError","Python can't parse the line","Missing :, bracket or quote, often on the line above"],["IndentationError","Block spacing is off","Mixed tabs and spaces; the body of if/for/def isn't indented"],["NameError","The name doesn't exist yet","A typo, used before it's defined, or out of scope"],["TypeError","Wrong type for the operation","Mixing str and int; wrong number of arguments"],["AttributeError","The object has no such method or attribute","Check type(x). Often the value is None or a list"],["KeyError","The dict is missing that key","Print d.keys(); use d.get(k, default)"],["IndexError","List position out of range","Off-by-one in a loop; an empty list"],["ValueError","Right type, bad value","int(\"12.5\"); unpacking the wrong count"],["ZeroDivisionError","Dividing by zero","Check the divisor before dividing"],["TimeoutError","The runner stopped code that ran too long","A loop whose condition never changes"],["RecursionError","Recursion never stops","Missing or unreachable base case"],["ModuleNotFoundError","Not installed in this environment","Activate the venv, then pip install"],["FileNotFoundError","Wrong path","Print os.getcwd(); use the full path"],["SQL: must appear in GROUP BY","Column not grouped or aggregated","Add it to GROUP BY or wrap it in MAX/COUNT"],["PySpark AnalysisException","Column or table not found","df.printSchema(); check spelling and case"],["HTTP 401 / 403 / 404 / 422 / 500","Not logged in / not allowed / not found / bad input / server bug","Read the response body and the server logs"]];
 
 /* ---------- State ---------- */
 const KEY="blankfile-state-v1";
-const blank=()=>({v:1,t:0,start:null,pace:30,done:[],solved:{},missed:[],xp:0,dates:[],tasks:{},labs:{},plans:{},srs:{},lsrs:{},me:{}});
+const blank=()=>({v:1,t:0,start:null,pace:30,done:[],solved:{},missed:[],xp:0,dates:[],tasks:{},labs:{},plans:{},srs:{},lsrs:{},me:{},lstat:{},errs:{},mocks:[]});
 const obj=x=>x&&typeof x==="object"&&!Array.isArray(x)?{...x}:{};
 function clean(o){const b=blank();if(!o||typeof o!=="object")return b;
   return {v:1,t:Number.isFinite(o.t)?o.t:0,start:typeof o.start==="string"?o.start:null,pace:o.pace===15?15:30,
     done:Array.isArray(o.done)?o.done.filter(n=>Number.isInteger(n)&&n>=1&&n<=30):[],
     solved:obj(o.solved),missed:Array.isArray(o.missed)?o.missed.filter(x=>typeof x==="string"):[],
     xp:Number.isFinite(o.xp)?o.xp:0,dates:Array.isArray(o.dates)?o.dates.filter(x=>typeof x==="string"):[],
-    tasks:obj(o.tasks),labs:obj(o.labs),plans:obj(o.plans),srs:obj(o.srs),lsrs:obj(o.lsrs),me:{why:typeof (o.me||{}).why==="string"?o.me.why.slice(0,140):"",time:typeof (o.me||{}).time==="string"?o.me.time:""}};}
+    tasks:obj(o.tasks),labs:obj(o.labs),plans:obj(o.plans),srs:obj(o.srs),lsrs:obj(o.lsrs),me:{why:typeof (o.me||{}).why==="string"?o.me.why.slice(0,140):"",time:typeof (o.me||{}).time==="string"?o.me.time:""},lstat:obj(o.lstat),errs:obj(o.errs),mocks:Array.isArray(o.mocks)?o.mocks.filter(x=>x&&typeof x==="object").slice(-200):[]};}
 function loadLocal(){try{return clean(JSON.parse(localStorage.getItem(KEY)||"null"));}catch(e){return blank();}}
 function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){/* storage blocked: cloud sync or this visit only */}}
 let S=loadLocal();const freshAtLoad=!S.t&&!S.start&&!S.done.length;
@@ -984,7 +1002,7 @@ function merge(a,b){a=clean(a);b=clean(b);
     done:[...new Set([...a.done,...b.done])].sort((x,y)=>x-y),solved,
     missed:[...new Set([...a.missed,...b.missed])].filter(id=>!solved[id]),
     xp:Math.max(a.xp,b.xp),dates:[...new Set([...a.dates,...b.dates])].sort().slice(-120),tasks:{...a.tasks,...b.tasks},
-    labs:{...a.labs,...b.labs},plans:{...a.plans,...b.plans},srs:{...a.srs,...b.srs},lsrs:{...a.lsrs,...b.lsrs},me:{...a.me,...b.me}};}
+    labs:{...a.labs,...b.labs},plans:{...a.plans,...b.plans},srs:{...a.srs,...b.srs},lsrs:{...a.lsrs,...b.lsrs},me:{...a.me,...b.me},lstat:{...a.lstat,...b.lstat},errs:{...a.errs,...b.errs},mocks:[...a.mocks,...b.mocks].slice(-200)};}
 
 /* Code drafts stay in this browser only (they can be large). */
 const DKEY="blankfile-drafts-v1";let drafts={};
@@ -1064,10 +1082,11 @@ const EXPECT=`<details class="expect"><summary>What 30 days can and can't do</su
 
 function warmCard(){
   const ids=warmIds(),redo=dueLabs().slice(0,2),missed=S.missed.filter(id=>findDrill(id)).length;
-  if(!ids.length&&!redo.length)return "";
+  if(!ids.length&&!redo.length&&!mixedUnlocked())return "";
   return `<section class="card warm"><span class="eyebrow">Warm-up · do this first (10–20 min)</span>
     ${ids.length?`<div class="row" style="justify-content:space-between"><p>${ids.length} drill${ids.length>1?"s":""} to recall${missed?` (${missed} you got wrong)`:""}</p><button class="btn primary small" data-act="review">Review</button></div>`:""}
     ${redo.map(L=>`<div class="row" style="justify-content:space-between"><p><b>Redo from scratch:</b> ${esc(L.title)} <span class="muted">· Day ${L.day}</span></p><button class="btn small" data-act="redo" data-lab="${L.id}">Redo</button></div>`).join("")}
+    ${mixedUnlocked()?`<div class="row" style="justify-content:space-between"><p><b>Interview rep:</b> one unlabelled problem from your weaker areas</p><button class="btn small" data-act="mixed">Start</button></div>`:""}
     ${redo.length?`<p class="hint">A redo from scratch starts with an empty editor. Write your steps as comments first, then code. This is the habit interviews test.</p>`:""}</section>`;
 }
 const kindLabel=L=>L.kind==="sql"?"SQL":L.bug?"Fix the bug":L.mock?"Mock · timed":"Python";
@@ -1229,7 +1248,7 @@ function skillsCard(){
 
 function renderPath(){
   const cur=currentDay(),tgt=targetDay();
-  app.innerHTML=`<div class="view">${progressCard()}${skillsCard()}${S.start?paceCard():""}<p class="hint">Each row shows drills solved, then code labs passed.</p>${WEEKS.map(w=>{
+  app.innerHTML=`<div class="view">${progressCard()}${readinessCard()}${skillsCard()}${S.start?paceCard():""}<p class="hint">Each row shows drills solved, then code labs passed.</p>${WEEKS.map(w=>{
     const rows=[];for(let n=w.from;n<=w.to;n++){const d=DAYS[n-1],lt=labsOf(n).length;
       rows.push(`<a class="prow ${isDone(n)?"done":""} ${n===cur&&!isDone(n)?"current":""} ${tgt===n&&!isDone(n)?"target":""}" href="#day-${n}">
         <span class="node">${isDone(n)?"✓":n}</span><span class="ptitle">${esc(d.t)}</span><span class="pmeta">${drillCount(n)}/${d.drills.length}${lt?` · ${labCount(n)}/${lt}`:""}</span></a>`);}
@@ -1284,6 +1303,7 @@ function renderErrors(){
   app.innerHTML=`<div class="view">
     <section style="display:flex;flex-direction:column;gap:8px"><span class="eyebrow">Debugging</span><h1>Reading an error</h1>
     <p>Read tracebacks from the bottom up. The last line tells you <b>what</b> went wrong; the last line that mentions <b>your</b> file tells you <b>where</b>.</p></section>
+    ${journalCard()}
 <pre><span class="note">Traceback (most recent call last):</span>
   File "expenses.py", line 14, in &lt;module&gt;
     total = add_up(rows)
@@ -1387,6 +1407,8 @@ app.addEventListener("click",ev=>{
   else if(act==="slot"){const w=document.getElementById("why");S.me={...S.me,time:b.dataset.slot,why:w?w.value.trim().slice(0,140):(S.me.why||"")};save();route();}
   else if(act==="next"){goPart(n,b.dataset.part);}
   else if(act==="viz"){openViz(b.dataset.viz);}
+  else if(act==="mixed"){openMixed(b.dataset.area||null);}
+  else if(act==="practice"){const id=b.dataset.lab;openLab(id,S.labs[id]?true:false);}
   else if(act==="replan"){S.start=replanStart();save();route();}
   else if(act==="savewhy"){const w=document.getElementById("whyRef");S.me={...S.me,why:w?w.value.trim().slice(0,140):""};save();b.textContent="Saved";}
   else if(act==="drills"){startSession(DAYS[n-1].drills,"Day "+n);}
@@ -1489,43 +1511,45 @@ function nextPhase(){const seq=PHASES[lab.stage];let i=seq.indexOf(lab.phase)+1;
   lab.phase=seq[Math.min(i,seq.length-1)];lab.ptries=0;lab.pdone=false;
   if(lab.phase==="code"&&!lab.redo&&!S.plans[lab.L.id]){S.plans={...S.plans,[lab.L.id]:1};save();}
   renderLab();}
-function patOptions(L){const near=[...new Set(ALL_LABS.filter(x=>x.pat&&x.pat!==L.pat&&Math.abs(x.day-L.day)<=6).map(x=>x.pat))];
+function patOptions(L){if(lab&&lab.mixed)return shuffled([L.pat,...shuffled(PATTERNS.filter(p=>p!==L.pat),L.id+Date.now()).slice(0,5)],"m"+Date.now());
+  const near=[...new Set(ALL_LABS.filter(x=>x.pat&&x.pat!==L.pat&&Math.abs(x.day-L.day)<=6).map(x=>x.pat))];
   let pool=shuffled(near,L.id).slice(0,3);if(pool.length<3)pool=[...pool,...shuffled(PATTERNS.filter(p=>p!==L.pat&&!pool.includes(p)),L.id+"x")].slice(0,3);
   return shuffled([L.pat,...pool],L.id+"o");}
 const STEP_TEMPLATE="# Steps (write at least 3 before you code):\n# 1. \n\n";
 const SQL_TEMPLATE="-- 1. FROM / JOIN: which tables?\n-- 2. WHERE: which rows?\n-- 3. GROUP BY / HAVING: one row per what?\n-- 4. SELECT: which columns?\n-- 5. ORDER BY: does order matter?\n";
 function initialCode(L,stage){
   if(stage==="redo")return "# Redo from scratch. Write your steps as comments first, then the code.\n\n";
+  if(stage==="mixed")return L.kind==="sql"?SQL_TEMPLATE+L.starter:"# Interview rep. Write your steps as comments first, then the code.\n\n";
   if(L.kind==="sql")return SQL_TEMPLATE+L.starter;
   if(stage==="guided")return "# Plan\n"+L.steps.map((s,i)=>`# ${i+1}. ${s}`).join("\n")+"\n\n"+L.starter;
   if(stage==="pattern"||stage==="solo")return STEP_TEMPLATE+L.starter;
   return L.starter;}
-const draftKey=()=>lab.L.id+(lab.redo?"-redo":"");
-const needsSteps=()=>lab.L.kind==="py"&&["pattern","solo","redo"].includes(lab.stage);
+const draftKey=()=>lab.L.id+(lab.mixed?"-mix":lab.redo?"-redo":"");
+const needsSteps=()=>lab.L.kind==="py"&&["pattern","solo","redo","mixed"].includes(lab.stage);
 function countSteps(code,L){const skip=new Set((lab.redo?"":L.starter).split("\n").map(s=>s.trim()));
-  return code.split("\n").filter(l=>{const s=l.trim();return /^#\s*(\d+[.)]\s*)?\S+(\s+\S+){2,}/.test(s)&&!skip.has(s)&&!/^# Steps \(write|^# Redo from scratch/.test(s);}).length;}
+  return code.split("\n").filter(l=>{const s=l.trim();return /^#\s*(\d+[.)]\s*)?\S+(\s+\S+){2,}/.test(s)&&!skip.has(s)&&!/^# Steps \(write|^# Redo from scratch|^# Interview rep/.test(s);}).length;}
 let draftTimer=null;
 function flushDraft(){const ed=document.getElementById("code");if(ed&&lab)saveDraft(draftKey(),ed.value);}
 
 function openLab(id,redo){const L=labById(id);if(!L)return;
-  const stage=redo?"redo":stageOf(L);
-  lab={L,stage,redo:!!redo,phase:PHASES[stage][0],t0:Date.now(),ptries:0,pdone:false,order:[],runs:0,fails:0,result:null,running:false,showHint:false,showSol:false,resetArm:false,passed:false};
+  const mixed=redo==="mixed",stage=mixed?"mixed":redo?"redo":stageOf(L);
+  lab={L,stage,redo:!!redo,mixed,target:L.day<=14?20:35,helped:false,phase:PHASES[stage][0],t0:Date.now(),ptries:0,pdone:false,order:[],runs:0,fails:0,result:null,running:false,showHint:false,showSol:false,resetArm:false,passed:false};
   if(!redo&&S.plans[L.id])lab.phase="code";
   markPractice();save();openSheet();
-  if(lab.phase==="predict"&&!predictQ(L))nextPhase();else renderLab();
-  clearInterval(labTimer);labTimer=setInterval(()=>{const el=document.getElementById("ltimer");if(el&&lab)el.textContent=mmss();},1000);
+  if((lab.phase==="predict"&&!predictQ(L))||(lab.phase==="pattern"&&!L.pat))nextPhase();else renderLab();
+  clearInterval(labTimer);labTimer=setInterval(()=>{const el=document.getElementById("ltimer");if(el&&lab){el.textContent=mmss()+(lab.mixed?" / "+lab.target+":00":"");el.classList.toggle("over",!!lab.mixed&&Date.now()-lab.t0>lab.target*60000);}},1000);
   (L.kind==="sql"?getSql():getPy()).catch(()=>{});
 }
-function taskCard(L){return `<section class="card"><span class="qkind">${kindLabel(L)} · Day ${L.day}${lab.redo?" · redo from scratch":""}</span><h2>${esc(L.title)}</h2><p>${L.task}</p>
+function taskCard(L){return `<section class="card">${lab.mixed?`<span class="qkind">Interview rep · ${L.kind==="sql"?"SQL":"Python"} · target ${lab.target} min</span><h2>Unlabelled problem</h2><p>${mixTask(L)}</p>`:`<span class="qkind">${kindLabel(L)} · Day ${L.day}${lab.redo?" · redo from scratch":""}</span><h2>${esc(L.title)}</h2><p>${L.task}</p>`}
   ${L.kind==="sql"?`<details class="tables" ${lab.phase!=="code"?"open":""}><summary>Tables (employees, customers, orders)</summary>${TABLES_HTML}</details>`:""}
   ${L.prelude?`<details><summary>Provided code (already loaded for you)</summary><pre>${esc(L.prelude)}</pre></details>`:""}</section>`;}
-function phaseBar(){const seq=PHASES[lab.stage];if(seq.length<2)return "";const names={predict:"By hand",order:"Steps",pattern:"Pattern",code:"Code"};
+function phaseBar(){const seq=PHASES[lab.stage].filter(p=>(p!=="pattern"||lab.L.pat)&&(p!=="predict"||predictQ(lab.L))&&(p!=="order"||(lab.L.steps&&lab.L.steps.length)));if(seq.length<2)return "";const names={predict:"By hand",order:"Steps",pattern:"Pattern",approach:"Approach",code:"Code"};
   return `<div class="phasebar">${seq.map(p=>`<span class="${p===lab.phase?"on":seq.indexOf(p)<seq.indexOf(lab.phase)?"done":""}">${names[p]}</span>`).join("")}</div>`;}
 
 const mmss=()=>{const s=Math.floor((Date.now()-lab.t0)/1000);return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");};
 function renderLab(){
   const L=lab.L;
-  const head=`<div class="sheet-head"><button class="xbtn" data-l="close" aria-label="Close lab">×</button>${phaseBar()||'<span style="flex:1"></span>'}<span class="pmeta" id="ltimer" title="Time on this lab">${mmss()}</span></div>`;
+  const head=`<div class="sheet-head"><button class="xbtn" data-l="close" aria-label="Close lab">×</button>${phaseBar()||'<span style="flex:1"></span>'}<span class="pmeta" id="ltimer" title="Time on this lab">${mmss()}${lab.mixed?" / "+lab.target+":00":""}</span></div>`;
   let body="",foot="";
   if(lab.phase==="predict"){const P=predictQ(L);
     body=`${taskCard(L)}<section class="card"><span class="eyebrow">Step 1 · Solve one example by hand</span><p>${P.q}</p>
@@ -1542,20 +1566,24 @@ function renderLab(){
         ${left.length?`<div class="pool">${left.map(i=>`<button class="stepbtn" data-l="pick" data-i="${i}">${esc(L.steps[i])}</button>`).join("")}</div>`:""}<div id="pfb">${lab.pmsg||""}</div></section>`;
       foot=lab.pdone?`<button class="btn primary block" data-l="next">Continue</button>`:`<button class="btn primary block" data-l="ocheck" ${left.length?"disabled":""}>Check order</button>`;}}
   else if(lab.phase==="pattern"){if(!lab.popts)lab.popts=patOptions(L);
-    body=`${taskCard(L)}<section class="card"><span class="eyebrow">Step ${lab.stage==="guided"?3:2} · Name the pattern</span><p>Which tool fits this problem? (The Think tab's pattern map helps.)</p>
+    body=`${taskCard(L)}<section class="card"><span class="eyebrow">${lab.mixed?"Step 1 · Recognise it":`Step ${lab.stage==="guided"?3:2} · Name the pattern`}</span><p>${lab.mixed?"In an interview nobody tells you the pattern. Which tool fits?":"Which tool fits this problem? (The Think tab's pattern map helps.)"}</p>
       <div class="opts">${lab.popts.map((p,i)=>`<button class="opt ${lab.pdone?(p===L.pat?"right":i===lab.ppick?"wrong":""):""}" data-l="pat" data-i="${i}" ${lab.pdone?"disabled":""}><span class="k">${i+1}</span><span>${esc(p)}</span></button>`).join("")}</div><div id="pfb">${lab.pmsg||""}</div></section>`;
-    foot=lab.pdone?`<button class="btn primary block" data-l="next">Start coding</button>`:"";}
+    foot=lab.pdone?`<button class="btn primary block" data-l="next">${lab.mixed?"Next: explain your approach":"Start coding"}</button>`:"";}
+  else if(lab.phase==="approach"){
+    body=`${taskCard(L)}<section class="card"><span class="eyebrow">${L.pat?"Step 2":"Step 1"} · Explain your approach</span><p>Say how you'll solve it, the way you would to an interviewer: the idea, the data structure, and roughly how fast it is.</p>
+      <textarea class="code small" id="appr" spellcheck="true" placeholder="e.g. I'll walk through the list once and keep a dict of numbers I've seen, so checking for the partner is instant. That makes it O(n).">${esc(lab.appr||"")}</textarea><p class="hint" id="apprHint">At least 12 words. Interviewers score this as much as the code.</p></section>`;
+    foot=`<button class="btn primary block" data-l="appr">Start coding</button>`;}
   else{
     const code=drafts[draftKey()]!=null?drafts[draftKey()]:initialCode(L,lab.stage);
-    const tip=L.kind==="sql"?"Fill in the recipe comments, then write the query under them.":lab.stage==="guided"?"Turn each plan comment into one or two lines of code. Run often.":lab.stage==="bug"?"Run it first and read the error or the failing test. Then fix it.":"Write at least 3 steps as comments first. Then code each one.";
+    const tip=lab.mixed?"Blank editor, like the real thing. Steps as comments first, then code.":L.kind==="sql"?"Fill in the recipe comments, then write the query under them.":lab.stage==="guided"?"Turn each plan comment into one or two lines of code. Run often.":lab.stage==="bug"?"Run it first and read the error or the failing test. Then fix it.":"Write at least 3 steps as comments first. Then code each one.";
     body=`${taskCard(L)}${lab.stage==="guided"&&L.steps?`<details class="card plancard"><summary>Your plan</summary><ol class="plan">${L.steps.map(s=>`<li>${esc(s)}</li>`).join("")}</ol></details>`:""}
       <section class="card editor-card"><p class="hint">${tip} Ctrl+Enter runs the tests.</p>
       <div class="ed"><pre class="gutter" id="gutter" aria-hidden="true"></pre><textarea id="code" class="codearea" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Code editor">${esc(code)}</textarea></div>
       <div class="row"><button class="btn primary" data-l="run" ${lab.running?"disabled":""}>${lab.running?"Running…":"Run tests"}</button>${L.kind==="py"?`<button class="btn small" data-l="trace" title="Step through your code line by line">▶ Watch it run</button>`:""}<button class="btn small" data-l="hint">${lab.showHint?"Hide hint":"Hint"}</button>
-        <button class="btn small" data-l="reset">${lab.resetArm?"Tap again to reset":"Reset"}</button>${(lab.fails>=3||lab.passed)&&!lab.redo?`<button class="btn small" data-l="sol">${lab.showSol?"Hide solution":"Solution"}</button>`:""}</div>
+        <button class="btn small" data-l="reset">${lab.resetArm?"Tap again to reset":"Reset"}</button>${!lab.passed&&lab.fails>=2&&L.kind==="py"&&!lab.pz?`<button class="btn small" data-l="parsons">Rebuild from scrambled lines</button>`:""}${(lab.fails>=4||lab.passed||(lab.pz&&lab.pz.done))&&!lab.redo?`<button class="btn small" data-l="sol">${lab.showSol?"Hide solution":"Solution"}</button>`:""}</div>
       ${lab.showHint?`<div class="fb"><p>${esc(L.hint)}</p></div>`:""}
       ${lab.showSol?`<div class="fb"><p><b>Read it, close it, then type it yourself.</b> It comes back as a redo from scratch.</p><pre>${esc(L.solution)}</pre></div>`:""}
-      <div id="spBox">${stepperHTML()}</div><div id="res">${resultsHTML()}</div></section>`;}
+      <div id="pzBox">${pzHTML()}</div><div id="spBox">${stepperHTML()}</div><div id="res">${resultsHTML()}</div></section>`;}
   sheetIn.innerHTML=`${head}<div class="sheet-body">${body}</div>${foot?`<div class="sheet-foot">${foot}</div>`:""}`;
   if(lab.phase==="code")wireEditor();
   else{const p=document.getElementById("pred");if(p){setTimeout(()=>p.focus(),30);p.addEventListener("keydown",e=>{if(e.key==="Enter"&&(!P_multi()||e.ctrlKey||e.metaKey)){e.preventDefault();labAct("pcheck");}});}}
@@ -1608,8 +1636,10 @@ function resultsCore(){const r=lab.result;
     <button class="btn small" data-l="trace">▶ Watch it run on the failing test</button></div>`;}
 function passHTML(){const s=Math.floor((Date.now()-lab.t0)/1000);const L=lab.L;
   return `<div class="fb ok pass"><b class="t">All tests passed · ${Math.floor(s/60)}m ${s%60}s</b>${labsPassedN()===1&&!lab.redo?`<p><b>Your first passing program here.</b> Everything else in the course builds on what you just did.</p>`:`<p class="muted">Labs passed so far: ${labsPassedN()} of ${ALL_LABS.length}.</p>`}
-    ${L.steps&&["pattern","solo","redo","bug"].includes(lab.stage)?`<p>Compare your steps with a model breakdown:</p><ol class="plan">${L.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>`:""}
-    <p class="muted">${lab.redo?"Recall strengthened. The next redo of this lab is scheduled further out.":"This lab comes back as a redo from scratch in 2 days, then 5, 12 and 30."}</p>
+    ${L.steps&&["pattern","solo","redo","bug","mixed"].includes(lab.stage)?`<p>Compare your steps with a model breakdown:</p><ol class="plan">${L.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>`:""}
+    ${lab.mixed?`<p><b>${s<=lab.target*60?"Inside the target time.":"Over the target time, and that's fine: speed comes with reps."}</b> This was <b>${esc(L.title)}</b> (Day ${L.day}).</p>${lab.appr?`<p class="muted">Your approach: “${esc(lab.appr)}”</p>`:""}`:""}
+    ${(()=>{const a=areaOf(L),now=areaStatus(a).score;return lab.before!=null&&now>lab.before?`<p>Readiness in <b>${esc(a.name)}</b>: ${lab.before}% → <b>${now}%</b></p>`:"";})()}
+    <p class="muted">${lab.helped?"You used help, so this lab comes back sooner for a redo from scratch.":lab.redo?"Recall strengthened. The next redo of this lab is scheduled further out.":"This lab comes back as a redo from scratch in 2 days, then 5, 12 and 30."}</p>
     <button class="btn primary" data-l="close">Done</button></div>`;}
 
 async function runLab(){
@@ -1623,11 +1653,15 @@ async function runLab(){
     else{const SQL=await getSql();lab.result=runSqlLab(SQL,code,L);lab.result.code=code;ok=lab.result.ok;}
   }catch(e){lab.result={loadFail:true,msg:String(e&&e.message||e)};}
   lab.running=false;
-  if(!lab.result.loadFail){lab.runs++;if(ok)onPass();else lab.fails++;}
+  if(!lab.result.loadFail){lab.runs++;if(ok)onPass();else{lab.fails++;logErrors(lab.result);save();}}
   renderLab();
   const res=document.getElementById("res");if(res&&res.scrollIntoView)res.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
-function onPass(){if(lab.passed)return;lab.passed=true;labPassed(lab.L,lab.redo);markPractice();save();topStats();}
+function onPass(){if(lab.passed)return;lab.passed=true;const L=lab.L;lab.before=areaStatus(areaOf(L)).score;
+  if(!S.labs[L.id])S.lstat={...S.lstat,[L.id]:{fails:lab.fails,helped:!!lab.helped}};
+  labPassed(L,lab.redo&&!lab.helped);
+  if(lab.mixed)S.mocks=[...S.mocks,{id:L.id,secs:Math.round((Date.now()-lab.t0)/1000),target:lab.target*60,helped:!!lab.helped,d:todayISO()}].slice(-200);
+  markPractice();save();topStats();}
 
 /* ---------- Pattern diagrams: each one is generated by running the algorithm ---------- */
 const cells=(vals,o={})=>`<div class="vz-arr">${vals.map((v,i)=>`<div class="vz-cell ${(o.cls&&o.cls[i])||""}"><span class="vz-v">${esc(v)}</span><span class="vz-i">${o.idx===false?"":i}</span>${o.ptr&&o.ptr[i]?`<span class="vz-p">${o.ptr[i]}</span>`:""}</div>`).join("")}</div>`;
@@ -1800,8 +1834,97 @@ sheetIn.addEventListener("change",ev=>{if(!lab||!lab.trace)return;
   else if(ev.target.id==="spQuiz"){lab.trace.quiz=ev.target.checked;lab.trace.ask=null;renderStepper();}});
 sheetIn.addEventListener("keydown",ev=>{if(ev.target.id==="spAns"&&ev.key==="Enter"){ev.preventDefault();spCheck(false);}});
 
+/* ---------- Interview readiness: evidence per skill area ---------- */
+const AREAS=[
+ {id:"py",name:"Python basics",days:[1,2,3,5]},
+ {id:"ds",name:"Dicts, sets, files and classes",days:[4,6,7,12]},
+ {id:"sql",name:"SQL",days:[8,9,10,11],extra:["L14-1","L30-1"]},
+ {id:"pipe",name:"Data cleaning and APIs",days:[],extra:["L14-0","L23-0","L23-1"]},
+ {id:"hash",name:"Arrays, hashing and prefix sums",days:[15],extra:["L21-1"]},
+ {id:"ptr",name:"Two pointers and sliding window",days:[16]},
+ {id:"stack",name:"Stacks and binary search",days:[17],extra:["L21-0"]},
+ {id:"list",name:"Linked lists and recursion",days:[18]},
+ {id:"graph",name:"Trees and graphs",days:[19]},
+ {id:"dp",name:"DP, heaps and intervals",days:[20],extra:["L30-0"]},
+ {id:"ai",name:"AI engineering",days:[24,25,26],extra:["L28-0"]},
+];
+function areaOf(L){return AREAS.find(a=>(a.extra||[]).includes(L.id))||AREAS.find(a=>a.days.includes(L.day));}
+const areaLabs=a=>ALL_LABS.filter(L=>areaOf(L)===a);
+/* 40 for passing, +20 without help, +10 if it took 2 or fewer failed runs, +15 per redo from scratch (up to 2). */
+function labScore(L){if(!S.labs[L.id])return 0;const st=S.lstat[L.id]||{legacy:1},b=(S.lsrs[L.id]||{b:0}).b||0;
+  let s=40;if(!st.helped){s+=20;if(st.legacy||st.fails<=2)s+=10;}return Math.min(100,s+Math.min(b,2)*15);}
+const avg=xs=>xs.length?Math.round(xs.reduce((a,b)=>a+b,0)/xs.length):0;
+function areaStatus(a){const labs=areaLabs(a),cur=currentDay(),unl=labs.filter(L=>L.day<=cur);
+  if(!unl.length)return {state:"upcoming",from:Math.min(...labs.map(L=>L.day)),score:0};
+  const score=avg(unl.map(labScore)),passed=unl.filter(L=>S.labs[L.id]).length,redone=unl.filter(L=>((S.lsrs[L.id]||{}).b||0)>=1).length;
+  return {state:score>=80?"ready":score>=55?"solid":passed?"building":"new",score,passed,total:unl.length,redone};}
+const STATE_LABEL={ready:"interview-ready",solid:"solid",building:"building",new:"not started"};
+const readinessOverall=()=>avg(ALL_LABS.map(labScore));
+function weakestArea(){const xs=AREAS.map(a=>[a,areaStatus(a)]).filter(([,s])=>s.state!=="upcoming"&&s.passed);xs.sort((x,y)=>x[1].score-y[1].score);return xs.length?xs[0][0]:null;}
+const mixedUnlocked=()=>currentDay()>3;
+function readinessCard(){
+  const o=readinessOverall(),weak=weakestArea();
+  return `<section class="card ready"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><span class="eyebrow">Interview readiness</span><h2>${o}%</h2></div>
+      ${weak&&mixedUnlocked()?`<button class="btn small primary" data-act="mixed" data-area="${weak.id}">Practise weakest: ${esc(weak.name)}</button>`:""}</div>
+    <p class="hint">An estimate from your evidence, not a guarantee: labs passed, how much help you needed, and redos from scratch, which count most because they prove you can recall it.</p>
+    <ul class="areas">${AREAS.map(a=>{const s=areaStatus(a);return `<li class="${s.state}"><div class="an"><span>${esc(a.name)}</span><span class="pmeta">${s.state==="upcoming"?`from Day ${s.from}`:`${s.score}% · ${STATE_LABEL[s.state]}`}</span></div><div class="sbar sm" aria-hidden="true"><span style="width:${s.score}%"></span></div>${s.state!=="upcoming"&&s.passed?`<span class="hint">${s.passed}/${s.total} labs passed · ${s.redone} redone from scratch</span>`:""}</li>`;}).join("")}</ul>
+    ${mixedUnlocked()?`<button class="btn block" data-act="mixed">Interview rep: one unlabelled problem</button>`:`<p class="hint">Interview reps (unlabelled problems against the clock) unlock after Day 3.</p>`}</section>`;
+}
+
+/* ---------- Interview reps: an unlabelled problem, weighted toward weak areas ---------- */
+let lastMixed=null;
+function pickMixed(areaId){const cur=currentDay();
+  const ok=L=>!L.bug&&(!areaId||areaOf(L).id===areaId);
+  let pool=ALL_LABS.filter(L=>ok(L)&&L.day<cur);if(!pool.length)pool=ALL_LABS.filter(L=>ok(L)&&L.day<=cur);if(!pool.length)return null;
+  const w=pool.map(L=>(105-labScore(L))*(L.id===lastMixed?0.1:1)),tot=w.reduce((a,b)=>a+b,0);let r=Math.random()*tot;
+  for(let i=0;i<pool.length;i++){r-=w[i];if(r<=0)return pool[i];}return pool[pool.length-1];}
+function openMixed(areaId){const L=pickMixed(areaId);if(!L)return;lastMixed=L.id;openLab(L.id,"mixed");}
+/* Drop the sentences that name the technique, so recognising it is your job. */
+function mixTask(L){return L.task.replace(/<b>Timed:[^<]*<\/b>\s*/,"").replace(/, so a sliding window won't work/,"").replace(/using two pointers and /,"using ").split(/(?<=[.?])\s+(?=[A-Z<])/).filter(s=>!/^(Use a |Aim for |A new pattern|BFS or DFS)/.test(s.replace(/<[^>]+>/g,""))).join(" ");}
+
+/* ---------- Error journal ---------- */
+const PRACTICE={"TypeError":"L1-1","TimeoutError":"L2-2","KeyError":"L5-1","AttributeError":"L18-2","Wrong result":"L3-2","SQL error":"L8-1"};
+const ERR_EXTRA={"Wrong result":["No crash, but the answer didn't match","Watch it run and find the first value that's off"],"SQL error":["SQLite couldn't run the query","Check names against the tables; read the message word by word"]};
+function logErrors(r){if(!r||r.loadFail)return;const add=k=>{S.errs={...S.errs,[k]:(S.errs[k]||0)+1};};
+  if(r.kind==="sql"){if(r.error)add("SQL error");else if(!r.ok)add("Wrong result");return;}
+  const types=new Set();(r.tests||[]).forEach(t=>{if(t.error){const m=(t.error.trim().split("\n").pop()||"").match(/^(\w+(?:Error|Exception))/);if(m)types.add(m[1]);}else if(!t.ok)types.add("Wrong result");});
+  types.forEach(add);}
+function journalCard(){const top=Object.entries(S.errs||{}).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  return `<section class="card journal"><span class="eyebrow">Your error journal</span>
+    ${top.length?`<p class="muted">Logged automatically from your labs. Your most frequent error is where practice pays off fastest.</p><ul class="jl">${top.map(([k,n])=>{const row=ERR_ROWS.find(r=>r[0]===k)||(ERR_EXTRA[k]?[k,...ERR_EXTRA[k]]:null);const pid=PRACTICE[k];
+      return `<li><div><b>${esc(k)}</b> <span class="chip">${n}×</span>${row?`<p class="hint">${esc(row[1])}. Check first: ${esc(row[2].charAt(0).toLowerCase()+row[2].slice(1))}.</p>`:""}</div>${pid?`<button class="btn small" data-act="practice" data-lab="${pid}">Practise</button>`:""}</li>`;}).join("")}</ul>`
+      :`<p class="muted">Every error you hit in a lab is logged here automatically, with a practice lab for the common ones. Nothing yet.</p>`}</section>`;}
+
+/* ---------- Stuck ladder: rebuild the solution from scrambled lines ---------- */
+function pzStart(){const lines=lab.L.solution.split("\n").filter(l=>l.trim());
+  let pool=shuffled(lines.map((_,i)=>i),lab.L.id+"z"+Date.now());if(pool.every((x,i)=>x===i))pool.reverse();
+  lab.pz={lines,pool,order:[],tries:0,marks:null,done:false};lab.helped=true;}
+function pzHTML(){const P=lab.pz;if(!P)return "";const left=P.pool.filter(i=>!P.order.includes(i));
+  return `<div class="pz"><span class="eyebrow">Rebuild from scrambled lines</span><p class="hint">These are the solution's lines, shuffled. Tap them in order; indentation shows which block each line belongs to. This counts as help, so the lab comes back sooner as a redo.</p>
+    <ol class="pz-chosen">${P.order.map((i,pos)=>`<li><button class="pzl ${P.marks?(P.marks[pos]?"right":"wrong"):""}" data-l="pz-unpick" data-i="${i}" ${P.done?"disabled":""}>${esc(P.lines[i])}</button></li>`).join("")||'<li class="muted">Your code appears here</li>'}</ol>
+    ${left.length?`<div class="pz-pool">${left.map(i=>`<button class="pzl" data-l="pz-pick" data-i="${i}">${esc(P.lines[i])}</button>`).join("")}</div>`:""}
+    ${P.msg||""}
+    <div class="row">${P.done?"":`<button class="btn small primary" data-l="pz-check" ${left.length?"disabled":""}>Check order</button>`}<button class="btn small" data-l="pz-close">Close</button></div></div>`;}
+function renderPz(){const el=document.getElementById("pzBox");if(el)el.innerHTML=pzHTML();}
+function pzAct(a,btn){const P=lab.pz;
+  if(a==="parsons"){if(!P)pzStart();renderPz();const el=document.getElementById("pzBox");if(el&&el.scrollIntoView)el.scrollIntoView({block:"nearest",behavior:"smooth"});return true;}
+  if(!P)return false;
+  if(a==="pz-close"){lab.pz=null;renderPz();return true;}
+  if(a==="pz-pick"){P.order=[...P.order,+btn.dataset.i];P.marks=null;P.msg="";renderPz();return true;}
+  if(a==="pz-unpick"){P.order=P.order.filter(i=>i!==+btn.dataset.i);P.marks=null;P.msg="";renderPz();return true;}
+  if(a==="pz-check"){P.tries++;P.marks=P.order.map((i,pos)=>P.lines[i]===P.lines[pos]);
+    const self=P.marks.every(Boolean);
+    if(self||P.tries>=3){if(!self){P.order=P.lines.map((_,i)=>i);P.marks=P.order.map(()=>true);}
+      P.done=true;const ed=document.getElementById("code");if(ed){ed.value=P.lines.join("\n")+"\n";ed.dispatchEvent(new Event("input"));}flushDraft();
+      P.msg=`<div class="fb ${self?"ok":"bad"}"><p><b>${self?"That's the working order.":"Here's the right order."}</b> It's now in your editor. Read it line by line, tap Watch it run to see it work, then run the tests.</p></div>`;}
+    else P.msg=`<div class="fb bad"><p>The red lines are in the wrong place. Tap them to take them back.</p></div>`;
+    renderPz();return true;}
+  return false;}
+
 function labAct(a,btn){if(!lab)return;const L=lab.L;
   if((a==="trace"||a.startsWith("sp-"))&&spAct(a,btn))return;
+  if((a==="parsons"||a.startsWith("pz-"))&&pzAct(a,btn))return;
+  if(a==="appr"){const el=document.getElementById("appr"),v=el?el.value.trim():"";if(v.split(/\s+/).filter(Boolean).length<12){const h=document.getElementById("apprHint");if(h){h.textContent="A bit more: at least 12 words. Name the data structure and why it fits.";h.classList.add("warn");}return;}lab.appr=v;nextPhase();return;}
   if(a==="close"){closeSheet();return;}
   if(a==="next"){nextPhase();return;}
   if(a==="pcheck"){const P=predictQ(L),el=document.getElementById("pred");if(!el||!el.value.trim())return;
@@ -1820,8 +1943,8 @@ function labAct(a,btn){if(!lab)return;const L=lab.L;
   if(a==="pat"){const i=+btn.dataset.i;lab.ppick=i;lab.pdone=true;const ok=lab.popts[i]===L.pat;
     lab.pmsg=`<div class="fb ${ok?"ok":"bad"}"><b class="t">${ok?"Right":"It's "+esc(L.pat)}</b><p>Use this when ${esc(PATWHY[L.pat]||"it fits the problem")}.</p></div>`;renderLab();return;}
   if(a==="run"){runLab();return;}
-  if(a==="hint"){flushDraft();lab.showHint=!lab.showHint;renderLab();return;}
-  if(a==="sol"){flushDraft();lab.showSol=!lab.showSol;renderLab();return;}
+  if(a==="hint"){flushDraft();lab.showHint=!lab.showHint;if(lab.showHint)lab.helped=true;renderLab();return;}
+  if(a==="sol"){flushDraft();lab.showSol=!lab.showSol;if(lab.showSol)lab.helped=true;renderLab();return;}
   if(a==="reset"){if(!lab.resetArm){flushDraft();lab.resetArm=true;renderLab();return;}lab.resetArm=false;delete drafts[draftKey()];saveDraft(draftKey(),initialCode(L,lab.stage));lab.result=null;renderLab();return;}
   if(a==="self"){onPass();lab.result=null;renderLab();document.getElementById("res").innerHTML=passHTML();return;}
 }

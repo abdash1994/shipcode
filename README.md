@@ -28,6 +28,13 @@ A single-file web app (`index.html`) for going from non-coder to FDE / AI Engine
 | Week complete | A level-up (Python writer → Data wrangler → Problem solver → Interview-ready) and optional post-ready text to share your progress. |
 | Path tab | Your level, stats, a 5-week practice heatmap, and every skill you've unlocked. |
 
+## Know where you stand: readiness, interview reps, error journal
+
+- **Interview readiness** (Path tab): a score for each of 11 skill areas, built from evidence. Passing a lab is worth 40; passing without help +20; needing 2 or fewer failed runs +10; each redo from scratch +15 (up to 2). It's an estimate, not a guarantee. A "Practise weakest" button opens a rep in your weakest area.
+- **Interview reps** (from Day 4): an unlabelled problem, with no title, no day and no technique hints, weighted toward weak areas. Name the pattern, explain your approach in 12+ words, then code from a blank editor against a target time (20 minutes for weeks 1–2, 35 after). Passing counts as a redo from scratch.
+- **Error journal** (Errors tab): every error you hit is logged automatically, with a one-tap practice lab for the common ones.
+- **Rebuild from scrambled lines**: after 2 failed runs, rebuild the solution from shuffled lines before the full solution unlocks (after 4 fails). Using a hint, the rebuild or the solution counts as help: the lab comes back sooner and scores lower until you redo it cleanly.
+
 ## See it, then watch your own code run
 
 - **Watch it run** (every Python lab): step through your own code line by line, with the current line highlighted, every variable's value, changed values marked, and printed output. Pick which test to watch. Failing tests have a one-tap shortcut. Infinite loops are recorded up to 300 steps so you can see the repeat.
@@ -59,6 +66,8 @@ Understand → solve one example by hand → write the steps as comments → cod
 | Screens | `renderToday`, `renderPath`, `renderThink`, `renderErrors`, `renderRef` | The five tabs |
 | Lab player | `openLab`, `renderLab`, `runLab` | The by-hand → steps → pattern → code flow |
 | Watch it run | `startTrace`, `stepperHTML`, `checkpoints` | The step-through view and the predict-the-value quiz |
+| Readiness and reps | `AREAS`, `labScore`, `readinessCard`, `pickMixed`, `mixTask` | Skill areas, scoring, and unlabelled interview reps |
+| Error journal and rebuild | `logErrors`, `journalCard`, `pzStart` | Automatic error log and the scrambled-lines step |
 | Pattern diagrams | `const VIZ`, `openViz` | The 8 diagrams; each `build()` runs the algorithm to make its frames |
 
 ## Common changes
