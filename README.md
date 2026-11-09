@@ -2,7 +2,7 @@
 
 A single-file web app (`index.html`) for going from non-coder to FDE / AI Engineer interview-ready in 30 days (or a 15-day sprint). Tagline: **Break it into steps. Code it. Ship it.** It is built around one idea: freezing at a blank file is a breakdown problem, not a syntax problem. Every lab trains the same method, with help that fades week by week.
 
-- **Live site:** https://shipcode.vercel.app (deployed from this repo; progress is saved in your browser)
+- **Live site:** https://shipcode-30.vercel.app (deployed from this repo on every push to main; progress is saved in your browser)
 - **claude.ai version:** https://claude.ai/artifact/WZKB783PseCFNLfgnafibM (private; syncs progress across your devices)
 - **Run it locally:** double-click `index.html` to open it in Chrome. It needs internet the first time a lab runs, to download Python and SQLite. Locally, progress is saved in that browser only.
 
@@ -63,4 +63,4 @@ Understand → solve one example by hand → write the steps as comments → cod
 
 ## Publishing changes to the live link
 
-Ask Claude: *"Republish `shipcode/index.html` to https://claude.ai/artifact/WZKB783PseCFNLfgnafibM"*. It keeps the same link, and saved progress carries over. The runtime files already published under `rt/` stay in place as long as the publish doesn't remove them. Python's standard library is published as `rt/pyodide/python_stdlib.wasm`, because the host doesn't serve `.zip` files.
+Ask Claude to update the app. For the live site, the change is pushed to `main` on GitHub and Vercel redeploys automatically. For the claude.ai version, the page is republished to https://claude.ai/artifact/WZKB783PseCFNLfgnafibM. Both keep their links, and saved progress carries over. The runtime files already published under `rt/` stay in place as long as the publish doesn't remove them. Python's standard library is published as `rt/pyodide/python_stdlib.wasm`, because the host doesn't serve `.zip` files.
