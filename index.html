@@ -1000,7 +1000,7 @@ function clean(o){const b=blank();if(!o||typeof o!=="object")return b;
     done:Array.isArray(o.done)?o.done.filter(n=>Number.isInteger(n)&&n>=1&&n<=30):[],
     solved:obj(o.solved),missed:Array.isArray(o.missed)?o.missed.filter(x=>typeof x==="string"):[],
     xp:Number.isFinite(o.xp)?o.xp:0,dates:Array.isArray(o.dates)?o.dates.filter(x=>typeof x==="string"):[],
-    tasks:obj(o.tasks),labs:obj(o.labs),plans:obj(o.plans),srs:obj(o.srs),lsrs:obj(o.lsrs),me:{why:typeof (o.me||{}).why==="string"?o.me.why.slice(0,140):"",time:typeof (o.me||{}).time==="string"?o.me.time:""},lstat:obj(o.lstat),errs:obj(o.errs),mocks:Array.isArray(o.mocks)?o.mocks.filter(x=>x&&typeof x==="object").slice(-200):[]};}
+    tasks:obj(o.tasks),labs:obj(o.labs),plans:obj(o.plans),srs:obj(o.srs),lsrs:obj(o.lsrs),me:{why:typeof (o.me||{}).why==="string"?o.me.why.slice(0,140):"",time:typeof (o.me||{}).time==="string"?o.me.time:""},lstat:obj(o.lstat),errs:obj(o.errs),warmDay:typeof o.warmDay==="string"?o.warmDay:"",mocks:Array.isArray(o.mocks)?o.mocks.filter(x=>x&&typeof x==="object").slice(-200):[]};}
 function loadLocal(){try{return clean(JSON.parse(localStorage.getItem(KEY)||"null"));}catch(e){return blank();}}
 function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){/* storage blocked: cloud sync or this visit only */}}
 let S=loadLocal();const freshAtLoad=!S.t&&!S.start&&!S.done.length;
@@ -1080,9 +1080,9 @@ function shuffled(arr,seed){const a=arr.slice();let h=hash(seed);for(let i=a.len
 /* ---------- Spaced review ---------- */
 const INT=[1,3,7,16,35],LINT=[2,5,12,30];
 function srsHit(id,ok){const t=todayISO(),c=S.srs[id];const b=ok?Math.min((c?c.b:-1)+1,INT.length-1):0;S.srs={...S.srs,[id]:{b,d:shift(t,ok?INT[b]:1)}};}
-function dueDrills(){const t=todayISO();return allDrills().filter(d=>{const c=S.srs[d.id];return c&&c.d<=t&&!S.missed.includes(d.id);}).map(d=>d.id);}
+function dueDrills(){const t=todayISO();return allDrills().filter(d=>{const c=S.srs[d.id];return c&&c.d<=t&&!S.missed.includes(d.id);}).sort((a,b)=>S.srs[a.id].d<S.srs[b.id].d?-1:S.srs[a.id].d>S.srs[b.id].d?1:0).map(d=>d.id);}
 function warmIds(){const m=S.missed.filter(id=>findDrill(id));return [...m,...dueDrills().filter(x=>!m.includes(x))].slice(0,12);}
-function dueLabs(){const t=todayISO();return ALL_LABS.filter(L=>{const c=S.lsrs[L.id];return c&&c.d<=t;});}
+function dueLabs(){const t=todayISO();return ALL_LABS.filter(L=>{const c=S.lsrs[L.id];return c&&c.d<=t;}).sort((a,b)=>S.lsrs[a.id].d<S.lsrs[b.id].d?-1:S.lsrs[a.id].d>S.lsrs[b.id].d?1:0);}
 function labPassed(L,redo){const t=todayISO(),c=S.lsrs[L.id];const b=redo&&c?Math.min(c.b+1,LINT.length-1):0;
   if(!S.labs[L.id])S.labs={...S.labs,[L.id]:t};S.lsrs={...S.lsrs,[L.id]:{b,d:shift(t,LINT[b])}};S.xp+=redo?15:20;}
 
@@ -1157,8 +1157,8 @@ function renderOnboarding(){
 }
 
 function sessionParts(n){const d=DAYS[n-1],labs=labsOf(n),ho=[n+"-b",...d.solve.map((_,i)=>n+"-s"+i)];
-  const warm=n===currentDay()?warmIds().length+dueLabs().length:0,parts=[];
-  if(warm)parts.push({k:"warm",name:"Warm-up",time:"10–20 min",done:false,sub:`${warm} to review`});
+  const warm=n===currentDay()?warmIds().length+Math.min(2,dueLabs().length):0,parts=[],warmDone=S.warmDay===todayISO();
+  if(warm||warmDone)parts.push({k:"warm",name:"Warm-up",time:"10–20 min",done:warmDone,sub:warmDone?"done today":`${warm} to review today (the rest wait for tomorrow)`});
   parts.push({k:"concept",name:"Concept",time:"10 min",done:!!S.tasks[n+"-c"]});
   parts.push({k:"drills",name:"Drills",time:"10 min",done:drillsDone(n),sub:`${drillCount(n)}/${d.drills.length}`});
   if(labs.length)parts.push({k:"labs",name:"Code labs",time:"60–90 min",done:labsDone(n),sub:`${labCount(n)}/${labs.length}`});
@@ -1464,6 +1464,7 @@ function startSession(drills,label){if(!drills.length)return;
 function renderDrill(){
   const s=sess;
   if(s.i>=s.queue.length){
+    if(/Warm-up/.test(s.label)&&S.warmDay!==todayISO()){S.warmDay=todayISO();save();}
     sheetIn.innerHTML=`<div class="sheet-head"><button class="xbtn" data-s="close" aria-label="Close">×</button><div class="sprog"><span style="width:100%"></span></div></div>
       <div class="summary"><span class="eyebrow">${esc(s.label)} complete</span><div class="big">+${s.gained} XP</div>
       <p>${s.first} of ${s.total} right on the first try.</p><p class="muted">${s.first===s.total?"Clean run. Next up: the code labs.":"Every miss is saved and comes back in your warm-up. That repetition is how syntax sticks."}</p>
@@ -1712,7 +1713,7 @@ async function runLab(){
   renderLab();
   const res=document.getElementById("res");if(res&&res.scrollIntoView)res.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
-function onPass(){if(lab.passed)return;lab.passed=true;const L=lab.L;lab.before=areaStatus(areaOf(L)).score;
+function onPass(){if(lab.passed)return;lab.passed=true;const L=lab.L;if(lab.redo&&!lab.mixed&&!warmIds().length&&!dueLabs().filter(x=>x.id!==L.id).slice(0,2).length){S.warmDay=todayISO();}lab.before=areaStatus(areaOf(L)).score;
   if(!S.labs[L.id])S.lstat={...S.lstat,[L.id]:{fails:lab.fails,helped:!!lab.helped}};
   labPassed(L,lab.redo&&!lab.helped);
   if(lab.mixed)S.mocks=[...S.mocks,{id:L.id,secs:Math.round((Date.now()-lab.t0)/1000),target:lab.target*60,helped:!!lab.helped,d:todayISO()}].slice(-200);
