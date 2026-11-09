@@ -1,0 +1,66 @@
+# ShipCode — 30-day coding trainer
+
+A single-file web app (`index.html`) for going from non-coder to FDE / AI Engineer interview-ready in 30 days (or a 15-day sprint). Tagline: **Break it into steps. Code it. Ship it.** It is built around one idea: freezing at a blank file is a breakdown problem, not a syntax problem. Every lab trains the same method, with help that fades week by week.
+
+- **Live site:** https://shipcode.vercel.app (deployed from this repo; progress is saved in your browser)
+- **claude.ai version:** https://claude.ai/artifact/WZKB783PseCFNLfgnafibM (private; syncs progress across your devices)
+- **Run it locally:** double-click `index.html` to open it in Chrome. It needs internet the first time a lab runs, to download Python and SQLite. Locally, progress is saved in that browser only.
+
+## How a day works
+
+1. **Warm-up** (10–20 min): drills you got wrong or are due for recall, plus up to two *redos from scratch* of labs you passed earlier (they come back after 2, 5, 12 and 30 days).
+2. **Concept** (10 min): one short lesson and an example to type out.
+3. **Drills** (10 min): syntax recall and error reading.
+4. **Code labs** (60–90 min): real Python or SQL, run in the browser against tests, with real tracebacks. A day can't be completed until every lab passes.
+5. **Hands-on** (2–3 hrs): LeetCode/HackerRank and build tasks, plus the "Done when" gate.
+
+## Designed to keep you going
+
+| Moment | What the app does |
+|---|---|
+| First open | Explains the promise, asks for your *why* and a daily practice time, then a pace. Sets honest expectations. |
+| Every day | Opens on "After today you can…" and why it matters for an FDE, then a session card with one next action, time per part and a progress bar. |
+| Short on time | Suggests a 20-minute minimum day that still counts. |
+| Missed a day | One missed day a week doesn't break the streak. If you fall behind, it says that's normal and offers **Re-plan from here**, with no shaming. |
+| Stuck in a lab | After 2 failed runs: a nudge on how to get unstuck, plus your own *why*. |
+| Lab passed | Shows the time, a running count, and a special note for your first ever pass. |
+| Day complete | A celebration screen: what you can now do, streak, days and labs, progress to the next level, a preview of tomorrow. |
+| Week complete | A level-up (Python writer → Data wrangler → Problem solver → Interview-ready) and optional post-ready text to share your progress. |
+| Path tab | Your level, stats, a 5-week practice heatmap, and every skill you've unlocked. |
+
+## The method (Think tab)
+
+Understand → solve one example by hand → write the steps as comments → code one comment at a time → test and debug.
+
+| Weeks | Help in each lab |
+|---|---|
+| 1–2 (guided) | Predict the answer by hand, put the given steps in order, name the pattern. The editor opens with your plan as comments. |
+| SQL days | Predict the row count from the tables, then fill in the clause recipe. |
+| 3 | Name the pattern and write your own steps; code won't run until there are at least 3. |
+| 4 and mocks | Solo: steps as comments, then code. A model breakdown appears after you pass. |
+
+## What's inside `index.html`
+
+| Part | Where to find it | What it holds |
+|---|---|---|
+| Styles | `<style>` at the top; tokens on `:root` | Light and dark colours, fonts, lab styles |
+| Course content | `const DAYS = [...]` | 30 days: lesson, example, build, solve list, gate, drills |
+| Code labs | `const LABS = {...}` | 65 labs keyed by day: task, starter, solution, hint, tests, and for Python labs the `pat` (pattern) and `steps` (breakdown) |
+| Lab database | `const SEED` | The employees / customers / orders tables used by SQL labs |
+| Test runner | `const HARNESS` | The Python code that runs your solution against the tests, formats tracebacks and stops infinite loops |
+| Runtimes | `getPy()`, `getSql()` | Pyodide 0.29.4 and sql.js 1.13.0, loaded on first use. On the live link they load from the page's own `rt/` folder, because claude.ai only lets the page download from its own address. Opened as a local file, they load from cdn.jsdelivr.net. Open `#diag` on the live link to check the runner. |
+| Progress and sync | `blank()`, `save()`, `merge()`, `connectCloud()` | Saved locally and to the claude.ai account; the newest change wins across devices |
+| Screens | `renderToday`, `renderPath`, `renderThink`, `renderErrors`, `renderRef` | The five tabs |
+| Lab player | `openLab`, `renderLab`, `runLab` | The by-hand → steps → pattern → code flow |
+
+## Common changes
+
+**Add a drill.** Add it at the **end** of a day's `drills` list. Drill IDs come from their position, so inserting in the middle shifts IDs and scrambles saved progress.
+
+**Add a lab.** Add it at the end of that day's list in `LABS` (IDs are `L<day>-<index>`). A Python lab needs `tests` like `{"label": "...", "expr": "two_sum([3, 3], 6)", "want": "[0, 1]"}`, where `want` is a Python literal. A program that reads `input()` uses `{"label": "...", "stdin": ["3", "5"], "out": "8"}`. SQL labs need only a correct `solution`; learners' results are compared with its output. Before publishing, check that the solution passes every test and the starter fails at least one.
+
+**Typed drill answers** are compared with all spaces removed, `"` treated as `'`, and a trailing `;` dropped. SQL answers are case-insensitive, and `LEFT OUTER JOIN` is treated as `LEFT JOIN`. A leading `return` or `name =` is also accepted unless the question asks for that name.
+
+## Publishing changes to the live link
+
+Ask Claude: *"Republish `shipcode/index.html` to https://claude.ai/artifact/WZKB783PseCFNLfgnafibM"*. It keeps the same link, and saved progress carries over. The runtime files already published under `rt/` stay in place as long as the publish doesn't remove them. Python's standard library is published as `rt/pyodide/python_stdlib.wasm`, because the host doesn't serve `.zip` files.
