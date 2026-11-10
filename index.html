@@ -150,6 +150,10 @@ textarea.code:focus{border-color:var(--accent);outline:none}
 .summary{align-items:center;text-align:center;justify-content:center;flex:1;display:flex;flex-direction:column;gap:12px}
 .big{font-family:var(--f-display);font-size:3rem;font-weight:800;color:var(--ok);font-variant-numeric:tabular-nums}
 
+.symrow{display:flex;gap:6px;overflow-x:auto;padding:6px 0;-webkit-overflow-scrolling:touch}
+.sym{flex:0 0 auto;min-width:40px;min-height:40px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-family:var(--f-mono);font-size:1rem;color:inherit}
+@media (hover:hover) and (pointer:fine){.symrow{display:none}}
+
 .brief{margin:8px 0;padding:12px 14px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0}
 .brief p{margin:4px 0 0;font-style:italic}
 .replybox{margin-top:12px;padding:12px;border:1px dashed var(--line);border-radius:12px;display:flex;flex-direction:column;gap:6px}
@@ -1119,6 +1123,7 @@ const LEVELS=[[0,"Starter"],[7,"Python writer"],[14,"Data wrangler"],[21,"Proble
 function levelInfo(d=S.done.length){let i=0;LEVELS.forEach((l,j)=>{if(d>=l[0])i=j;});const nx=LEVELS[i+1];
   return {name:LEVELS[i][1],next:nx?nx[1]:null,toNext:nx?nx[0]-d:0,pct:nx?Math.round((d-LEVELS[i][0])/(nx[0]-LEVELS[i][0])*100):100};}
 const labsPassedN=()=>Object.keys(S.labs).filter(id=>labById(id)).length;
+const fmtDate=iso=>new Date(iso+"T00:00:00").toLocaleDateString(undefined,{day:"numeric",month:"short"});
 function replanStart(){const cur=currentDay();const el=S.pace===15?Math.ceil(cur/2):cur;return shift(todayISO(),-(el-1));}
 const canComplete=n=>drillsDone(n)&&labsDone(n)&&!!S.tasks[n+"-g"];
 
@@ -1128,7 +1133,7 @@ function paceCard(){
   const behind=Math.max(0,dueBefore-doneN),ahead=Math.max(0,doneN-tgt);
   let cls="",msg,btn="";
   if(doneN>=30){cls="ahead";msg="<b>All 30 days done.</b> Keep the daily warm-up going and work through your gaps list.";}
-  else if(behind>0){cls="behind";msg=`<b>${behind} day${behind>1?"s":""} behind your plan.</b> That happens to almost everyone, and it's fine. Keep going at your pace, or re-plan so today's target matches where you are.`;btn=`<button class="btn small" data-act="replan">Re-plan from here</button>`;}
+  else if(behind>0){cls="behind";msg=`<b>${behind} day${behind>1?"s":""} behind your plan.</b> That happens to almost everyone, and it's fine. Keep going at your pace, or re-plan: your finish date moves to <b>${fmtDate(shift(replanStart(),(S.pace===15?15:30)-1))}</b>, and nothing is lost.`;btn=`<button class="btn small" data-act="replan">Re-plan from here</button>`;}
   else if(ahead>0){cls="ahead";msg=`<b>Ahead of plan by ${ahead} day${ahead>1?"s":""}.</b> Use the spare time on redos rather than rushing ahead.`;}
   else if(doneN>=tgt){cls="ahead";msg=`<b>Today's target is done.</b> Anything more is a bonus.`;}
   else msg=`<b>On track.</b> Today's target: ${S.pace===15&&tgt-doneN>1?`Days ${tgt-1} and ${tgt}`:`Day ${tgt}`}.`;
@@ -1458,6 +1463,7 @@ function openSheet(){sheet.hidden=false;document.body.style.overflow="hidden";}
 function closeSheet(){if(lab){flushDraft();clearInterval(labTimer);lab=null;}sess=null;celebrateDay=null;if(typeof vz!=="undefined"&&vz){clearInterval(vz.timer);vz=null;}sheet.hidden=true;document.body.style.overflow="";route();}
 
 /* ---------- Drill session ---------- */
+const HELPED=new Set();function markHelped(){lab.helped=true;if(!lab.redo)HELPED.add(lab.L.id);}
 function startSession(drills,label){if(!drills.length)return;
   sess={label,queue:drills.map(d=>({d,tries:0})),i:0,first:0,total:drills.length,picked:null,answered:false,gained:0};
   markPractice();save();openSheet();renderDrill();}
@@ -1515,7 +1521,7 @@ function getSql(){if(!sqlP)sqlP=withTimeout((async()=>{if(typeof initSqlJs!=="fu
   const SQL=await initSqlJs({locateFile:f=>SQLJS+f});sqlReady=true;return SQL;})(),45000).catch(e=>{sqlP=null;throw e;});return sqlP;}
 function sqlRows(SQL,q){const db=new SQL.Database();try{db.exec(SEED);const r=db.exec(q);return r.length?r[r.length-1]:{columns:[],values:[]};}finally{db.close();}}
 const canon=v=>v.map(r=>r.map(x=>typeof x==="number"?Math.round(x*10000)/10000:x));
-function runSqlLab(SQL,code,L){if(!/\bFROM\b/i.test(code))return {kind:"sql",ok:false,error:"Your query needs a FROM clause: read the answer from the tables, don't type the values in."};let got;try{got=sqlRows(SQL,code);}catch(e){return {kind:"sql",ok:false,error:String(e.message||e)};}
+function runSqlLab(SQL,code,L){if(!/\bFROM\s+(employees|customers|orders|\(|\w+\s+AS|\w+)/i.test(code)||/\bVALUES\b/i.test(code))return {kind:"sql",ok:false,error:"Your query needs a FROM clause: read the answer from the tables, don't type the values in."};let got;try{got=sqlRows(SQL,code);}catch(e){return {kind:"sql",ok:false,error:String(e.message||e)};}
   const want=sqlRows(SQL,L.solution);const k=r=>JSON.stringify(r);
   const g=canon(got.values).map(k),w=canon(want.values).map(k);if(!L.ordered){g.sort();w.sort();}
   const colsOK=got.columns.length===want.columns.length;
@@ -1560,7 +1566,7 @@ function flushDraft(){const ed=document.getElementById("code");if(ed&&lab)saveDr
 
 function openLab(id,redo){const L=labById(id);if(!L)return;
   const mixed=redo==="mixed",stage=L.kind==="design"?"design":mixed?"mixed":redo?"redo":stageOf(L);
-  lab={L,stage,redo:!!redo,mixed,target:L.day<=14?20:35,helped:false,phase:PHASES[stage][0],t0:Date.now(),ptries:0,pdone:false,order:[],runs:0,fails:0,result:null,running:false,showHint:false,showSol:false,resetArm:false,passed:false};
+  lab={L,stage,redo:!!redo,mixed,target:L.day<=14?20:35,helped:!redo&&HELPED.has(L.id),phase:PHASES[stage][0],t0:Date.now(),ptries:0,pdone:false,order:[],runs:0,fails:0,result:null,running:false,showHint:false,showSol:false,resetArm:false,passed:false};
   if(redo){delete drafts[draftKey()];saveDraft(draftKey(),initialCode(L,stage));}
   if(!redo&&S.plans[L.id]&&PHASES[stage].includes("code"))lab.phase="code";
   else if(L.scenario&&!redo&&L.clarify)lab.phase="brief";
@@ -1630,6 +1636,7 @@ function renderLab(){
     const tip=lab.mixed?"Blank editor, like the real thing. Steps as comments first, then code.":L.kind==="sql"?"Fill in the recipe comments, then write the query under them.":lab.stage==="guided"?"Turn each plan comment into one or two lines of code. Run often.":lab.stage==="bug"?"Run it first and read the error or the failing test. Then fix it.":"Write at least 3 steps as comments first. Then code each one.";
     body=`${taskCard(L)}${lab.stage==="guided"&&L.steps?`<details class="card plancard"><summary>Your plan</summary><ol class="plan">${L.steps.map(s=>`<li>${esc(s)}</li>`).join("")}</ol></details>`:""}
       <section class="card editor-card"><p class="hint">${tip} Ctrl+Enter runs the tests.</p>
+      <div class="symrow" aria-label="Symbols for phone keyboards">${["Tab",":","(",")","[","]","{","}","\"","'","#","=","_"].map(c=>`<button type="button" class="sym" data-l="sym" data-c="${c==="Tab"?"    ":c==='"'?"&quot;":c}">${c}</button>`).join("")}</div>
       <div class="ed"><pre class="gutter" id="gutter" aria-hidden="true"></pre><textarea id="code" class="codearea" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Code editor">${esc(code)}</textarea></div>
       <div class="row"><button class="btn primary" data-l="run" ${lab.running?"disabled":""}>${lab.running?"Running…":"Run tests"}</button>${L.kind==="py"?`<button class="btn small" data-l="trace" title="Step through your code line by line">▶ Watch it run</button>`:""}<button class="btn small" data-l="hint">${lab.showHint?"Hide hint":"Hint"}</button>
         <button class="btn small" data-l="reset">${lab.resetArm?"Tap again to reset":"Reset"}</button>${!lab.passed&&lab.fails>=2&&L.kind==="py"&&!lab.pz?`<button class="btn small" data-l="parsons">Rebuild from scrambled lines</button>`:""}${(lab.fails>=4||lab.passed||(lab.pz&&lab.pz.done))&&!lab.redo?`<button class="btn small" data-l="sol">${lab.showSol?"Hide solution":"Solution"}</button>`:""}</div>
@@ -1699,7 +1706,7 @@ function passHTML(){const s=Math.floor((Date.now()-lab.t0)/1000);const L=lab.L;
     <button class="btn primary" data-l="close">Done</button></div>`;}
 
 async function runLab(){
-  if(lab.running)return;const L=lab.L,ed=document.getElementById("code");const code=ed?ed.value:"";flushDraft();
+  if(lab.running)return;const L=lab.L,ed=document.getElementById("code");const code=(ed?ed.value:"").replace(/[\u201c\u201d]/g,'"').replace(/[\u2018\u2019]/g,"'");flushDraft();
   if(needsSteps()&&countSteps(code,L)<3){lab.result=null;document.getElementById("res").innerHTML=`<div class="fb bad"><b class="t">Steps first</b><p>Write at least 3 steps as comments (each a few words, like <code># loop over the prices</code>) before running. This is the habit that gets you unstuck in interviews.</p></div>`;return;}
   lab.running=true;lab.loadingMsg=(L.kind==="py"?pyReady:sqlReady)?"Running…":L.kind==="py"?"Starting Python in your browser. The first time downloads about 10 MB, so give it a moment…":"Starting SQLite…";renderLab();
   await new Promise(r=>setTimeout(r,30));
@@ -1836,7 +1843,7 @@ const vizButtons=n=>(DAY_VIZ[n]||[]).map(id=>`<button class="btn small vz-open" 
 /* ---------- "Watch it run": step through your own code ---------- */
 let pyTrace=null;
 async function startTrace(testIdx){
-  const L=lab.L,ed=document.getElementById("code");const code=ed?ed.value:"";flushDraft();
+  const L=lab.L,ed=document.getElementById("code");const code=(ed?ed.value:"").replace(/[\u201c\u201d]/g,'"').replace(/[\u2018\u2019]/g,"'");flushDraft();
   if(testIdx==null){const r=lab.result;const f=r&&r.tests?r.tests.findIndex(t=>!t.ok):-1;testIdx=f>=0?f:0;}
   lab.trace={loading:true,testIdx,code,i:0,quiz:lab.trace?lab.trace.quiz:false,answered:{},ask:null,fb:""};renderStepper();
   try{await getPy();
@@ -1927,7 +1934,8 @@ function areaOf(L){return AREAS.find(a=>(a.extra||[]).includes(L.id))||AREAS.fin
 const areaLabs=a=>ALL_LABS.filter(L=>areaOf(L)===a);
 /* 40 for passing, +20 without help, +10 if it took 2 or fewer failed runs, +15 per redo from scratch (up to 2). */
 function labScore(L){if(!S.labs[L.id])return 0;const st=S.lstat[L.id]||{legacy:1},b=(S.lsrs[L.id]||{b:0}).b||0;
-  let s=40;if(!st.helped){s+=20;if(st.legacy||st.fails<=2)s+=10;}return Math.min(100,s+Math.min(b,2)*15);}
+  let s=40;if(!st.helped){s+=20;if(st.legacy||st.fails<=2)s+=10;}s=Math.min(100,s+Math.min(b,2)*15);
+  const due=(S.lsrs[L.id]||{}).d;if(due&&due<shift(todayISO(),-6))s-=15;return Math.max(0,s);}
 const avg=xs=>xs.length?Math.round(xs.reduce((a,b)=>a+b,0)/xs.length):0;
 function areaStatus(a){const labs=areaLabs(a),cur=reachedDay(),unl=labs.filter(L=>L.day<=cur);
   if(!unl.length)return {state:"upcoming",from:Math.min(...labs.map(L=>L.day)),score:0};
@@ -1973,7 +1981,7 @@ function journalCard(){const top=Object.entries(S.errs||{}).sort((a,b)=>b[1]-a[1
 /* ---------- Stuck ladder: rebuild the solution from scrambled lines ---------- */
 function pzStart(){const lines=lab.L.solution.split("\n").filter(l=>l.trim());
   let pool=shuffled(lines.map((_,i)=>i),lab.L.id+"z"+Date.now());if(pool.every((x,i)=>x===i))pool.reverse();
-  lab.pz={lines,pool,order:[],tries:0,marks:null,done:false};lab.helped=true;}
+  lab.pz={lines,pool,order:[],tries:0,marks:null,done:false};markHelped();}
 function pzHTML(){const P=lab.pz;if(!P)return "";const left=P.pool.filter(i=>!P.order.includes(i));
   return `<div class="pz"><span class="eyebrow">Rebuild from scrambled lines</span><p class="hint">These are the solution's lines, shuffled. Tap them in order; indentation shows which block each line belongs to. This counts as help, so the lab comes back sooner as a redo.</p>
     <ol class="pz-chosen">${P.order.map((i,pos)=>`<li><button class="pzl ${P.marks?(P.marks[pos]?"right":"wrong"):""}" data-l="pz-unpick" data-i="${i}" ${P.done?"disabled":""}>${esc(P.lines[i])}</button></li>`).join("")||'<li class="muted">Your code appears here</li>'}</ol>
@@ -2001,13 +2009,14 @@ function labAct(a,btn){if(!lab)return;const L=lab.L;
   if((a==="parsons"||a.startsWith("pz-"))&&pzAct(a,btn))return;
   if(a==="appr"){const el=document.getElementById("appr"),v=el?el.value.trim():"";if(v.split(/\s+/).filter(Boolean).length<12){const h=document.getElementById("apprHint");if(h){h.textContent="A bit more: at least 12 words. Name the data structure and why it fits.";h.classList.add("warn");}return;}lab.appr=v;nextPhase();return;}
   if(a==="close"){closeSheet();return;}
+  if(a==="sym"){const ed=document.getElementById("code");if(!ed)return;const c=btn.dataset.c,i=ed.selectionStart,j=ed.selectionEnd;ed.value=ed.value.slice(0,i)+c+ed.value.slice(j);ed.selectionStart=ed.selectionEnd=i+c.length;ed.focus();ed.dispatchEvent(new Event("input"));return;}
   if(a==="next"){nextPhase();return;}
   if(a==="cpick"){lab.cpick=+btn.dataset.i;renderLab();return;}
   if(a==="qtog"){const i=+btn.dataset.i;lab.qsel=lab.qsel.includes(i)?lab.qsel.filter(x=>x!==i):[...lab.qsel,i];renderLab();return;}
   if(a==="qcheck"){lab.qdone=true;lab.qscore=L.questions.filter(([,g],i)=>g===lab.qsel.includes(i)).length;renderLab();return;}
   if(a==="tpick"){lab.tpick=+btn.dataset.i;if(lab.tpick===L.trade[lab.ti||0].a)lab.tright=(lab.tright||0)+1;renderLab();return;}
-  if(a==="tnext"){lab.tpick=null;lab.ti=(lab.ti||0)+1;if(lab.ti>=L.trade.length){if((lab.tright||0)<L.trade.length-1)lab.helped=true;nextPhase();}else renderLab();return;}
-  if(a==="dsum"){const el=document.getElementById("dsum"),v=el?el.value.trim():"";lab.dsum=v;if(v.split(/\s+/).filter(Boolean).length<30){const h=document.getElementById("dsumHint");if(h){h.textContent="A bit more: at least 30 words. Cover the clarifying questions, the boxes, one trade-off and how you'd measure it.";h.classList.add("warn");}return;}
+  if(a==="tnext"){lab.tpick=null;lab.ti=(lab.ti||0)+1;if(lab.ti>=L.trade.length){if((lab.tright||0)<L.trade.length-1)markHelped();nextPhase();}else renderLab();return;}
+  if(a==="dsum"){const el=document.getElementById("dsum"),v=el?el.value.trim():"";lab.dsum=v;if(new Set(v.toLowerCase().split(/\s+/).filter(Boolean)).size<22){const h=document.getElementById("dsumHint");if(h){h.textContent="A bit more: at least 30 words, mostly different ones. Cover the clarifying questions, the boxes, one trade-off and how you'd measure it.";h.classList.add("warn");}return;}
     onPass();renderLab();return;}
   if(a==="reply"){const el=document.getElementById("replyTxt"),v=el?el.value.trim():"";if(v.split(/\s+/).filter(Boolean).length<12){const h=document.getElementById("replyHint");if(h){h.textContent="At least 12 words. Write it as if you're sending it.";h.classList.add("warn");}return;}
     lab.replyTxt=v;lab.replyShown=true;const r=document.getElementById("res");if(r)r.innerHTML=resultsHTML();return;}
@@ -2021,16 +2030,16 @@ function labAct(a,btn){if(!lab)return;const L=lab.L;
   if(a==="unpick"){lab.order=lab.order.filter(i=>i!==+btn.dataset.i);lab.marks=null;lab.pmsg="";renderLab();return;}
   if(a==="ocheck"){lab.ptries++;lab.marks=lab.order.map((i,pos)=>i===pos);const ok=lab.marks.every(Boolean);
     if(ok){lab.pdone=true;lab.pmsg=`<div class="fb ok"><b class="t">${lab.stage==="design"?"That's the request path":"That's a working plan"}</b><p>${lab.stage==="design"?"This is the diagram you'd draw on the whiteboard, box by box.":"It becomes the comments in your editor."}</p></div>`;}
-    else if(lab.ptries>=2){lab.pdone=true;if(lab.stage==="design")lab.helped=true;lab.order=L.steps.map((_,i)=>i);lab.marks=lab.order.map(()=>true);lab.pmsg=`<div class="fb bad"><b class="t">Here's a working order</b><p>Read it top to bottom and ask why each step must come before the next one.</p></div>`;}
+    else if(lab.ptries>=2){lab.pdone=true;if(lab.stage==="design")markHelped();lab.order=L.steps.map((_,i)=>i);lab.marks=lab.order.map(()=>true);lab.pmsg=`<div class="fb bad"><b class="t">Here's a working order</b><p>Read it top to bottom and ask why each step must come before the next one.</p></div>`;}
     else lab.pmsg=`<div class="fb bad"><b class="t">Some steps are out of order</b><p>The red ones are in the wrong place. Tap them to take them back, then try again.</p></div>`;
     renderLab();return;}
   if(a==="pat"){const i=+btn.dataset.i;lab.ppick=i;lab.pdone=true;const ok=lab.popts[i]===L.pat;
     lab.pmsg=`<div class="fb ${ok?"ok":"bad"}"><b class="t">${ok?"Right":"It's "+esc(L.pat)}</b><p>Use this when ${esc(PATWHY[L.pat]||"it fits the problem")}.</p></div>`;renderLab();return;}
   if(a==="run"){runLab();return;}
-  if(a==="hint"){flushDraft();lab.showHint=!lab.showHint;if(lab.showHint)lab.helped=true;renderLab();return;}
-  if(a==="sol"){flushDraft();lab.showSol=!lab.showSol;if(lab.showSol)lab.helped=true;renderLab();return;}
+  if(a==="hint"){flushDraft();lab.showHint=!lab.showHint;if(lab.showHint)markHelped();renderLab();return;}
+  if(a==="sol"){flushDraft();lab.showSol=!lab.showSol;if(lab.showSol)markHelped();renderLab();return;}
   if(a==="reset"){if(!lab.resetArm){flushDraft();lab.resetArm=true;renderLab();return;}lab.resetArm=false;delete drafts[draftKey()];saveDraft(draftKey(),initialCode(L,lab.stage));lab.result=null;renderLab();return;}
-  if(a==="self"){onPass();lab.result=null;renderLab();document.getElementById("res").innerHTML=passHTML();return;}
+  if(a==="self"){markHelped();onPass();lab.result=null;renderLab();document.getElementById("res").innerHTML=passHTML();return;}
 }
 const PATWHY={"read input & print": "you read the lines you're given, convert them, and print results", "loop & build a list": "you go through items one by one and collect results", "while loop": "you repeat until a condition changes and don't know the count in advance", "string methods": "split, join, strip, lower and slicing can do the heavy lifting", "hash map / set": "you need to count things or ask \"have I seen this?\" instantly", "try/except": "some inputs will fail and you must handle them instead of crashing", "running total": "each answer builds on the one before it", "track best so far": "one pass is enough if you remember the best (or lowest) value seen so far", "class with methods": "some data and the actions on it belong together", "file reading": "you open a file with with, read it, and it closes automatically", "two pointers": "the data is sorted and you move one end or the other", "sliding window": "you need a contiguous stretch that grows on the right and shrinks on the left", "stack": "the most recent item must be handled first, as with brackets or the next warmer day", "binary search": "the data is sorted and you need O(log n): halve the range each step", "linked list pointers": "you rewire next pointers carefully, often with a dummy head", "recursion": "the answer for a node comes from the answers for its children", "BFS/DFS": "you explore connected cells or nodes, marking what you've visited", "dynamic programming": "the answer for n is built from answers for smaller n", "sort then scan": "after sorting, the items that interact sit next to each other", "heap": "you repeatedly need the smallest item, or the k largest", "prefix sums": "sums or products of stretches come from running totals", "validation rules": "you check each rule in turn and collect what's wrong", "loop with retries": "you try, catch the failure, and try again up to a limit", "string search & parse": "you find positions in text, cut out the part you need, and parse it", "slicing": "you take a piece of a list or string by position", "math formula": "you apply a known formula carefully, piece by piece", "agent loop": "you ask the model, run what it asks for, feed the result back, and repeat", "guard clauses": "you reject anything unsafe early and allow only what's left", "dedupe & clean": "real exports repeat rows and mix formats, so decide what makes a record unique before you add anything up", "flatten nested data": "the data is nested JSON and you need flat rows, so walk down safely with .get", "regex redaction": "you need to find text by its shape (an email, a phone number) and replace it", "evaluation metrics": "someone asks \"is it good?\" and you answer with a number you compute per case and average", "token bucket": "you allow bursts up to a limit but refill slowly over time"};
 
