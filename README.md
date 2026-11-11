@@ -176,3 +176,7 @@ Examples (estimates): SQL, Core, 30 min on 5 days = 34 days; SQL, Core, 10 min o
 The default plan runs every track in parallel: each step is one course lesson plus one Gym level. SQL and Python run side by side from step 1; system design starts at step 5, AI engineering at step 10, PySpark at step 12 (after Python Level 2), deployment at step 22 (after Python Level 3). Soft warnings appear when a prerequisite level is under half done. `#sprint` shows the 30-step map, pace and week gates; `#capstone` is a milestone and enterprise-grade checklist.
 
 Honest limits: time estimates (about 5,250 minutes at Core depth, roughly 3 hours a day) are my estimates, not measured with learners. Frontend is not taught, and Docker/cloud cannot run in the browser, so the capstone must be built in a real editor. Whether this reaches enterprise grade in 30 days depends on hours and prior experience.
+
+## Interactive explainers
+
+118 step-through explainers (about 100 new) cover almost every concept in the course days and the six Gyms: loops, references, joins, window functions, shuffles, call stacks, caching, queues, RAG, Docker layers and more. Each opens from the lesson's Concept card or the Gym level page, uses tiny worked examples computed in code, and asks you to **predict the next step first** before the answer shows. Numbers are labelled examples; tokenisers, hashes and vectors are toy stand-ins and say so on screen. They are for understanding; the labs are what build the skill of writing code from a blank editor.
