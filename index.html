@@ -1427,6 +1427,7 @@ async function renderDiag(){
   await t("fetch sql-wasm.wasm",async()=>{const r=await fetch(SQLJS+"sql-wasm.wasm");const b=await r.arrayBuffer();return "status "+r.status+", "+b.byteLength+" bytes, "+r.headers.get("content-type");});
   await t("fetch pyodide.asm.wasm",async()=>{const r=await fetch(PYO+"pyodide.asm.wasm");return "status "+r.status+", "+r.headers.get("content-type");});
   await t("start Python",async()=>{await getPy();return "ok ("+pyMode+")";});
+  await t("load pandas + PySpark engine",async()=>{const P=await getPy();await P.need();const r=JSON.parse(await P.call("_drill",JSON.stringify({setup:"import pandas as pd\nfrom pyspark.sql import SparkSession",ref:"pd.__version__",code:"pd.__version__"}),30000));if(!r.ok)throw new Error(r.error||r.msg||r.skip);return "ok";});
   await t("WebAssembly compile (wasm-unsafe-eval)",async()=>{const m=await WebAssembly.compile(new Uint8Array([0,97,115,109,1,0,0,0]));return "ok";});
   await t("fetch same origin",async()=>{const r=await fetch(location.href.split("#")[0]);return "status "+r.status;});
   await t("load pyodide.js script (script-src)",async()=>{if(typeof loadPyodide!=="function")await loadScript(PYO+"pyodide.js");return typeof loadPyodide;});
