@@ -71,5 +71,15 @@ def main(path):
             if h: hrs[h] = hrs.get(h, 0) + 1
     if hrs: print("   hours a day reported:", dict(sorted(hrs.items())), "(more hours is the biggest confound in any result)")
 
+    print("\n5. Exam (12 unseen problems, 100 minutes; pass = 9 of 12 solved without help)")
+    ex=[(r["rid"],e) for r in R for e in r.get("exam",[])]
+    if ex:
+        sc=[e["score"] for _,e in ex]
+        print(f"   attempts: {len(ex)} by {len({k for k,_ in ex})} learners; mean score {st.mean(sc):.1f}/12; passed (9 or more): {sum(1 for x in sc if x>=9)}")
+        print("   Note: the exam is an honour-system self-test; reference answers are readable in the page source.")
+    else: print("   no exam attempts yet")
+    rv=[len(r.get("reviews",[])) for r in R]
+    print(f"\n6. Weekly reviews logged with a person: total {sum(rv)}; learners with at least one: {sum(1 for x in rv if x)} of {n} (self-reported)")
+
 if __name__ == "__main__":
     main(sys.argv[1] if len(sys.argv) > 1 else ".")

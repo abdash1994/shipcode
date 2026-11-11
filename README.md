@@ -67,9 +67,32 @@ Each day's lesson shows the syntax its labs need (a "new today" card), and first
 
 Day 1 can be done on a phone. Day 29 offers a smaller capstone with a starter project (a `.zip` with README, tests, Dockerfile and three TODOs). The Docker image has not been built or run by us; the tests were run with pytest.
 
+## Tracks and the exam (`#exam`)
+
+"Pro" is defined as a test. The exam is 12 problems you have never seen (4 SQL, 8 Python, half easier and half harder), 100 minutes, a blank editor and no hints. Pass: 9 of 12 solved without help. Three tracks are earned by parts of it, not by the calendar:
+
+| Track | Planning estimate | Earned by |
+|---|---|---|
+| SQL, interview-strong | about 3 weeks | 3 of the 4 SQL problems |
+| Python fundamentals | 30 days | 3 of the 4 easier Python problems |
+| Python interview bar | 45 to 60 days | 9 of 12 overall and 3 of the 4 harder Python problems |
+
+The durations are estimates, not measured on learners. The unseen bank is 39 problems; 24 are reserved for two exam forms (A and B) and never appear in interview reps, 6 are the before/after checks, and 9 feed the reps. From the third attempt, exam problems repeat. It is an honour-system self-test: the reference answers are readable in the page source.
+
+## More practice, daily reps, dense days
+
+- **14 optional Python labs on Days 15 to 21** (marked "Optional"): they never block a day, do not lower your readiness if skipped, and appear in the mixed reps.
+- **Daily mixed reps**: a card on Today with a goal of three unlabelled problems a day, from Day 4.
+- **Dense and survey days**: Days 12 and 13 are marked as two-sitting days. Days 23 to 27 are marked as survey days: the aim is one working example and a one-sentence explanation, not building from a blank file. The days are labelled, not split.
+
+## A person and something to show
+
+- **Weekly review** (`#review`): prepares a one-page sheet and a checklist for a friend, colleague or mentor. It cannot make the meeting happen; "I did the review" is an honour-system log.
+- **Portfolio** (`#portfolio`): one card per finished day (what you can do, plus the code that passed), as copyable Markdown or a `.zip`. Code is kept on this device only.
+
 ## Measuring whether it works
 
-`#report` shows your own numbers and exports a JSON file with no name or email. `LEARNER-STUDY.md` is the protocol for a pilot with real learners and `tools/study_summary.py` computes the four measures from their files. **No real learner has used it yet.**
+`#report` shows your own numbers and exports a JSON file with no name or email. `PILOT-KIT.md` is a two-week, five-person pilot and `LEARNER-STUDY.md` the longer protocol and `tools/study_summary.py` computes the four measures from their files. **No real learner has used it yet.**
 
 ## What's inside `index.html`
 
