@@ -150,6 +150,11 @@ textarea.code:focus{border-color:var(--accent);outline:none}
 .summary{align-items:center;text-align:center;justify-content:center;flex:1;display:flex;flex-direction:column;gap:12px}
 .big{font-family:var(--f-display);font-size:3rem;font-weight:800;color:var(--ok);font-variant-numeric:tabular-nums}
 
+.proof input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:inherit;font:inherit;margin:4px 0}
+.proof ul{list-style:none;padding:0;margin:8px 0;display:flex;flex-direction:column;gap:4px}
+.proof li.y::before{content:"✓ ";color:var(--ok);font-weight:700}.proof li.n::before{content:"✗ ";color:var(--bad);font-weight:700}
+.card.back{border-left:4px solid var(--accent)}.card.back blockquote{margin:8px 0;padding-left:12px;border-left:2px solid var(--line);font-style:italic}
+
 .runmsg{white-space:pre-wrap;word-break:break-word;max-height:9.5em;overflow:auto;font-size:.82rem;margin:6px 0}
 
 .symrow{display:flex;gap:6px;overflow-x:auto;padding:6px 0;-webkit-overflow-scrolling:touch}
@@ -993,21 +998,23 @@ const PATTERNS=["read input & print", "loop & build a list", "while loop", "stri
 Object.entries(LABS).forEach(([day,ls])=>ls.forEach((L,i)=>{L.id="L"+day+"-"+i;L.day=+day;}));
 const labsOf=n=>LABS[n]||[];
 const ALL_LABS=Object.values(LABS).flat();
-const labById=id=>ALL_LABS.find(L=>L.id===id);
+/* Problems that never appear in a day's lab list: they only come up in interview reps, so each is a first sighting. */
+const UNSEEN=[{"kind": "py", "title": "First unique character", "task": "Write <code>first_unique(s)<\/code>: return the index of the first character that appears only once in <code>s<\/code>, or -1 if there isn't one.", "starter": "", "solution": "def first_unique(s):\n    counts = {}\n    for ch in s:\n        counts[ch] = counts.get(ch, 0) + 1\n    for i, ch in enumerate(s):\n        if counts[ch] == 1:\n            return i\n    return -1\n", "hint": "Start here: Count how often each character appears.", "tests": [{"label": "basic", "expr": "first_unique('leetcode')", "want": "0"}, {"label": "later in the string", "expr": "first_unique('loveleetcode')", "want": "2"}, {"label": "none", "expr": "first_unique('aabb')", "want": "-1"}, {"label": "empty", "expr": "first_unique('')", "want": "-1"}], "unseen": true, "day": 5, "area": "ds", "pat": "hash map / set", "steps": ["Count how often each character appears", "Go through the string again with indexes", "Return the first index whose character has a count of 1", "If none, return -1"], "fuzz": ["first_unique", "(''.join(R.choice('abcd') for _ in range(R.randint(0, 8))),)"]}, {"kind": "py", "title": "Majority element", "task": "Write <code>majority(nums)<\/code>: one value appears in more than half of the positions of <code>nums<\/code>. Return it.", "starter": "", "solution": "def majority(nums):\n    counts = {}\n    for x in nums:\n        counts[x] = counts.get(x, 0) + 1\n        if counts[x] > len(nums) // 2:\n            return x\n", "hint": "Start here: Count how often each number appears.", "tests": [{"label": "basic", "expr": "majority([3, 2, 3])", "want": "3"}, {"label": "longer", "expr": "majority([2, 2, 1, 1, 1, 2, 2])", "want": "2"}, {"label": "one item", "expr": "majority([7])", "want": "7"}], "unseen": true, "day": 5, "area": "ds", "pat": "hash map / set", "steps": ["Count how often each number appears", "Find the number whose count is more than half the length", "Return it"], "fuzz": ["majority", "((lambda m, n: R.sample([m] * (n // 2 + 1) + [R.randint(1, 5) for _ in range(n - n // 2 - 1)], n))(R.randint(1, 5), R.randint(1, 9)),)"]}, {"kind": "py", "title": "Roman numeral to number", "task": "Write <code>roman_to_int(s)<\/code>: convert a Roman numeral to an int. I=1, V=5, X=10, L=50, C=100, D=500, M=1000. A smaller symbol before a larger one is subtracted, so IV is 4 and XC is 90.", "starter": "", "solution": "def roman_to_int(s):\n    val = {'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000}\n    total = 0\n    for i, ch in enumerate(s):\n        if i + 1 < len(s) and val[ch] < val[s[i + 1]]:\n            total -= val[ch]\n        else:\n            total += val[ch]\n    return total\n", "hint": "Start here: Make a dict of each symbol's value.", "tests": [{"label": "simple", "expr": "roman_to_int('III')", "want": "3"}, {"label": "subtraction", "expr": "roman_to_int('IV')", "want": "4"}, {"label": "mixed", "expr": "roman_to_int('LVIII')", "want": "58"}, {"label": "several subtractions", "expr": "roman_to_int('MCMXCIV')", "want": "1994"}], "unseen": true, "day": 6, "area": "ds", "pat": "hash map / set", "steps": ["Make a dict of each symbol's value", "Go through the symbols with their index", "If a symbol is smaller than the one after it, subtract its value", "Otherwise add it", "Return the total"]}, {"kind": "py", "title": "Duplicate nearby", "task": "Write <code>has_nearby_duplicate(nums, k)<\/code>: return True if the same value appears at two different positions that are at most <code>k<\/code> apart.", "starter": "", "solution": "def has_nearby_duplicate(nums, k):\n    last = {}\n    for i, x in enumerate(nums):\n        if x in last and i - last[x] <= k:\n            return True\n        last[x] = i\n    return False\n", "hint": "Start here: Keep a dict of each value's last index.", "tests": [{"label": "close enough", "expr": "has_nearby_duplicate([1, 2, 3, 1], 3)", "want": "True"}, {"label": "too far apart", "expr": "has_nearby_duplicate([1, 2, 3, 1, 2, 3], 2)", "want": "False"}, {"label": "adjacent", "expr": "has_nearby_duplicate([1, 0, 1, 1], 1)", "want": "True"}, {"label": "large input (must be fast)", "expr": "has_nearby_duplicate(list(range(3000)), 2999)", "want": "False"}], "unseen": true, "day": 15, "area": "hash", "pat": "hash map / set", "steps": ["Keep a dict of each value's last index", "Go through the numbers with their index", "If the value was seen and the gap is at most k, return True", "Record the index", "Return False at the end"], "fuzz": ["has_nearby_duplicate", "([R.randint(1, 6) for _ in range(R.randint(0, 9))], R.randint(0, 4))"]}, {"kind": "py", "title": "Is it a subsequence?", "task": "Write <code>is_subsequence(s, t)<\/code>: return True if you can get <code>s<\/code> by deleting some characters of <code>t<\/code> without reordering the rest.", "starter": "", "solution": "def is_subsequence(s, t):\n    i = 0\n    for ch in t:\n        if i < len(s) and s[i] == ch:\n            i += 1\n    return i == len(s)\n", "hint": "Start here: Keep a pointer i into s, starting at 0.", "tests": [{"label": "yes", "expr": "is_subsequence('abc', 'ahbgdc')", "want": "True"}, {"label": "wrong order", "expr": "is_subsequence('axc', 'ahbgdc')", "want": "False"}, {"label": "empty s", "expr": "is_subsequence('', 'abc')", "want": "True"}, {"label": "s longer than t", "expr": "is_subsequence('abc', 'ab')", "want": "False"}], "unseen": true, "day": 16, "area": "ptr", "pat": "two pointers", "steps": ["Keep a pointer i into s, starting at 0", "Go through each character of t", "If it matches s[i], move i forward", "Return whether i reached the end of s"], "fuzz": ["is_subsequence", "(''.join(R.choice('abc') for _ in range(R.randint(0, 4))), ''.join(R.choice('abc') for _ in range(R.randint(0, 8))))"]}, {"kind": "py", "title": "Zeros to the end", "task": "Write <code>move_zeroes(nums)<\/code>: return a new list with every 0 moved to the end and the other numbers kept in their original order.", "starter": "", "solution": "def move_zeroes(nums):\n    out = [x for x in nums if x != 0]\n    return out + [0] * (len(nums) - len(out))\n", "hint": "Start here: Make a copy so the input isn't changed.", "tests": [{"label": "basic", "expr": "move_zeroes([0, 1, 0, 3, 12])", "want": "[1, 3, 12, 0, 0]"}, {"label": "no zeros", "expr": "move_zeroes([1, 2])", "want": "[1, 2]"}, {"label": "all zeros", "expr": "move_zeroes([0, 0])", "want": "[0, 0]"}, {"label": "empty", "expr": "move_zeroes([])", "want": "[]"}], "unseen": true, "day": 16, "area": "ptr", "pat": "two pointers", "steps": ["Make a copy so the input isn't changed", "Keep a write position starting at 0", "For each non-zero value, put it at the write position and move that forward", "Fill the rest with zeros", "Return the list"], "fuzz": ["move_zeroes", "([R.choice([0, 0, 1, 2, 3]) for _ in range(R.randint(0, 9))],)"]}, {"kind": "py", "title": "Best run of k", "task": "Write <code>max_window_sum(nums, k)<\/code>: return the largest sum of any <code>k<\/code> numbers that sit next to each other in <code>nums<\/code>. You can assume 1 &lt;= k &lt;= len(nums).", "starter": "", "solution": "def max_window_sum(nums, k):\n    cur = sum(nums[:k])\n    best = cur\n    for i in range(k, len(nums)):\n        cur += nums[i] - nums[i - k]\n        best = max(best, cur)\n    return best\n", "hint": "Start here: Add up the first k numbers.", "tests": [{"label": "basic", "expr": "max_window_sum([1, 4, 2, 10, 2, 3, 1, 0, 20], 4)", "want": "24"}, {"label": "negatives", "expr": "max_window_sum([-5, -2, -9], 2)", "want": "-7"}, {"label": "k is the whole list", "expr": "max_window_sum([3, 1, 2], 3)", "want": "6"}, {"label": "large input (must be fast)", "expr": "max_window_sum([1] * 6000, 3000)", "want": "3000"}], "unseen": true, "day": 16, "area": "ptr", "pat": "sliding window", "steps": ["Add up the first k numbers", "Remember that as the best so far", "Slide one step at a time: add the number entering, subtract the number leaving", "Update the best", "Return the best"], "fuzz": ["max_window_sum", "((lambda xs: (xs, R.randint(1, len(xs))))([R.randint(-5, 9) for _ in range(R.randint(1, 9))]))"]}, {"kind": "py", "title": "Typed with backspaces", "task": "Write <code>backspace_compare(s, t)<\/code>: each string is typed into an empty editor, where <code>#<\/code> means backspace. Return True if both end up as the same text. Backspace on empty text does nothing.", "starter": "", "solution": "def backspace_compare(s, t):\n    def build(x):\n        out = []\n        for ch in x:\n            if ch == '#':\n                if out:\n                    out.pop()\n            else:\n                out.append(ch)\n        return out\n    return build(s) == build(t)\n", "hint": "Start here: Write a helper that builds the final text of one string.", "tests": [{"label": "same", "expr": "backspace_compare('ab#c', 'ad#c')", "want": "True"}, {"label": "both empty", "expr": "backspace_compare('ab##', 'c#d#')", "want": "True"}, {"label": "different", "expr": "backspace_compare('a#c', 'b')", "want": "False"}, {"label": "backspace on empty", "expr": "backspace_compare('#a', 'a')", "want": "True"}], "unseen": true, "day": 17, "area": "stack", "pat": "stack", "steps": ["Write a helper that builds the final text of one string", "In the helper: for each character, pop the last one if it's # (and there is one), otherwise push it", "Build both strings with the helper", "Return whether they are equal"], "fuzz": ["backspace_compare", "(''.join(R.choice('ab#') for _ in range(R.randint(0, 6))), ''.join(R.choice('ab#') for _ in range(R.randint(0, 6))))"]}, {"kind": "py", "title": "Where does it go?", "task": "Write <code>search_insert(nums, target)<\/code>: <code>nums<\/code> is sorted with no duplicates. Return the index of <code>target<\/code> if it's there, otherwise the index where it would be inserted to keep the list sorted. It must stay fast on very large lists.", "starter": "", "solution": "def search_insert(nums, target):\n    lo, hi = 0, len(nums)\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if nums[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid\n    return lo\n", "hint": "Start here: Set lo to 0 and hi to the length of the list.", "tests": [{"label": "found", "expr": "search_insert([1, 3, 5, 6], 5)", "want": "2"}, {"label": "goes in the middle", "expr": "search_insert([1, 3, 5, 6], 2)", "want": "1"}, {"label": "goes at the end", "expr": "search_insert([1, 3, 5, 6], 7)", "want": "4"}, {"label": "goes at the start", "expr": "search_insert([1, 3, 5, 6], 0)", "want": "0"}, {"label": "100,000 items (must be O(log n))", "expr": "search_insert(_Probe(range(0, 200000, 2)), 150001)", "want": "75001"}], "unseen": true, "day": 17, "area": "stack", "pat": "binary search", "steps": ["Set lo to 0 and hi to the length of the list", "While lo < hi, find mid", "If nums[mid] is less than the target, move lo past mid", "Otherwise move hi to mid", "Return lo"], "fuzz": ["search_insert", "(sorted(R.sample(range(-20, 20), R.randint(0, 9))), R.randint(-22, 22))"]}, {"kind": "py", "title": "Flatten nested lists", "task": "Write <code>flatten(items)<\/code>: <code>items<\/code> is a list that can contain numbers and other lists, nested to any depth. Return one flat list of the numbers in order.", "starter": "", "solution": "def flatten(items):\n    out = []\n    for x in items:\n        if isinstance(x, list):\n            out.extend(flatten(x))\n        else:\n            out.append(x)\n    return out\n", "hint": "Start here: Start an empty result list.", "tests": [{"label": "one level", "expr": "flatten([1, [2, 3], 4])", "want": "[1, 2, 3, 4]"}, {"label": "deep", "expr": "flatten([1, [2, [3, [4]]], 5])", "want": "[1, 2, 3, 4, 5]"}, {"label": "empty lists inside", "expr": "flatten([[], [1], [[]]])", "want": "[1]"}, {"label": "empty", "expr": "flatten([])", "want": "[]"}], "unseen": true, "day": 19, "area": "list", "pat": "recursion", "steps": ["Start an empty result list", "For each item: if it is a list, flatten it and add all of its items", "Otherwise add the item itself", "Return the result"]}, {"kind": "py", "title": "Largest sum of a run", "task": "Write <code>max_subarray(nums)<\/code>: return the largest sum of any non-empty run of neighbouring numbers in <code>nums<\/code>. Numbers can be negative.", "starter": "", "solution": "def max_subarray(nums):\n    cur = best = nums[0]\n    for x in nums[1:]:\n        cur = max(x, cur + x)\n        best = max(best, cur)\n    return best\n", "hint": "Start here: Start the running sum and the best at the first number.", "tests": [{"label": "basic", "expr": "max_subarray([-2, 1, -3, 4, -1, 2, 1, -5, 4])", "want": "6"}, {"label": "all negative", "expr": "max_subarray([-3, -1, -2])", "want": "-1"}, {"label": "one item", "expr": "max_subarray([5])", "want": "5"}, {"label": "large input (must be fast)", "expr": "max_subarray([1, -1] * 2500)", "want": "1"}], "unseen": true, "day": 20, "area": "dp", "pat": "track best so far", "steps": ["Start the running sum and the best at the first number", "For each later number: the running sum is the larger of the number alone or the running sum plus the number", "Update the best", "Return the best"], "fuzz": ["max_subarray", "([R.randint(-6, 6) for _ in range(R.randint(1, 9))],)"]}, {"kind": "sql", "title": "Top spender", "task": "Return the <code>name<\/code> of the customer whose orders add up to the largest total amount. One row, one column.", "starter": "SELECT \n", "solution": "SELECT c.name FROM customers c JOIN orders o ON o.customer_id = c.id GROUP BY c.id, c.name ORDER BY SUM(o.amount) DESC LIMIT 1", "hint": "Which table holds what you need, and what do you group by?", "ordered": false, "unseen": true, "day": 10, "area": "sql"}, {"kind": "sql", "title": "Above-average departments", "task": "Return the <code>dept<\/code> of every department whose average salary is higher than the average salary of all employees.", "starter": "SELECT \n", "solution": "SELECT dept FROM employees GROUP BY dept HAVING AVG(salary) > (SELECT AVG(salary) FROM employees)", "hint": "Which table holds what you need, and what do you group by?", "ordered": false, "unseen": true, "day": 11, "area": "sql"}];UNSEEN.forEach((L,i)=>{L.id="U"+i;});
+const labById=id=>ALL_LABS.find(L=>L.id===id)||UNSEEN.find(L=>L.id===id);
 function stageOf(L){if(L.kind==="design")return "design";if(L.kind==="sql")return "sql";if(L.bug)return "bug";if(L.mock)return "solo";if(L.day<=14)return "guided";if(L.day<=21)return "pattern";return "solo";}
 const PHASES={design:["clarify","order","trade","model"],guided:["predict","order","pattern","code"],pattern:["predict","pattern","code"],sql:["predict","code"],bug:["code"],solo:["code"],redo:["code"],mixed:["pattern","approach","code"]};
 const ERR_ROWS=[["SyntaxError","Python can't parse the line","Missing :, bracket or quote, often on the line above"],["IndentationError","Block spacing is off","Mixed tabs and spaces; the body of if/for/def isn't indented"],["TabError","Tabs and spaces are mixed in one block","Delete the indentation on those lines and re-indent with spaces only, 4 per level"],["NameError","The name doesn't exist yet","A typo, used before it's defined, or out of scope"],["TypeError","Wrong type for the operation","Mixing str and int; wrong number of arguments"],["AttributeError","The object has no such method or attribute","Check type(x). Often the value is None or a list"],["KeyError","The dict is missing that key","Print d.keys(); use d.get(k, default)"],["IndexError","List position out of range","Off-by-one in a loop; an empty list"],["ValueError","Right type, bad value","int(\"12.5\"); unpacking the wrong count"],["ZeroDivisionError","Dividing by zero","Check the divisor before dividing"],["TimeoutError","The runner stopped code that ran too long","A loop whose condition never changes"],["RecursionError","Recursion never stops","Missing or unreachable base case"],["ModuleNotFoundError","Not installed in this environment","Activate the venv, then pip install"],["FileNotFoundError","Wrong path","Print os.getcwd(); use the full path"],["SQL: must appear in GROUP BY","Column not grouped or aggregated","Add it to GROUP BY or wrap it in MAX/COUNT"],["PySpark AnalysisException","Column or table not found","df.printSchema(); check spelling and case"],["HTTP 401 / 403 / 404 / 422 / 500","Not logged in / not allowed / not found / bad input / server bug","Read the response body and the server logs"]];
 
 /* ---------- State ---------- */
 const KEY="blankfile-state-v1";
-const blank=()=>({v:1,t:0,start:null,pace:30,done:[],solved:{},missed:[],xp:0,dates:[],tasks:{},labs:{},plans:{},srs:{},lsrs:{},me:{},lstat:{},errs:{},mocks:[]});
+const blank=()=>({v:1,t:0,start:null,pace:30,done:[],solved:{},missed:[],xp:0,dates:[],tasks:{},labs:{},plans:{},srs:{},lsrs:{},me:{},lstat:{},errs:{},mocks:[],proof:{}});
 const obj=x=>x&&typeof x==="object"&&!Array.isArray(x)?{...x}:{};
 function clean(o){const b=blank();if(!o||typeof o!=="object")return b;
   return {v:1,t:Number.isFinite(o.t)?o.t:0,start:typeof o.start==="string"?o.start:null,pace:[15,60].includes(o.pace)?o.pace:30,
     done:Array.isArray(o.done)?o.done.filter(n=>Number.isInteger(n)&&n>=1&&n<=30):[],
     solved:obj(o.solved),missed:Array.isArray(o.missed)?o.missed.filter(x=>typeof x==="string"):[],
     xp:Number.isFinite(o.xp)?o.xp:0,dates:Array.isArray(o.dates)?o.dates.filter(x=>typeof x==="string"):[],
-    tasks:obj(o.tasks),labs:obj(o.labs),plans:obj(o.plans),srs:obj(o.srs),lsrs:obj(o.lsrs),me:{why:typeof (o.me||{}).why==="string"?o.me.why.slice(0,140):"",time:typeof (o.me||{}).time==="string"?o.me.time:""},lstat:obj(o.lstat),errs:obj(o.errs),warmDay:typeof o.warmDay==="string"?o.warmDay:"",mocks:Array.isArray(o.mocks)?o.mocks.filter(x=>x&&typeof x==="object").slice(-200):[]};}
+    tasks:obj(o.tasks),labs:obj(o.labs),plans:obj(o.plans),srs:obj(o.srs),lsrs:obj(o.lsrs),me:{why:typeof (o.me||{}).why==="string"?o.me.why.slice(0,140):"",time:typeof (o.me||{}).time==="string"?o.me.time:""},lstat:obj(o.lstat),proof:obj(o.proof),errs:obj(o.errs),warmDay:typeof o.warmDay==="string"?o.warmDay:"",mocks:Array.isArray(o.mocks)?o.mocks.filter(x=>x&&typeof x==="object").slice(-200):[]};}
 function loadLocal(){try{return clean(JSON.parse(localStorage.getItem(KEY)||"null"));}catch(e){return blank();}}
 function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){/* storage blocked: cloud sync or this visit only */}}
 let S=loadLocal();const freshAtLoad=!S.t&&!S.start&&!S.done.length;
@@ -1104,7 +1111,7 @@ function shuffled(arr,seed){const a=arr.slice();let h=hash(seed);for(let i=a.len
 const INT=[1,3,7,16,35],LINT=[2,5,12,30];
 function srsHit(id,ok){const t=todayISO(),c=S.srs[id];const b=ok?Math.min((c?c.b:-1)+1,INT.length-1):0;S.srs={...S.srs,[id]:{b,d:shift(t,ok?INT[b]:1)}};}
 function dueDrills(){const t=todayISO();return allDrills().filter(d=>{const c=S.srs[d.id];return c&&c.d<=t&&!S.missed.includes(d.id);}).sort((a,b)=>S.srs[a.id].d<S.srs[b.id].d?-1:S.srs[a.id].d>S.srs[b.id].d?1:0).map(d=>d.id);}
-function warmIds(){const m=S.missed.filter(id=>findDrill(id));return [...m,...dueDrills().filter(x=>!m.includes(x))].slice(0,12);}
+function warmIds(){const m=S.missed.filter(id=>findDrill(id));return [...m,...dueDrills().filter(x=>!m.includes(x))].slice(0,comeback()?5:12);}
 function dueLabs(){const t=todayISO();return ALL_LABS.filter(L=>{const c=S.lsrs[L.id];return c&&c.d<=t;}).sort((a,b)=>S.lsrs[a.id].d<S.lsrs[b.id].d?-1:S.lsrs[a.id].d>S.lsrs[b.id].d?1:0);}
 function labPassed(L,redo){const t=todayISO(),c=S.lsrs[L.id];const b=redo&&c?Math.min(c.b+1,LINT.length-1):0;
   if(!S.labs[L.id])S.labs={...S.labs,[L.id]:t};S.lsrs={...S.lsrs,[L.id]:{b,d:shift(t,LINT[b])}};S.xp+=redo?15:20;}
@@ -1119,10 +1126,10 @@ const EXPECT=`<details class="expect"><summary>What 30 days can and can't do</su
   <li>The rule that makes it work: you write every line yourself. Reading solutions feels like progress but doesn't build the skill.</li></ul></details>`;
 
 function warmCard(){
-  const ids=warmIds(),redo=dueLabs().slice(0,2),missed=S.missed.filter(id=>findDrill(id)).length;
+  const ids=warmIds(),redo=dueLabs().slice(0,comeback()?1:2),wdone=S.warmDay===todayISO(),missed=S.missed.filter(id=>findDrill(id)).length;
   if(!ids.length&&!redo.length&&!mixedUnlocked())return "";
   return `<section class="card warm"><span class="eyebrow">Warm-up · do this first (10–20 min)</span>
-    ${ids.length?`<div class="row" style="justify-content:space-between"><p>${ids.length} drill${ids.length>1?"s":""} to recall${missed?` (${missed} you got wrong)`:""}</p><button class="btn primary small" data-act="review">Review</button></div>`:""}
+    ${ids.length?`<div class="row" style="justify-content:space-between"><p>${wdone?`Warm-up done for today. ${ids.length} more ${ids.length>1?"are":"is"} queued for the coming days; extra practice is optional.`:`${ids.length} drill${ids.length>1?"s":""} to recall${missed?` (${missed} you got wrong)`:""}`}</p><button class="btn ${wdone?"":"primary"} small" data-act="review">${wdone?"Extra review":"Review"}</button></div>`:""}
     ${redo.map(L=>`<div class="row" style="justify-content:space-between"><p><b>Redo from scratch:</b> ${esc(L.title)} <span class="muted">· Day ${L.day}</span></p><button class="btn small" data-act="redo" data-lab="${L.id}">Redo</button></div>`).join("")}
     ${mixedUnlocked()?`<div class="row" style="justify-content:space-between"><p><b>Interview rep:</b> one unlabelled problem from your weaker areas</p><button class="btn small" data-act="mixed">Start</button></div>`:""}
     ${redo.length?`<p class="hint">A redo from scratch starts with an empty editor. Write your steps as comments first, then code. This is the habit interviews test.</p>`:""}</section>`;
@@ -1182,7 +1189,7 @@ function renderOnboarding(){
 }
 
 function sessionParts(n){const d=DAYS[n-1],labs=labsOf(n),ho=[n+"-b",...d.solve.map((_,i)=>n+"-s"+i)];
-  const warm=n===currentDay()?warmIds().length+Math.min(2,dueLabs().length):0,parts=[],warmDone=S.warmDay===todayISO();
+  const warm=n===currentDay()?warmIds().length+Math.min(comeback()?1:2,dueLabs().length):0,parts=[],warmDone=S.warmDay===todayISO();
   if(warm||warmDone)parts.push({k:"warm",name:"Warm-up",time:"10–20 min",done:warmDone,sub:warmDone?"done today":`${warm} to review today (the rest wait for tomorrow)`});
   parts.push({k:"concept",name:"Concept",time:"10 min",done:!!S.tasks[n+"-c"]});
   parts.push({k:"drills",name:"Drills",time:"10 min",done:drillsDone(n),sub:`${drillCount(n)}/${d.drills.length}`});
@@ -1207,6 +1214,54 @@ function goPart(n,part){
   const el=document.getElementById(part==="concept"?"concept":"handson");if(el)el.scrollIntoView({behavior:"smooth",block:"start"});
 }
 
+/* ---------- Proof of work: the project days are checked against the learner's real GitHub repo ---------- */
+const PROOF={22:{what:"a project you pushed to GitHub today",checks:["public","commits","readme"]},
+  23:{what:"your FastAPI service",checks:["public","fastapi","tests"]},
+  27:{what:"your containerized API",checks:["public","dockerfile"],live:true},
+  29:{what:"your capstone",checks:["public","readme","fastapi","dockerfile"],live:true}};
+const PROOF_LABEL={public:"Public repository found",commits:"At least 3 commits",readme:"Has a README",fastapi:"requirements.txt (or pyproject.toml) lists fastapi",tests:"Has tests (a tests folder or test_*.py)",dockerfile:"Has a Dockerfile at the top level",live:"Deployed URL responds"};
+async function verifyProof(day,repoUrl,liveUrl){
+  const m=String(repoUrl).trim().match(/github\.com[/:]([\w.-]+)\/([\w.-]+?)(?:\.git)?(?:[/?#].*)?$/);
+  if(!m)return {error:"That doesn't look like a GitHub repository link. It should look like https://github.com/your-name/your-repo"};
+  const api="https://api.github.com/repos/"+m[1]+"/"+m[2],get=async p=>{const r=await fetch(api+p,{headers:{Accept:"application/vnd.github+json"}});if(r.status===403||r.status===429)throw new Error("GitHub's hourly limit for checks was reached. Try again in an hour.");return r;};
+  const res=[];let files=null;
+  try{const r=await get("");if(!r.ok)return {error:r.status===404?"GitHub can't find that repository. Check the link, and make sure the repo is public (private repos can't be checked).":"GitHub answered "+r.status+"."};
+    for(const c of PROOF[day].checks){let ok=false;
+      if(c==="public")ok=true;
+      else if(c==="commits"){const x=await get("/commits?per_page=3");ok=x.ok&&(await x.json()).length>=3;}
+      else if(c==="readme")ok=(await get("/readme")).ok;
+      else{if(!files){const x=await get("/contents/");files=x.ok?await x.json():[];}
+        const names=files.map(f=>f.name.toLowerCase());
+        if(c==="dockerfile")ok=names.includes("dockerfile");
+        else if(c==="tests")ok=names.some(n=>/^tests?$|^test_.*\.py$|_test\.py$/.test(n));
+        else if(c==="fastapi"){for(const f of ["requirements.txt","pyproject.toml"]){if(!names.includes(f))continue;const x=await get("/contents/"+f);if(x.ok){const j=await x.json();if(/fastapi/i.test(atob(String(j.content||"").replace(/\s/g,""))))ok=true;}}}}
+      res.push([c,ok]);}
+  }catch(e){return {error:/hourly limit/.test(e.message)?e.message:"Couldn't reach GitHub from here. "+(SELF_RT?"Inside claude.ai, requests to other sites are blocked: open the live site to verify your build.":"Check your connection and try again.")};}
+  if(PROOF[day].live){let ok=false;const u=String(liveUrl||"").trim();
+    if(/^https:\/\/[\w.-]+\.[a-z]{2,}/i.test(u)&&!/localhost|127\.0\.0\.1/.test(u)){try{await fetch(u,{mode:"no-cors"});ok=true;}catch(e){}}
+    res.push(["live",ok]);}
+  return {res,ok:res.every(x=>x[1]),repo:m[1]+"/"+m[2]};}
+function proofCard(n){const P=PROOF[n],p=(S.proof||{})[n]||{};
+  return `<section class="card proof" id="proof"><span class="eyebrow">Proof of work${p.ok?' · <span class="chip ok">Verified</span>':""}</span>
+    <p>Paste the public GitHub link for ${esc(P.what)}. It's checked against your real repository, so this day counts as <b>verified</b>, not just ticked.</p>
+    <input id="proofRepo" type="url" inputmode="url" autocomplete="off" placeholder="https://github.com/your-name/your-repo" value="${esc(p.repoUrl||"")}" aria-label="GitHub repository link">
+    ${P.live?`<input id="proofLive" type="url" inputmode="url" autocomplete="off" placeholder="https://your-app.onrender.com (your deployed URL)" value="${esc(p.liveUrl||"")}" aria-label="Deployed URL">`:""}
+    <button class="btn small ${p.ok?"":"primary"}" data-act="proof" data-day="${n}">${p.ok?"Check again":"Verify"}</button>
+    ${p.error?`<div class="fb bad"><p>${esc(p.error)}</p></div>`:""}
+    ${p.res?`<ul>${p.res.map(([c,ok])=>`<li class="${ok?"y":"n"}">${esc(PROOF_LABEL[c])}</li>`).join("")}</ul>${p.ok?"":`<p class="hint">Fix what's marked ✗, push, and verify again.${P.live?" The deployed-URL check only confirms that something answers at that address.":""}</p>`}`:""}
+    <p class="hint">Only the repository's public file list is read. Nothing is stored except the links you paste and the result.</p></section>`;}
+
+/* ---------- Comeback: after 3 or more missed days, restart small ---------- */
+function awayDays(){const t=todayISO(),prev=S.dates.filter(d=>d<t).sort().pop();return prev&&S.done.length?diffDays(prev,t)-1:0;}
+const comeback=()=>awayDays()>=3;
+function comebackCard(){const away=awayDays(),drills=warmIds().length,redo=dueLabs().length,fin=fmtDate(shift(replanStart(),S.pace-1));
+  return `<section class="card back"><span class="eyebrow">Welcome back</span><h2>${away} days away. Today is a small restart, not a catch-up.</h2>
+    ${S.me&&S.me.why?`<p class="muted">You started this because:</p><blockquote>${esc(S.me.why)}</blockquote>`:""}
+    <p>Most people who stop never open the app again. You did. Here is all that today asks:</p>
+    <ol class="method"><li><b>${drills?drills+" quick recall drill"+(drills>1?"s":""):"A quick recall round"}</b>, about 5 minutes. Forgetting some is expected, and each miss is what brings it back.</li>${redo?"<li><b>One redo from scratch</b>, about 10 minutes.</li>":""}<li><b>Then stop, or carry on</b> with the day you were on. Either counts.</li></ol>
+    <p class="hint">Everything else that came due while you were away is spread over the next days, oldest first. Nothing is lost and there's no pile to clear.</p>
+    <div class="row">${drills?`<button class="btn primary" data-act="review">Start the 5-minute restart</button>`:""}<button class="btn" data-act="replan">Re-plan: finish ${fin}</button>${S.pace===30?`<button class="btn" data-act="pace60">Switch to 60 days (2–3 h a day)</button>`:""}</div></section>`;}
+
 function renderToday(n){
   const d=DAYS[n-1],w=weekOf(n),dd=drillsDone(n),cnt=drillCount(n),tot=d.drills.length,gateOK=!!S.tasks[n+"-g"];
   const labs=labsOf(n),ld=labsDone(n),cDone=!!S.tasks[n+"-c"];
@@ -1218,8 +1273,9 @@ function renderToday(n){
       <h1>${esc(d.t)}</h1>
       <p class="can"><b>After today you can</b> ${esc(d.can)}</p>
       <p class="why">${esc(d.why)}</p></section>
+    ${cur&&S.start&&comeback()?comebackCard():""}
     ${sessionCard(n)}
-    ${cur&&S.start?paceCard():""}
+    ${cur&&S.start&&!comeback()?paceCard():""}
     ${cur?warmCard():""}
     <details class="card lesson" id="concept" ${cDone?"":"open"}><summary><span class="eyebrow">1 · Concept (10 min)</span>${cDone?'<span class="chip ok">Done</span>':""}</summary>
       <p>${d.lesson}</p><pre>${esc(d.ex)}</pre>${vizButtons(n)?`<div class="row">${vizButtons(n)}</div>`:""}
@@ -1235,6 +1291,7 @@ function renderToday(n){
     <section class="card" id="handson"><span class="eyebrow">4 · Hands-on (2–3 hrs, in your editor and on LeetCode/HackerRank)</span>
       <p class="hint">For every problem: steps as comments first, then code. Stuck for 15 minutes? Use the ladder on the Think tab.</p>
       <ul class="tasks">${tasks.map(t=>`<li class="${t.gate?"gate":""}"><label><input type="checkbox" id="t-${t.k}" data-task="${t.k}" ${S.tasks[t.k]?"checked":""}><span><span class="kind">${t.kind}</span><span class="txt">${esc(t.txt)}</span></span></label></li>`).join("")}</ul></section>
+    ${PROOF[n]?proofCard(n):""}
     ${isDone(n)?`<button class="btn block" data-act="undone" data-day="${n}">Mark Day ${n} not done</button>`:
       `<button class="btn primary block" data-act="complete" data-day="${n}" ${missing.length?"disabled":""}>Complete Day ${n}</button>
        ${missing.length?`<p class="hint" style="text-align:center">To unlock: ${missing.join(", ").replace(/, ([^,]*)$/," and $1")}.</p>`:""}`}
@@ -1460,6 +1517,11 @@ app.addEventListener("click",ev=>{
   else if(act==="next"){goPart(n,b.dataset.part);}
   else if(act==="viz"){openViz(b.dataset.viz);}
   else if(act==="mixed"){openMixed(b.dataset.area||null);}
+  else if(act==="pace60"){S.pace=60;S.start=replanStart();save();route();}
+  else if(act==="proof"){const n=+b.dataset.day,repoUrl=(document.getElementById("proofRepo")||{}).value||"",liveUrl=(document.getElementById("proofLive")||{}).value||"";
+    b.disabled=true;b.textContent="Checking…";
+    verifyProof(n,repoUrl,liveUrl).then(r=>{S.proof={...(S.proof||{}),[n]:{repoUrl:repoUrl.trim().slice(0,200),liveUrl:liveUrl.trim().slice(0,200),ok:!!r.ok,res:r.res||null,error:r.error||"",at:todayISO()}};save();
+      if(location.hash==="#day-"+n||currentDay()===n){route();const el=document.getElementById("proof");if(el&&el.scrollIntoView)el.scrollIntoView({block:"nearest"});}});}
   else if(act==="practice"){const id=b.dataset.lab;openLab(id,S.labs[id]?true:false);}
   else if(act==="replan"){S.start=replanStart();save();route();}
   else if(act==="savewhy"){const w=document.getElementById("whyRef");S.me={...S.me,why:w?w.value.trim().slice(0,140):""};save();b.textContent="Saved";}
@@ -1637,7 +1699,7 @@ function openLab(id,redo){const L=labById(id);if(!L)return;
   clearInterval(labTimer);labTimer=setInterval(()=>{const el=document.getElementById("ltimer");if(el&&lab){el.textContent=mmss()+(lab.mixed?" / "+lab.target+":00":"");el.classList.toggle("over",!!lab.mixed&&Date.now()-lab.t0>lab.target*60000);}},1000);
   if(L.kind!=="design")(L.kind==="sql"?getSql():getPy()).catch(()=>{});
 }
-function taskCard(L){return `<section class="card">${lab.mixed?`<span class="qkind">Interview rep · ${L.kind==="sql"?"SQL":"Python"} · target ${lab.target} min</span><h2>Unlabelled problem</h2><p>${mixTask(L)}</p>`:`<span class="qkind">${kindLabel(L)} · Day ${L.day}${lab.redo?" · redo"+(L.kind==="design"?"":" from scratch"):""}</span><h2>${esc(L.title)}</h2>${L.brief?briefHTML(L):""}<p>${L.task}</p>`}
+function taskCard(L){return `<section class="card">${lab.mixed?`<span class="qkind">Interview rep · ${L.kind==="sql"?"SQL":"Python"} · target ${lab.target} min</span><h2>${L.unseen&&!S.labs[L.id]?"A problem you haven't seen":"Unlabelled problem"}</h2><p>${mixTask(L)}</p>`:`<span class="qkind">${kindLabel(L)} · Day ${L.day}${lab.redo?" · redo"+(L.kind==="design"?"":" from scratch"):""}</span><h2>${esc(L.title)}</h2>${L.brief?briefHTML(L):""}<p>${L.task}</p>`}
   ${L.kind==="sql"?`<details class="tables" ${lab.phase!=="code"?"open":""}><summary>Tables (employees, customers, orders)</summary>${TABLES_HTML}</details>`:""}
   ${L.prelude?`<details><summary>Provided code (already loaded for you)</summary><pre>${esc(L.prelude)}</pre></details>`:""}</section>`;}
 function phaseBar(){const seq=[...(lab.L.scenario&&!lab.redo&&!lab.mixed&&lab.L.clarify?["brief"]:[]),...PHASES[lab.stage]].filter(p=>(p!=="pattern"||lab.L.pat)&&(p!=="predict"||predictQ(lab.L))&&(p!=="order"||(lab.L.steps&&lab.L.steps.length)));if(seq.length<2)return "";const names={brief:"Customer",clarify:"Clarify",trade:"Trade-offs",model:"Compare",predict:"By hand",order:"Steps",pattern:"Pattern",approach:"Approach",code:"Code"};
@@ -1997,7 +2059,7 @@ const AREAS=[
  {id:"sys",name:"System design and production",days:[27,28]},
  {id:"scope",name:"Scoping a vague request",days:[],extra:["L6-2","L14-3","L21-2","L24-3","L29-2"]},
 ];
-function areaOf(L){return AREAS.find(a=>(a.extra||[]).includes(L.id))||AREAS.find(a=>a.days.includes(L.day));}
+function areaOf(L){return (L.area&&AREAS.find(a=>a.id===L.area))||AREAS.find(a=>(a.extra||[]).includes(L.id))||AREAS.find(a=>a.days.includes(L.day));}
 const areaLabs=a=>ALL_LABS.filter(L=>areaOf(L)===a);
 /* 40 for passing, +20 without help, +10 if it took 2 or fewer failed runs, +15 per redo from scratch (up to 2). */
 function labScore(L){if(!S.labs[L.id])return 0;const st=S.lstat[L.id]||{legacy:1},b=(S.lsrs[L.id]||{b:0}).b||0;
@@ -2018,6 +2080,7 @@ function readinessCard(){
       ${weak&&mixedUnlocked()?`<button class="btn small primary" data-act="mixed" data-area="${weak.id}">Practise weakest: ${esc(weak.name)}</button>`:""}</div>
     <p class="hint">An estimate from your evidence, not a guarantee: labs passed, how much help you needed, and redos from scratch, which count most because they prove you can recall it.</p>
     <ul class="areas">${AREAS.map(a=>{const s=areaStatus(a);return `<li class="${s.state}"><div class="an"><span>${esc(a.name)}</span><span class="pmeta">${s.state==="upcoming"?`from Day ${s.from}`:`${s.score}% · ${STATE_LABEL[s.state]}`}</span></div><div class="sbar sm" aria-hidden="true"><span style="width:${s.score}%"></span></div>${s.state!=="upcoming"&&s.passed?`<span class="hint">${s.passed}/${s.total} labs passed · ${s.redone} redone from scratch</span>`:""}</li>`;}).join("")}</ul>
+    <p class="hint"><b>${UNSEEN.filter(L=>S.labs[L.id]).length} of ${UNSEEN.length} unseen problems solved</b> · ${Object.values(S.proof||{}).filter(p=>p&&p.ok).length} of ${Object.keys(PROOF).length} builds verified. Unseen problems only appear in interview reps, so solving one is the closest thing here to a real interview question.</p>
     ${mixedUnlocked()?`<button class="btn block" data-act="mixed">Interview rep: one unlabelled problem</button>`:`<p class="hint">Interview reps (unlabelled problems against the clock) unlock after Day 3.</p>`}</section>`;
 }
 
@@ -2025,8 +2088,10 @@ function readinessCard(){
 let lastMixed=null;
 function pickMixed(areaId){const cur=reachedDay();
   const ok=L=>!L.bug&&L.kind!=="design"&&(!areaId||areaOf(L).id===areaId);
-  let pool=ALL_LABS.filter(L=>ok(L)&&L.day<cur);if(!pool.length)pool=ALL_LABS.filter(L=>ok(L)&&L.day<=cur);if(!pool.length)return null;
-  const w=pool.map(L=>(105-labScore(L))*(L.id===lastMixed?0.1:1)),tot=w.reduce((a,b)=>a+b,0);let r=Math.random()*tot;
+  let pool=ALL_LABS.filter(L=>ok(L)&&L.day<cur);if(!pool.length)pool=ALL_LABS.filter(L=>ok(L)&&L.day<=cur);
+  /* Unsolved unseen problems come first: three times the weight of a lab you've already met. */
+  pool=[...pool,...UNSEEN.filter(L=>ok(L)&&L.day<cur&&!S.labs[L.id])];if(!pool.length)return null;
+  const w=pool.map(L=>(105-labScore(L))*(L.unseen?3:1)*(L.id===lastMixed?0.1:1)),tot=w.reduce((a,b)=>a+b,0);let r=Math.random()*tot;
   for(let i=0;i<pool.length;i++){r-=w[i];if(r<=0)return pool[i];}return pool[pool.length-1];}
 function openMixed(areaId){const L=pickMixed(areaId)||pickMixed();if(!L)return;lastMixed=L.id;openLab(L.id,"mixed");}
 /* Drop the sentences that name the technique, so recognising it is your job. */

@@ -90,3 +90,9 @@ Ask Claude to update the app. For the live site, the change is pushed to `main` 
 - **PySpark labs and drills run on a practice engine** (`pyspark` stand-in built on pandas) that accepts real PySpark syntax for filter, select, withColumn, groupBy/agg, join, orderBy, when/otherwise, fillna/dropna and friends. It is not Spark: no cluster and no lazy evaluation. Three labs on Day 13.
 - **60-day plan** (2–3 hours a day) next to the 30-day plan and the 15-day sprint.
 - Week 3 gate reworded to a target a learner can hit; LC 185 marked as a stretch.
+
+## Added later on 11 Nov 2026
+
+- **Unseen problems.** 13 problems (11 Python, 2 SQL) that never appear in a day's lab list. They only come up in interview reps, and unsolved ones are picked first, so a rep is usually a problem you have not met.
+- **Proof of work.** On Days 22, 23, 27 and 29, paste your public GitHub link (and deployed URL where asked). The app checks the real repository through GitHub's public API: commits, README, `fastapi` in requirements, tests, a Dockerfile. The deployed-URL check only confirms that something answers at that address. Private repos can't be checked, and the check doesn't work inside claude.ai (outside requests are blocked there): use the live site.
+- **Comeback mode.** After 3 or more missed days, Today opens with a small restart: 5 recall drills, one redo, a one-tap re-plan with the new finish date, and an option to switch to the 60-day plan. The backlog is spread over later days, oldest first.
