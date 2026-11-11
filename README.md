@@ -81,3 +81,12 @@ Understand → solve one example by hand → write the steps as comments → cod
 ## Publishing changes to the live link
 
 Ask Claude to update the app. For the live site, the change is pushed to `main` on GitHub and Vercel redeploys automatically. For the claude.ai version, the page is republished to https://claude.ai/artifact/WZKB783PseCFNLfgnafibM. Both keep their links, and saved progress carries over. The runtime files already published under `rt/` stay in place as long as the publish doesn't remove them. Python's standard library is published as `rt/pyodide/python_stdlib.wasm`, because the host doesn't serve `.zip` files.
+
+## What changed on 11 Nov 2026
+
+- **Typed drills are graded by running them.** 87 of the 95 "write the code" drills run your answer and a model answer on the same data and compare the result, so any correct way of writing it passes. The other 8 (git, docker, first-line-only answers) are still matched as text.
+- **62 new recall drills** across Python, SQL, pandas and PySpark, so syntax gets practised daily and comes back in the warm-up.
+- **pandas runs for real** in the browser (about 8 MB, loaded the first time a pandas lab or drill needs it). Three pandas labs on Day 12.
+- **PySpark labs and drills run on a practice engine** (`pyspark` stand-in built on pandas) that accepts real PySpark syntax for filter, select, withColumn, groupBy/agg, join, orderBy, when/otherwise, fillna/dropna and friends. It is not Spark: no cluster and no lazy evaluation. Three labs on Day 13.
+- **60-day plan** (2–3 hours a day) next to the 30-day plan and the 15-day sprint.
+- Week 3 gate reworded to a target a learner can hit; LC 185 marked as a stretch.
