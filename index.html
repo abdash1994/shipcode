@@ -1225,14 +1225,14 @@ const ERR_ROWS=[["SyntaxError","Python can't parse the line","Missing :, bracket
 
 /* ---------- State ---------- */
 const KEY="blankfile-state-v1";
-const blank=()=>({v:1,t:0,start:null,pace:30,habit:null,done:[],solved:{},missed:[],xp:0,dates:[],tasks:{},labs:{},plans:{},srs:{},lsrs:{},me:{},lstat:{},errs:{},mocks:[],proof:{},log:[],checks:{},survey:{},doneOn:{},exam:{},reviews:[]});
+const blank=()=>({v:1,t:0,start:null,pace:30,habit:null,done:[],solved:{},missed:[],xp:0,dates:[],tasks:{},labs:{},plans:{},srs:{},lsrs:{},me:{},lstat:{},errs:{},mocks:[],proof:{},log:[],checks:{},survey:{},doneOn:{},exam:{},reviews:[],cap:{}});
 const obj=x=>x&&typeof x==="object"&&!Array.isArray(x)?{...x}:{};
 function clean(o){const b=blank();if(!o||typeof o!=="object")return b;
   return {v:1,t:Number.isFinite(o.t)?o.t:0,start:typeof o.start==="string"?o.start:null,pace:Number.isInteger(o.pace)&&o.pace>=2&&o.pace<=1200?o.pace:30,habit:cleanHabit(o.habit),
     done:Array.isArray(o.done)?o.done.filter(n=>Number.isInteger(n)&&n>=1&&n<=30):[],
     solved:obj(o.solved),missed:Array.isArray(o.missed)?o.missed.filter(x=>typeof x==="string"):[],
     xp:Number.isFinite(o.xp)?o.xp:0,dates:Array.isArray(o.dates)?o.dates.filter(x=>typeof x==="string"):[],
-    tasks:obj(o.tasks),labs:obj(o.labs),plans:obj(o.plans),srs:obj(o.srs),lsrs:obj(o.lsrs),me:{why:typeof (o.me||{}).why==="string"?o.me.why.slice(0,140):"",time:typeof (o.me||{}).time==="string"?o.me.time:""},lstat:obj(o.lstat),proof:obj(o.proof),errs:obj(o.errs),warmDay:typeof o.warmDay==="string"?o.warmDay:"",mocks:Array.isArray(o.mocks)?o.mocks.filter(x=>x&&typeof x==="object").slice(-200):[],log:Array.isArray(o.log)?o.log.filter(x=>x&&typeof x==="object").slice(-600):[],checks:obj(o.checks),survey:obj(o.survey),doneOn:obj(o.doneOn),exam:obj(o.exam),reviews:Array.isArray(o.reviews)?o.reviews.filter(x=>x&&typeof x==='object').slice(-60):[]};}
+    tasks:obj(o.tasks),labs:obj(o.labs),plans:obj(o.plans),srs:obj(o.srs),lsrs:obj(o.lsrs),me:{why:typeof (o.me||{}).why==="string"?o.me.why.slice(0,140):"",time:typeof (o.me||{}).time==="string"?o.me.time:""},lstat:obj(o.lstat),proof:obj(o.proof),errs:obj(o.errs),warmDay:typeof o.warmDay==="string"?o.warmDay:"",mocks:Array.isArray(o.mocks)?o.mocks.filter(x=>x&&typeof x==="object").slice(-200):[],log:Array.isArray(o.log)?o.log.filter(x=>x&&typeof x==="object").slice(-600):[],checks:obj(o.checks),survey:obj(o.survey),doneOn:obj(o.doneOn),exam:obj(o.exam),cap:obj(o.cap),reviews:Array.isArray(o.reviews)?o.reviews.filter(x=>x&&typeof x==='object').slice(-60):[]};}
 function loadLocal(){try{return clean(JSON.parse(localStorage.getItem(KEY)||"null"));}catch(e){return blank();}}
 function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){/* storage blocked: cloud sync or this visit only */}}
 let S=loadLocal();const freshAtLoad=!S.t&&!S.start&&!S.done.length;
@@ -1496,7 +1496,7 @@ function renderToday(n){
       <p class="can"><b>After today you can</b> ${esc(d.can)}</p>
       <p class="why">${esc(d.why)}</p></section>
     ${cur&&S.start&&comeback()?comebackCard():""}
-    ${cur&&S.start?reachedCard():""}${cur&&S.start?bitesCard(n):""}${sessionCard(n)}${dayNote(n)}
+    ${cur&&S.start?gymSlotCard(n):""}${cur&&S.start?reachedCard():""}${cur&&S.start?bitesCard(n):""}${sessionCard(n)}${dayNote(n)}
     ${cur&&S.start&&!comeback()?paceCard():""}
     ${cur?warmCard():""}${cur?repSetCard():""}${cur?reviewDueCard():""}${surveyCard()}
     <details class="card lesson" id="concept" ${cDone?"":"open"}><summary><span class="eyebrow">1 · Concept (10 min)</span>${cDone?'<span class="chip ok">Done</span>':""}</summary>
@@ -1722,7 +1722,12 @@ async function renderDiag(){
 const LESSON_CORE=125,LESSON_FULL=275,GYM_MIN=225,FIRSTWIN_MIN=45;
 const lessonMin=depth=>depth==="core"?LESSON_CORE:LESSON_FULL;
 const range=(a,b)=>Array.from({length:b-a+1},(_,i)=>a+i);
+const SPRINT_ORDER=[1,8,2,9,3,10,4,11,5,6,7,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30];
+const SPRINT_SLOTS=[["py",1],["sql",1],["py",2],["sql",2],["sys",1],["py",3],["sql",3],["py",4],["sql",4],["ai",1],["sys",2],["spark",1],["spark",2],["spark",3],["py",5],["sql",5],["ai",2],["sys",3],["spark",4],["ai",3],["spark",5],["dep",1],["ai",4],["sys",4],["dep",2],["ai",5],["dep",3],["dep",4],["sys",5],["dep",5]];
+const SPRINT_PREREQ={spark:["py",2,"Python Level 2"],dep:["py",3,"Python Level 3"],ai:["py",3,"Python Level 3"],sys:["sql",1,"SQL Level 1"]};
+const GYM_SLOT=45,CAP_MIN=150;
 const GOALS=[
+ {id:"sprint",name:"30-day sprint: every track, in parallel",short:"Sprint",days:range(1,30),sprint:true,blurb:"All 30 lessons plus one Gym level a day. SQL and Python start together on day 1; PySpark, AI, deployment and both system-design tracks unlock as you pass their prerequisites. Ends with a full capstone.",first:"Your first program passes real tests"},
  {id:"sql",name:"SQL, interview-strong",short:"SQL",days:[8,9,10,11],gym:true,blurb:"Days 8 to 11 (SELECT to window functions) plus the 5 SQL Gym levels. The fastest real win.",first:"Your first SQL query passes real tests"},
  {id:"py",name:"Python you can write without help",short:"Python",days:range(1,7),blurb:"Days 1 to 7: from your first program to classes. Everything after builds on this.",first:"Your first program passes real tests"},
  {id:"data",name:"Python, SQL, pandas and PySpark",short:"Data",days:range(1,14),blurb:"Days 1 to 14: the data engineer's toolkit.",first:"Your first program passes real tests"},
@@ -1745,12 +1750,12 @@ const goalOf=()=>goalById(habitOf().goal);
 const depthOf=()=>habitOf().depth;
 /* Scope and order: the destination's lessons come first; the rest of the course follows in order. */
 const scopeDays=id=>goalById(id||habitOf().goal).days;
-function orderDays(){const sc=scopeDays();return [...sc,...range(1,30).filter(n=>!sc.includes(n))];}
+function orderDays(){if(goalOf().sprint)return SPRINT_ORDER.slice();const sc=scopeDays();return [...sc,...range(1,30).filter(n=>!sc.includes(n))];}
 const scopeN=()=>scopeDays().length;
 const scopeDone=()=>scopeDays().filter(isDone).length;
 const remainingDays=id=>scopeDays(id).filter(n=>!isDone(n));
 function totalMin(goalId,depth,remainingOnly){const g=goalById(goalId),n=(remainingOnly?remainingDays(goalId):g.days).length;
-  return n*lessonMin(depth)+(g.gym&&n?GYM_MIN:0);}
+  return n*lessonMin(depth)+(g.gym&&n?GYM_MIN:0)+(g.sprint?n*GYM_SLOT+(n?CAP_MIN:0):0);}
 const weeklyMin=h=>h.min*h.dpw+(h.deep||0);
 const calDaysFor=(min,wk)=>Math.max(1,Math.ceil(min/wk*7));
 function paceFor(h){return Math.max(2,Math.min(1200,calDaysFor(totalMin(h.goal,h.depth,false),weeklyMin(h))));}
@@ -1764,13 +1769,13 @@ function slotOf(at){const hr=+String(at||"19:00").slice(0,2);return hr<8?"Early 
 
 /* Dates, not durations: the next few things you will have, with dates. */
 function ladderFor(h){const g=goalById(h.goal),days=remainingDays(h.goal),n=days.length;if(!n)return [];
-  const wk=weeklyMin(h),per=lessonMin(h.depth)+(g.gym?GYM_MIN/n:0),at=m=>shift(todayISO(),Math.max(0,Math.ceil(m/wk*7)-1));
+  const wk=weeklyMin(h),per=lessonMin(h.depth)+(g.gym?GYM_MIN/n:0)+(g.sprint?GYM_SLOT+CAP_MIN/n:0),at=m=>shift(todayISO(),Math.max(0,Math.ceil(m/wk*7)-1));
   const rows=[{label:g.first,date:at(FIRSTWIN_MIN),win:true}];
   const ks=[...new Set([1,Math.ceil(n/4),Math.ceil(n/2),Math.ceil(3*n/4),n])].filter(k=>k>=1&&k<=n).sort((a,b)=>a-b);
   ks.forEach(k=>rows.push({label:k===n?"Destination reached: "+g.name:`Lesson ${k} of ${n} done: ${DAYS[days[k-1]-1].t}`,date:at(k*per),end:k===n}));
   return rows;}
 function firstFour(h){const g=goalById(h.goal),n=remainingDays(h.goal).length;if(!n)return "";
-  const per=lessonMin(h.depth)+(g.gym?GYM_MIN/n:0),x=Math.min(n,4*weeklyMin(h)/per);
+  const per=lessonMin(h.depth)+(g.gym?GYM_MIN/n:0)+(g.sprint?GYM_SLOT+CAP_MIN/n:0),x=Math.min(n,4*weeklyMin(h)/per);
   return x<1?"In your first 4 weeks you would get about "+Math.round(x*100)+"% of the way through Lesson 1.":"In your first 4 weeks: about "+(x>=n?"all "+n:Math.floor(x*10)/10)+" lesson"+(x===1?"":"s")+" done.";}
 /* What fits: the biggest destination that lands within a number of days at this budget. */
 function bestGoalWithin(days,h){const order=[...GOALS].sort((a,b)=>totalMin(b.id,h.depth,true)-totalMin(a.id,h.depth,true));
@@ -1843,7 +1848,7 @@ let ob=null;
 function obInit(edit){
   if(ob&&ob.edit===edit)return;
   const h=S.habit||(edit?habitOf():null);
-  ob={edit,step:edit?2:0,mode:h?h.mode:"flex",dpw:h?h.dpw:5,min:h?h.min:30,at:h?h.at:"19:00",deep:h?h.deep||0:0,deepDay:h?h.deepDay:6,goal:h?h.goal:"sql",depth:h?h.depth:"core",by:"",why:S.me.why||""};}
+  ob={edit,step:edit?2:0,mode:h?h.mode:"flex",dpw:h?h.dpw:5,min:h?h.min:30,at:h?h.at:"19:00",deep:h?h.deep||0:0,deepDay:h?h.deepDay:6,goal:h?h.goal:"sprint",depth:h?h.depth:"core",by:"",why:S.me.why||""};}
 function obRead(){const w=document.getElementById("obwhy"),a=document.getElementById("obat"),b=document.getElementById("obby");
   if(w)ob.why=w.value.trim().slice(0,140);if(a&&/^\d\d:\d\d$/.test(a.value))ob.at=a.value;if(b)ob.by=/^\d{4}-\d\d-\d\d$/.test(b.value)&&b.value>todayISO()?b.value:"";}
 const obDpw=()=>ob.mode==="strict"?7:ob.dpw;
@@ -1953,6 +1958,8 @@ function route(){
   const m=/^day-(\d{1,2})$/.exec(h);
   if(m&&+m[1]>=1&&+m[1]<=30){renderToday(+m[1]);tab="path";}
   else if(h==="gyms"){tab="gyms";renderGyms();}
+  else if(h==="sprint"){tab="path";renderSprint();}
+  else if(h==="capstone"){tab="path";renderCapstone();}
   else if(/^(sql|py|spark|sys|dep|ai)(-[1-5])?$/.test(h)){tab="gyms";const mm=/^([a-z]+)(?:-(\d))?$/.exec(h);renderGym(mm[1],mm[2]?+mm[2]:0);}
   else if(h==="report"){tab="path";renderReport();}
   else if(h==="exam"){tab="path";renderExam();}
@@ -2006,6 +2013,7 @@ app.addEventListener("click",ev=>{
   else if(act==="drills"){startSession(DAYS[n-1].drills,"Day "+n);}
   else if(act==="review"){startSession(warmIds().map(findDrill).filter(Boolean),"Warm-up");}
   else if(act==="lab"){openLab(b.dataset.lab,false);}
+  else if(act==="capt"){const k=b.dataset.k;S.cap={...(S.cap||{}),[k]:!(S.cap||{})[k]};save();renderCapstone();}
   else if(act==="redo"){openLab(b.dataset.lab,true);}
   else if(act==="complete"){if(canComplete(n))completeDay(n);}
   else if(act==="undone"){S.done=S.done.filter(x=>x!==n);save();route();}
@@ -2608,6 +2616,7 @@ function renderGyms(){
   app.innerHTML=`<div class="view"><section style="display:flex;flex-direction:column;gap:8px"><span class="eyebrow">Gyms</span><h1>Train one skill at a time</h1>
     <p class="muted">Each gym has five levels that grow the way a real job does: first you <b>write</b> it, then you <b>shape</b> the data, then you make it <b>correct</b>, then <b>fast or scalable</b>, and finally you <b>decide and design</b>. Every level opens with a short lesson, then graded labs you cannot pass by guessing, then a concept check. The 30-day path still works as the guided route; the gyms are where you go deep on one topic.</p></section>
     ${GYMS.map(G=>{const sc=gymTotal(G),n=gymAllLabs(G).length,d=gymDone(G);return `<a class="card gymcard" href="#${G.key}"><div class="row" style="justify-content:space-between"><div><span class="eyebrow">5 levels · ${n} labs</span><h2>${esc(G.name)}</h2></div><span class="chip ${sc>=55?"ok":""}">${d}/${n} · ${GYM_STATE(sc)}</span></div><p class="muted">${esc(G.blurb)}</p><div class="sbar sm" aria-hidden="true"><span style="width:${sc}%"></span></div></a>`;}).join("")}
+    <p class="hint">On the sprint? <a href="#sprint">Open the 30-day sprint map</a> to see which level is today's slot. <a href="#capstone">Capstone studio</a></p>
     <p class="hint">Honest limits: PySpark labs run on a stand-in engine in your browser (no cluster), and Deployment labs practise the logic and reading skills because Docker and cloud accounts cannot run here. Each gym says what is real and what is simulated.</p></div>`;}
 function renderGym(key,lv){
   const G=gymByKey(key);
@@ -2624,6 +2633,60 @@ function renderGym(key,lv){
     <p class="muted">Work through the levels in order. Each level starts with a short lesson that shows the syntax and ideas its labs use, so nothing is a surprise. ${done} of ${tot} labs passed. ${G.intro||""}</p></section>
     ${G.levels.map(g=>{const sc=gymScore(g);return `<a class="card gymcard" href="#${G.key}-${g.lvl}"><div class="row" style="justify-content:space-between"><div><span class="eyebrow">Level ${g.lvl}</span><h2>${esc(g.name)}</h2></div><span class="chip ${sc>=55?"ok":""}">${gymPassed(g)}/${gymLabs(g).length} · ${GYM_STATE(sc)}</span></div><p class="muted">${esc(g.goal)}</p><div class="sbar sm" aria-hidden="true"><span style="width:${sc}%"></span></div></a>`;}).join("")}</div>`;}
 
+
+/* ---------- 30-day sprint: one lesson plus one Gym level a day, SQL and Python from day 1, the rest unlocked in order ---------- */
+const isSprint=()=>!!S.habit&&goalOf().sprint;
+function slotFor(n){const p=SPRINT_ORDER.indexOf(n);return p<0?null:SPRINT_SLOTS[p];}
+function slotLevel(sl){const G=gymByKey(sl[0]);return {G,g:G.levels[sl[1]-1]};}
+function slotState(sl){const {g}=slotLevel(sl),labs=gymLabs(g);return {p:gymPassed(g),n:labs.length};}
+function slotWarn(sl){const pre=SPRINT_PREREQ[sl[0]],out=[];
+  if(sl[1]>1){const G=gymByKey(sl[0]),prev=G.levels[sl[1]-2];if(prev&&gymPassed(prev)<Math.ceil(gymLabs(prev).length/2))out.push(`Level ${sl[1]-1} of ${G.short} is under half done: <a href="#${G.key}-${sl[1]-1}">catch up on it first</a>.`);}
+  if(pre){const P=gymByKey(pre[0]),g=P.levels[pre[1]-1];if(sl[1]===1&&g&&gymPassed(g)<Math.ceil(gymLabs(g).length/2))out.push(`This track assumes ${esc(pre[2])}, which is under half done: <a href="#${P.key}-${pre[1]}">do that first</a>.`);}
+  return out;}
+function gymSlotCard(n){if(!isSprint())return "";const sl=slotFor(n);if(!sl)return "";const {G,g}=slotLevel(sl),st=slotState(sl),must=sl[0]==="sql"||sl[0]==="py",warn=slotWarn(sl),done=st.p>=st.n;
+  return `<section class="card gymslot"><span class="eyebrow">Today's gym slot · about ${GYM_SLOT} min</span>
+    <h3>${esc(G.name)}, level ${g.lvl}: ${esc(g.name)} ${must?'<span class="chip">Mandatory</span>':'<span class="chip">Parallel track</span>'} ${done?'<span class="chip ok">Done</span>':""}</h3>
+    <p class="muted">${esc(g.goal)} ${st.p} of ${st.n} labs passed.</p>
+    ${warn.map(w=>`<p class="hint">${w}</p>`).join("")}
+    <a class="btn ${done?"":"primary"} block" href="#${G.key}-${g.lvl}">${done?"Review the level":st.p?"Continue the level":"Open the level"}</a>
+    <p class="hint"><a href="#sprint">Sprint map</a> · <a href="#capstone">Capstone studio</a>. Behind on gym slots? Finish the lesson first, then catch up at weekends.</p></section>`;}
+function renderSprint(){
+  const doneN=S.done.length,elapsed=S.start?Math.max(0,Math.round((new Date(todayISO()+"T00:00:00")-new Date(S.start+"T00:00:00"))/864e5)):0;
+  const cur=currentDay(),h=habitOf(),perDay=h.dpw===7?1:h.dpw/7;
+  const expected=Math.min(30,Math.floor(elapsed*perDay));
+  const diff=doneN-expected;
+  const gate=[[7,"Week 1 gate","Write loops, functions, dicts and a small class without help; pass SQL Levels 1 and 2."],[14,"Week 2 gate","Pipeline day: Python + SQL + pandas + PySpark join into one script."],[21,"Week 3 gate","Pass a timed mock interview; every gym at least Level 2."],[30,"Capstone gate","Deploy the capstone and explain every part of it."]];
+  const rows=SPRINT_ORDER.map((n,i)=>{const sl=SPRINT_SLOTS[i],{G,g}=slotLevel(sl),st=slotState(sl),ok=isDone(n);
+    return `<li class="sprow ${ok?"passed":""} ${n===cur?"cur":""}"><span class="lk">Step ${i+1}</span><span class="lt"><b>Day ${n}</b> ${esc(DAYS[n-1].t)}<br><span class="hint">+ <a href="#${G.key}-${g.lvl}">${esc(G.short)} L${g.lvl}: ${esc(g.name)}</a> (${st.p}/${st.n})</span></span><span class="chip ${ok?"ok":""}">${ok?"Done":n===cur?"Today":"Next"}</span></li>`;}).join("");
+  app.innerHTML=`<div class="view"><section style="display:flex;flex-direction:column;gap:8px"><a href="#" class="muted">← Today</a><span class="eyebrow">30-day sprint</span><h1>Every track, in parallel</h1>
+    <p class="muted">Each step is one lesson plus one Gym level. <b>SQL and Python run side by side from step 1</b> because everything else leans on them. System design starts at step 5, AI engineering at step 10, PySpark at step 12 (after Python Level 2), deployment at step 22 (after Python Level 3). The capstone studio opens whenever you want but is meant for the last two weeks.</p>
+    <p class="hint">${S.start?(diff>=0?`You are on pace: ${doneN} lessons done, ${expected} expected by now.`:`You are ${-diff} lesson${-diff===1?"":"s"} behind a ${h.dpw===7?"daily":h.dpw+"-day-a-week"} pace. Finish lessons first; gym levels can be caught up later.`):"Start the plan to see pace."}</p>
+    <p class="hint"><b>Honest time:</b> about ${fmtMin(30*(lessonMin(h.depth)+GYM_SLOT)+CAP_MIN)} in total at ${h.depth==="core"?"Core":"Full"} depth, roughly ${(((30*(lessonMin(h.depth)+GYM_SLOT)+CAP_MIN)/30)/60).toFixed(1)} hours a day for 30 days. These are my estimates, not measured with learners. At less time, the sprint just takes longer.</p></section>
+    <section class="card"><span class="eyebrow">The plan</span><ul class="labs">${rows}</ul></section>
+    <section class="card"><span class="eyebrow">Gates: do not skip these</span><ul>${gate.map(([d,t,x])=>`<li><b>${t}</b> (after day ${d}): ${x}</li>`).join("")}</ul></section>
+    <p class="hint"><a href="#capstone">Capstone studio</a> · <a href="#gyms">All gyms</a> · <a href="#plan">Change plan</a></p></div>`;}
+const CAP_MILESTONES=[
+ ["m1","Pick the problem and write a one-page spec","Day 22 or earlier. One user, one painful workflow, a list of what you will NOT build."],
+ ["m2","Data model and database","Tables, keys, indexes; seed data; at least 3 queries with a join and a window function."],
+ ["m3","Backend API","FastAPI endpoints with validation, error handling, pagination and tests."],
+ ["m4","Data pipeline","An ingest, clean, transform job (pandas or PySpark) that is idempotent and can be re-run."],
+ ["m5","AI feature","An LLM or RAG feature with a fallback when the model fails, plus a small evaluation set."],
+ ["m6","Auth and secrets","Login, per-user data access, secrets in environment variables, never in git."],
+ ["m7","Containerise","Dockerfile that builds and runs; one command starts the whole stack."],
+ ["m8","Deploy","Live URL, a CI step that runs tests, and a rollback you have actually tried."],
+ ["m9","Observe","Structured logs, a health endpoint, and one dashboard or alert."],
+ ["m10","Write the design doc and defend it","Architecture diagram, scaling story, trade-offs. Explain it aloud in 10 minutes."]];
+const CAP_ENTERPRISE=[
+ ["e1","Tests run automatically on every push"],["e2","No secrets in the repository"],["e3","Input validated at every boundary"],["e4","Database migrations, not manual edits"],
+ ["e5","Retries and timeouts on every external call"],["e6","Per-user authorisation checked on the server"],["e7","Logs you can search by request id"],["e8","A written runbook: how to deploy, roll back, and debug"],
+ ["e9","Load tested once, with a number you can quote"],["e10","Cost estimate for 100 users written down"]];
+function renderCapstone(){const c=S.cap||{},mDone=CAP_MILESTONES.filter(m=>c[m[0]]).length,eDone=CAP_ENTERPRISE.filter(m=>c[m[0]]).length;
+  const li=(a,hint)=>`<li><label class="selfcheck"><input type="checkbox" data-act="capt" data-k="${a[0]}" ${c[a[0]]?"checked":""}> <b>${esc(a[1])}</b>${a[2]?`<br><span class="hint">${esc(a[2])}</span>`:""}</label></li>`;
+  app.innerHTML=`<div class="view"><section style="display:flex;flex-direction:column;gap:8px"><a href="#sprint" class="muted">← Sprint map</a><span class="eyebrow">Capstone studio</span><h1>Build one real system, yourself</h1>
+    <p class="muted">This is the actual test. Lessons and gyms train the parts; the capstone proves you can combine them without a tutorial. ${mDone} of ${CAP_MILESTONES.length} milestones · ${eDone} of ${CAP_ENTERPRISE.length} enterprise checks.</p>
+    <p class="hint"><b>Honest limits:</b> ShipCode does not teach frontend (HTML/CSS/React), and it cannot run Docker or a cloud account inside the browser. Build the capstone in a real editor on your computer; tick items only when they are true. Whether 30 days is enough to reach enterprise grade depends on your hours and prior experience; treat this checklist, not the calendar, as the bar.</p></section>
+    <section class="card"><span class="eyebrow">Milestones</span><ul class="plain">${CAP_MILESTONES.map(m=>li(m)).join("")}</ul></section>
+    <section class="card"><span class="eyebrow">Enterprise-grade checklist</span><ul class="plain">${CAP_ENTERPRISE.map(m=>li(m)).join("")}</ul></section></div>`;}
 
 /* ---------- Learner study kit: everything stays on this device until the learner chooses to copy or download the report ---------- */
 const CHECK_SETS={pre:["U0","U4","U11"],post:["U1","U5","U12"]};
