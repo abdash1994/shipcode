@@ -52,6 +52,25 @@ Understand → solve one example by hand → write the steps as comments → cod
 | 3 | Name the pattern and write your own steps; code won't run until there are at least 3. |
 | 4 and mocks | Solo: steps as comments, then code. A model breakdown appears after you pass. |
 
+## SQL Gym (the `SQL` tab, `#sql`)
+
+Five levels, each with a short lesson, labs graded against a hidden second data set, and a concept quiz:
+1. **Writing**: SELECT, WHERE, JOIN, GROUP BY. 2. **Analysing**: window functions, CTEs, subqueries, date truncation, CASE, rolling averages, ranking. 3. **Optimising**: NULL handling, UNION, execution order. 4. **Scaling**: indexes, EXPLAIN, partitions, cutting scan size and cost. 5. **Deciding**: funnels, cohorts, retention curves, experiment results.
+
+Limits: Level 4 EXPLAIN labs run on SQLite, so they teach reading a plan, not a warehouse's. Partitioning and warehouse cost are a concept quiz and a written exercise, not runnable.
+
+## Teach before testing
+
+Each day's lesson shows the syntax its labs need (a "new today" card), and first-use drills are marked **new** with the syntax shown; recall drills come later. Day 28's terms are defined in the lesson. Worked examples differ from the labs, so copying the example does not pass. Drills run on several random inputs, so a fragile answer fails. Design answers credit plain-English wording.
+
+## Phone path and the mini capstone
+
+Day 1 can be done on a phone. Day 29 offers a smaller capstone with a starter project (a `.zip` with README, tests, Dockerfile and three TODOs). The Docker image has not been built or run by us; the tests were run with pytest.
+
+## Measuring whether it works
+
+`#report` shows your own numbers and exports a JSON file with no name or email. `LEARNER-STUDY.md` is the protocol for a pilot with real learners and `tools/study_summary.py` computes the four measures from their files. **No real learner has used it yet.**
+
 ## What's inside `index.html`
 
 | Part | Where to find it | What it holds |
