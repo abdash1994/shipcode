@@ -1,5 +1,5 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>ShipCode · Break it into steps. Code it. Ship it.</title><meta name="description" content="A 30-day trainer for aspiring forward deployed and AI engineers: learn to break any problem into steps and write real Python and SQL, with in-browser labs, drills and redos from scratch."><meta property="og:title" content="ShipCode · Break it into steps. Code it. Ship it."><meta property="og:description" content="30 days of guided problem breakdown, real code labs and redos from scratch."><meta name="theme-color" content="#2B50C8"><meta name="robots" content="noindex"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%232B50C8%22/%3E%3Ctext%20x%3D%2232%22%20y%3D%2242%22%20font-family%3D%22monospace%22%20font-size%3D%2228%22%20font-weight%3D%22700%22%20text-anchor%3D%22middle%22%20fill%3D%22%23fff%22%3E%26gt%3B_%3C/text%3E%3C/svg%3E"><style>html,body{margin:0}</style></head><body><meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>ShipCode · Break it into steps. Code it. Ship it.</title><meta name="description" content="A 30-day trainer for aspiring forward deployed and AI engineers: learn to break any problem into steps and write real Python and SQL, with in-browser labs, drills and redos from scratch."><meta property="og:title" content="ShipCode · Break it into steps. Code it. Ship it."><meta property="og:description" content="30 days of guided problem breakdown, real code labs and redos from scratch."><meta name="theme-color" content="#5550E8"><meta name="robots" content="noindex"><link rel="manifest" href="/manifest.webmanifest"><link rel="apple-touch-icon" href="/icon-192.png"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="ShipCode"><script>try{if("serviceWorker" in navigator&&location.protocol==="https:")addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){})})}catch(e){}</script><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%232B50C8%22/%3E%3Ctext%20x%3D%2232%22%20y%3D%2242%22%20font-family%3D%22monospace%22%20font-size%3D%2228%22%20font-weight%3D%22700%22%20text-anchor%3D%22middle%22%20fill%3D%22%23fff%22%3E%26gt%3B_%3C/text%3E%3C/svg%3E"><style>html,body{margin:0}</style></head><body><meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <style>
 /* Layout: phone-first app shell. Sticky top bar, one centered 680px column, fixed bottom tab bar; drills open in a full-screen sheet. */
 :root{
@@ -351,6 +351,188 @@ details.tables .tablebox{margin-bottom:8px}
 .editor-card{gap:10px}
 @media (max-width:420px){.gutter,.codearea{height:300px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* ===== Modern theme: soft surfaces, chunky buttons, journey path, sidebar on desktop ===== */
+:root{
+  --bg:#F4F5FC; --surface:#FFFFFF; --fg:#151936; --muted:#626A86; --line:#E4E7F4;
+  --accent:#5550E8; --accent-deep:#3B35B5; --accent-ink:#FFFFFF; --accent-soft:#ECEBFF;
+  --grad:linear-gradient(135deg,#5550E8 0%,#7B4FE6 100%);
+  --ok:#128A58; --ok-soft:#DDF5EA; --bad:#D63A3F; --bad-soft:#FDE7E8; --warn:#B86A00; --warn-soft:#FFF0D3;
+  --code:#EFF0FA; --glow1:#DDDBFF; --glow2:#FFE2F0;
+  --shadow:0 1px 2px rgba(25,25,80,.05),0 12px 28px -14px rgba(50,45,150,.25);
+  --r:20px;
+  --f-display:"Plus Jakarta Sans","Segoe UI",system-ui,sans-serif;
+  --f-body:"Plus Jakarta Sans","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0C0E1B; --surface:#151834; --fg:#ECEEFF; --muted:#A0A6C9; --line:#262A4E;
+  --accent:#9A97FF; --accent-deep:#3D37B8; --accent-soft:#23265A;
+  --grad:linear-gradient(135deg,#6560F0 0%,#8A58EC 100%);
+  --ok:#5CD39B; --ok-soft:#12332A; --bad:#FF8C90; --bad-soft:#3C1D22; --warn:#F2B25C; --warn-soft:#3A2A10;
+  --code:#1B1F42; --glow1:#1E1F5C; --glow2:#3A1A44; --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 28px -14px rgba(0,0,0,.6);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C0E1B; --surface:#151834; --fg:#ECEEFF; --muted:#A0A6C9; --line:#262A4E;
+  --accent:#9A97FF; --accent-deep:#3D37B8; --accent-soft:#23265A;
+  --grad:linear-gradient(135deg,#6560F0 0%,#8A58EC 100%);
+  --ok:#5CD39B; --ok-soft:#12332A; --bad:#FF8C90; --bad-soft:#3C1D22; --warn:#F2B25C; --warn-soft:#3A2A10;
+  --code:#1B1F42; --glow1:#1E1F5C; --glow2:#3A1A44; --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 28px -14px rgba(0,0,0,.6);color-scheme:dark}
+
+html{-webkit-text-size-adjust:100%}
+body{background:radial-gradient(900px 420px at 8% -8%,var(--glow1),transparent 62%),radial-gradient(700px 380px at 100% 0%,var(--glow2),transparent 60%),var(--bg);background-attachment:fixed;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+body::before{background:transparent}
+h1,h2,h3{letter-spacing:-.02em}
+h1{font-weight:800} h2{font-weight:800;font-size:1.3rem} h3{font-weight:700}
+.eyebrow{font-family:var(--f-body);font-weight:700;font-size:.72rem;letter-spacing:.1em}
+pre,code,textarea.code,input.code{font-family:var(--f-mono)}
+
+/* top bar */
+.top{background:color-mix(in srgb,var(--bg) 55%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:0}
+.top .col{padding-block:12px}
+.brand{font-weight:800;font-size:1.2rem;letter-spacing:-.02em}
+.brand span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-family:var(--f-mono);margin-right:6px}
+.stat{background:var(--surface);border-radius:99px;padding:5px 12px;box-shadow:var(--shadow);font-family:var(--f-body);font-weight:700;font-size:.9rem}
+.stat.streak{color:#E5671B} .stat.xp{color:var(--accent)}
+
+/* cards */
+main{padding-block:14px 28px}
+.view{gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+.card.session{border:1px solid var(--line);box-shadow:var(--shadow),0 0 0 2px color-mix(in srgb,var(--accent) 35%,transparent)}
+.hint{font-size:.84rem}
+.muted{color:var(--muted)}
+
+/* buttons: chunky and tactile */
+.btn{border-radius:14px;min-height:48px;font-weight:700;border:1px solid var(--line);background:var(--surface);box-shadow:0 2px 0 var(--line);transition:transform .08s,box-shadow .08s,border-color .15s}
+.btn:hover{border-color:var(--accent)}
+.btn:active{transform:translateY(2px);box-shadow:0 0 0 var(--line)}
+.btn.primary{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 4px 0 var(--accent-deep)}
+.btn.primary:active{transform:translateY(3px);box-shadow:0 1px 0 var(--accent-deep)}
+.btn.primary:disabled{opacity:.5;box-shadow:0 4px 0 var(--accent-deep)}
+.btn.ghost{background:transparent;box-shadow:none;border-color:transparent;color:var(--muted)}
+.btn.small{min-height:38px;border-radius:12px}
+.btn.danger{box-shadow:0 2px 0 var(--bad-soft)}
+.big-cta{min-height:56px;font-size:1.05rem;border-radius:16px}
+.grow{flex:1 1 auto}
+.chipbtn{border-radius:99px;font-weight:600;border:1px solid var(--line);min-height:42px;padding:8px 16px;transition:transform .08s}
+.chipbtn:active{transform:scale(.96)}
+.chipbtn.on{background:var(--grad);border-color:transparent;color:#fff}
+input.code,textarea.code{border:2px solid var(--line);border-radius:14px;background:var(--surface)}
+input.code{width:100%;padding:13px 14px;font-size:1rem;color:var(--fg)}
+input.code:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px var(--accent-soft)}
+input.timein{font-family:var(--f-body);font-size:1.4rem;font-weight:700;max-width:180px}
+
+/* day header becomes a banner */
+.dayhead{background:var(--grad);color:#fff;border-radius:24px;padding:22px 20px;box-shadow:0 18px 34px -18px rgba(85,80,232,.7)}
+.dayhead .eyebrow{color:rgba(255,255,255,.82)}
+.dayhead h1{color:#fff}
+.dayhead .can{color:#fff} .dayhead .can b{color:#FFE9A8}
+.dayhead .why{color:rgba(255,255,255,.88);border-left-color:rgba(255,255,255,.4)}
+
+/* session + bites */
+.sbar{height:12px;background:var(--accent-soft);border-radius:99px}
+.sbar span{background:var(--grad)}
+.parts li{border-top:1px dashed var(--line)}
+.parts .pk{border-radius:50%}
+.parts li.done .pk{background:var(--ok);border-color:var(--ok);color:#fff}
+.bites{background:linear-gradient(180deg,var(--surface),color-mix(in srgb,var(--accent-soft) 55%,var(--surface)))}
+.bitelist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.bitelist li{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+.bitelist .bk{width:18px;height:18px;border-radius:50%;border:2px solid var(--accent)}
+.bitelist .bn{font-weight:600}
+.bitelist .pt,.parts .pt{font-size:.8rem;color:var(--muted);font-weight:600}
+.wk{display:flex;align-items:center;gap:5px}
+.wd{width:26px;height:26px;border-radius:50%;background:var(--line);display:grid;place-items:center;color:var(--muted);font-size:.68rem;font-weight:700}
+.wd i{font-style:normal}
+.wd.on{background:var(--ok);color:#fff}
+.wd.today{box-shadow:0 0 0 3px var(--accent-soft),0 0 0 5px var(--accent)}
+.wk small{margin-left:4px;font-weight:700}
+
+/* pace card */
+.pace{border-left:0;border:1px solid var(--line)}
+.pace.behind{background:var(--warn-soft);border-color:color-mix(in srgb,var(--warn) 40%,transparent)}
+.pacebar{height:12px;background:var(--accent-soft)}
+.pacebar .fill{background:var(--grad)}
+.plan-sum{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-radius:14px;background:var(--accent-soft)}
+
+/* setup wizard */
+.wiz{gap:18px;max-width:640px;margin:0 auto;width:100%}
+.wiz-dots{display:flex;gap:6px}
+.wiz-dots span{flex:1;height:6px;border-radius:99px;background:var(--line)}
+.wiz-dots span.on{background:var(--grad)}
+.hero h1{font-size:clamp(1.9rem,7vw,2.7rem)}
+.wiz-foot{position:sticky;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding-top:6px}
+.wiz-foot .btn.primary{flex:1 1 200px}
+.choices{display:flex;flex-direction:column;gap:12px}
+.choice{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;padding:16px 18px;border-radius:18px;border:2px solid var(--line);background:var(--surface);cursor:pointer;box-shadow:0 3px 0 var(--line);transition:transform .08s,border-color .15s,background .15s;font:inherit;color:inherit}
+.choice:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}
+.choice b{font-size:1.08rem}
+.choice span{color:var(--muted);font-size:.92rem}
+.choice em{font-style:normal;font-weight:700;font-size:.88rem;color:var(--accent);margin-top:4px}
+.choice .tier{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:var(--accent);background:var(--accent-soft);border-radius:99px;padding:2px 8px;margin-left:6px;vertical-align:2px}
+.choice.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 3px 0 var(--accent)}
+.card.note p+p{margin-top:4px}
+
+/* path: a journey with a connecting line */
+.path{border-radius:var(--r);box-shadow:var(--shadow);border:1px solid var(--line);position:relative}
+.prow{position:relative;padding:12px 16px;border-top:0}
+.prow::before{content:"";position:absolute;left:36px;top:0;bottom:0;width:3px;background:var(--line)}
+.prow:first-child::before{top:50%} .prow:last-child::before{bottom:50%}
+.prow.done::before{background:var(--ok)}
+.prow .node{position:relative;z-index:1;width:40px;height:40px;background:var(--surface);border-width:3px;font-family:var(--f-body);font-weight:800}
+.prow.done .node{background:var(--ok);border-color:var(--ok);color:#fff}
+.prow.current .node{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 0 0 5px var(--accent-soft)}
+.prow:hover{background:var(--accent-soft)}
+.prow .ptitle{font-weight:600}
+.week h2{font-size:1.15rem}
+
+/* bottom nav: floating pill on phones */
+.tabs{background:transparent;border-top:0;padding:0 12px calc(10px + env(safe-area-inset-bottom,0px));pointer-events:none}
+.tabs .col{pointer-events:auto;background:color-mix(in srgb,var(--surface) 92%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:24px;box-shadow:0 14px 34px -12px rgba(30,30,100,.35);padding:6px;max-width:560px;gap:2px}
+.tabs a{border-radius:18px;padding:8px 2px;font-size:.7rem;font-weight:700;gap:3px;transition:background .15s,color .15s}
+.tabs a[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
+body{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+
+/* sheet (drills, labs) */
+.sheet{background:radial-gradient(800px 360px at 10% -10%,var(--glow1),transparent 60%),var(--bg)}
+.sprog{height:14px;background:var(--accent-soft)}
+.sprog span{background:var(--grad)}
+.opt{border-radius:16px;border-width:2px;box-shadow:0 3px 0 var(--line);font-weight:600}
+.opt.sel{border-color:var(--accent);box-shadow:0 3px 0 var(--accent)}
+.opt.right{box-shadow:0 3px 0 var(--ok)} .opt.wrong{box-shadow:0 3px 0 var(--bad)}
+.fb{border-radius:16px}
+.labrow{border-radius:14px}
+.tablebox{border-radius:var(--r);box-shadow:var(--shadow)}
+pre{border-radius:14px}
+.chip{font-family:var(--f-body);font-weight:700;font-size:.72rem}
+
+/* tablets */
+@media (min-width:700px){
+  .col{max-width:720px}
+  .tabs .col{max-width:600px}
+}
+/* desktop: sidebar navigation, wider canvas */
+@media (min-width:1000px){
+  body{padding-left:calc(248px + 24px);padding-right:24px;padding-bottom:40px}
+  .tabs{top:0;bottom:0;left:0;right:auto;width:248px;padding:18px 14px;pointer-events:auto;background:var(--surface);border-right:1px solid var(--line)}
+  .tabs .col{display:flex;flex-direction:column;gap:6px;max-width:none;border:0;border-radius:0;box-shadow:none;background:transparent;padding:64px 0 0;-webkit-backdrop-filter:none;backdrop-filter:none}
+  .tabs .col a{flex-direction:row;gap:14px;padding:13px 16px;font-size:1rem;border-radius:14px}
+  .tabs .col a svg{width:22px;height:22px}
+  .top{position:sticky;margin-left:-24px;padding-left:24px}
+  .top .col,main.col{max-width:820px}
+  .brand{position:fixed;top:20px;left:24px;flex:none;font-size:1.35rem;z-index:7}
+  .top .col{justify-content:flex-end}
+  .wiz-foot{bottom:16px}
+  .dayhead{padding:28px 28px}
+}
+@media (min-width:1280px){ .top .col,main.col{max-width:900px} }
+@media (prefers-reduced-motion:reduce){.btn,.choice,.chipbtn{transition:none}}
+
+body.onboarding .tabs{display:none}
+body.onboarding{padding-bottom:40px}
+@media (min-width:1000px){body.onboarding{padding-left:24px}}
+.wiz-foot{background:linear-gradient(to bottom,transparent,var(--bg) 40%);padding-bottom:12px;margin-inline:-4px;padding-inline:4px}
+.top{margin-inline:-16px;padding-inline:16px}
+@media (min-width:1000px){.top{margin-left:-24px;margin-right:-24px;padding-inline:24px}}
 </style>
 
 <header class="top"><div class="col">
@@ -1014,10 +1196,10 @@ const ERR_ROWS=[["SyntaxError","Python can't parse the line","Missing :, bracket
 
 /* ---------- State ---------- */
 const KEY="blankfile-state-v1";
-const blank=()=>({v:1,t:0,start:null,pace:30,done:[],solved:{},missed:[],xp:0,dates:[],tasks:{},labs:{},plans:{},srs:{},lsrs:{},me:{},lstat:{},errs:{},mocks:[],proof:{},log:[],checks:{},survey:{},doneOn:{},exam:{},reviews:[]});
+const blank=()=>({v:1,t:0,start:null,pace:30,habit:null,done:[],solved:{},missed:[],xp:0,dates:[],tasks:{},labs:{},plans:{},srs:{},lsrs:{},me:{},lstat:{},errs:{},mocks:[],proof:{},log:[],checks:{},survey:{},doneOn:{},exam:{},reviews:[]});
 const obj=x=>x&&typeof x==="object"&&!Array.isArray(x)?{...x}:{};
 function clean(o){const b=blank();if(!o||typeof o!=="object")return b;
-  return {v:1,t:Number.isFinite(o.t)?o.t:0,start:typeof o.start==="string"?o.start:null,pace:[15,60].includes(o.pace)?o.pace:30,
+  return {v:1,t:Number.isFinite(o.t)?o.t:0,start:typeof o.start==="string"?o.start:null,pace:Number.isInteger(o.pace)&&o.pace>=15&&o.pace<=1200?o.pace:30,habit:cleanHabit(o.habit),
     done:Array.isArray(o.done)?o.done.filter(n=>Number.isInteger(n)&&n>=1&&n<=30):[],
     solved:obj(o.solved),missed:Array.isArray(o.missed)?o.missed.filter(x=>typeof x==="string"):[],
     xp:Number.isFinite(o.xp)?o.xp:0,dates:Array.isArray(o.dates)?o.dates.filter(x=>typeof x==="string"):[],
@@ -1032,7 +1214,7 @@ function merge(a,b){a=clean(a);b=clean(b);
   if(a.t||b.t)return b.t>a.t?b:a;
   const starts=[a.start,b.start].filter(Boolean).sort();
   const solved={...a.solved,...b.solved};
-  return {v:1,t:0,start:starts[0]||null,pace:b.start?b.pace:a.pace,
+  return {v:1,t:0,start:starts[0]||null,pace:b.start?b.pace:a.pace,habit:b.start?b.habit:a.habit,
     done:[...new Set([...a.done,...b.done])].sort((x,y)=>x-y),solved,
     missed:[...new Set([...a.missed,...b.missed])].filter(id=>!solved[id]),
     xp:Math.max(a.xp,b.xp),dates:[...new Set([...a.dates,...b.dates])].sort().slice(-120),tasks:{...a.tasks,...b.tasks},
@@ -1080,7 +1262,7 @@ function isCorrect(d,input){const accN=(d.acc||[]).map(a=>norm(a,d.sql));const n
   return c.some(x=>(d.re&&d.re.test(x))||accN.includes(x));}
 function streak(){const set=new Set(S.dates);let d=todayISO(),n=0,lastRest=null;if(!set.has(d))d=shift(d,-1);
   for(let g=0;g<400;g++){if(set.has(d)){n++;d=shift(d,-1);continue;}
-    if((lastRest===null||diffDays(d,lastRest)>=7)&&set.has(shift(d,-1))){lastRest=d;d=shift(d,-1);continue;}break;}
+    if(!isStrict()&&(lastRest===null||diffDays(d,lastRest)>=7)&&set.has(shift(d,-1))){lastRest=d;d=shift(d,-1);continue;}break;}
   return n;}
 function markPractice(){const t=todayISO();if(!S.dates.includes(t))S.dates=[...S.dates,t].slice(-120);}
 const isDone=n=>S.done.includes(n);
@@ -1091,7 +1273,7 @@ const labCount=n=>labsOf(n).filter(L=>S.labs[L.id]).length;
 const reachedDay=()=>Math.min(30,Math.max(currentDay(),(S.done.length?Math.max(...S.done):0)+1));
 function currentDay(){for(let i=1;i<=30;i++)if(!isDone(i))return i;return 30;}
 const calDay=()=>S.start?Math.max(1,diffDays(S.start,todayISO())+1):null;
-function targetDay(){if(!S.start)return null;const el=calDay();return Math.min(30,S.pace===15?el*2:S.pace===60?Math.ceil(el/2):el);}
+function targetDay(){if(!S.start)return null;const el=calDay();return Math.min(30,Math.max(1,Math.ceil(el*30/S.pace)));}
 function weekOf(n){return WEEKS.find(w=>n>=w.from&&n<=w.to);}
 const allDrills=()=>DAYS.flatMap(d=>d.drills);
 /* Extra recall drills, and run-based grading for the typed drills that can be executed. Appended, so existing drill ids don't move. */
@@ -1159,52 +1341,31 @@ function levelInfo(d=S.done.length){let i=0;LEVELS.forEach((l,j)=>{if(d>=l[0])i=
   return {name:LEVELS[i][1],next:nx?nx[1]:null,toNext:nx?nx[0]-d:0,pct:nx?Math.round((d-LEVELS[i][0])/(nx[0]-LEVELS[i][0])*100):100};}
 const labsPassedN=()=>Object.keys(S.labs).filter(id=>labById(id)).length;
 const fmtDate=iso=>new Date(iso+"T00:00:00").toLocaleDateString(undefined,{day:"numeric",month:"short"});
-function replanStart(){const cur=currentDay();const el=S.pace===15?Math.ceil(cur/2):S.pace===60?cur*2-1:cur;return shift(todayISO(),-(el-1));}
+function replanStart(){const cur=currentDay();const el=Math.floor((cur-1)*S.pace/30)+1;return shift(todayISO(),-(el-1));}
 const canComplete=n=>drillsDone(n)&&labsDone(n)&&!!S.tasks[n+"-g"];
 
 function paceCard(){
   const tgt=targetDay(),doneN=S.done.length,el=calDay();
-  const dueBefore=Math.min(30,S.pace===15?(el-1)*2:S.pace===60?Math.floor((el-1)/2):el-1);
+  const dueBefore=Math.min(30,Math.floor((el-1)*30/S.pace));
   const behind=Math.max(0,dueBefore-doneN),ahead=Math.max(0,doneN-tgt);
   let cls="",msg,btn="";
   if(doneN>=30){cls="ahead";msg="<b>All 30 days done.</b> Keep the daily warm-up going and work through your gaps list.";}
-  else if(behind>0){cls="behind";msg=`<b>${behind} day${behind>1?"s":""} behind your plan.</b> That happens to almost everyone, and it's fine. Keep going at your pace, or re-plan: your finish date moves to <b>${fmtDate(shift(replanStart(),S.pace-1))}</b>, and nothing is lost.`;btn=`<button class="btn small" data-act="replan">Re-plan from here</button>`;}
+  else if(behind>0){cls="behind";msg=`${isFlex()?`<b>${behind} lesson${behind>1?"s":""} past your plan.</b> Nothing to catch up on and no streak lost; the plan flexes. Keep going, or move your finish date:`:`<b>${behind} day${behind>1?"s":""} behind your plan.</b> That happens to almost everyone, and it's fine. Keep going at your pace, or re-plan:`} your finish date moves to <b>${fmtDate(shift(replanStart(),S.pace-1))}</b>, and nothing is lost.`;btn=`<button class="btn small" data-act="replan">Re-plan from here</button>`;}
   else if(ahead>0){cls="ahead";msg=`<b>Ahead of plan by ${ahead} day${ahead>1?"s":""}.</b> Use the spare time on redos rather than rushing ahead.`;}
   else if(doneN>=tgt){cls="ahead";msg=`<b>Today's target is done.</b> Anything more is a bonus.`;}
   else msg=`<b>On track.</b> Today's target: ${S.pace===15&&tgt-doneN>1?`Days ${tgt-1} and ${tgt}`:`Day ${tgt}`}.`;
-  return `<section class="card pace ${cls}"><div class="row" style="justify-content:space-between"><span class="eyebrow">${S.pace===15?"15-day sprint":S.pace===60?"60-day plan":"30-day plan"} · calendar day ${Math.min(el,S.pace)} of ${S.pace}</span><span class="chip">${doneN}/30 done</span></div>
+  return `<section class="card pace ${cls}"><div class="row" style="justify-content:space-between"><span class="eyebrow">${planLabel()} · calendar day ${Math.min(el,S.pace)} of ${S.pace}</span><span class="chip">${doneN}/30 done</span></div>
     <p>${msg}</p><div class="pacebar" aria-hidden="true"><div class="fill" style="width:${doneN/30*100}%"></div><div class="target" style="left:${tgt/30*100}%"></div></div>${btn?`<div class="row">${btn}</div>`:""}</section>`;
-}
-
-function renderOnboarding(){
-  const me=S.me||{};
-  app.innerHTML=`<div class="view">
-    <section class="hero"><span class="eyebrow">ShipCode · 30 days</span><h1>Break it into steps. Code it. Ship it.</h1>
-      <p class="lead">For people who understand the concepts but freeze when it's time to write the code. You won't get there by memorizing syntax. You'll learn to break any problem into steps, then turn each step into code, every day, until it's automatic.</p></section>
-    <section class="card"><span class="eyebrow">How every day works</span><ol class="how">
-      <li><b>Think</b><span>Solve one example by hand and write the steps in plain English.</span></li>
-      <li><b>Code</b><span>Turn each step into code and run it against real tests, right here.</span></li>
-      <li><b>Repeat</b><span>Problems you've solved come back from a blank file until they're automatic.</span></li></ol></section>
-    <section class="card"><label class="field"><span class="eyebrow">Your why. You'll see it on the hard days.</span>
-      <input class="code" id="why" maxlength="140" autocomplete="off" placeholder="e.g. Land an FDE role by March" value="${esc(me.why||"")}"></label>
-      <div class="field"><span class="eyebrow">When will you practise each day?</span>
-        <div class="chips">${["Early morning","Morning","Afternoon","Evening","Late night"].map(t=>`<button class="chipbtn ${me.time===t?"on":""}" data-act="slot" data-slot="${t}" aria-pressed="${me.time===t}">${t}</button>`).join("")}</div>
-        <p class="hint">The same time every day works better than long weekend sessions. Block it in your calendar now.</p></div></section>
-    <section class="card onboard"><span class="eyebrow">Pick your pace. The clock starts today.</span>
-      <div class="row"><button class="btn" data-act="pace" data-pace="30"><span>30-day plan</span><small>5–6 focused hours a day. Recommended.</small></button>
-      <button class="btn" data-act="pace" data-pace="60"><span>60-day plan</span><small>2–3 hours a day, around a job. One lesson every two days.</small></button>
-      <button class="btn" data-act="pace" data-pace="15"><span>15-day sprint</span><small>10+ hours a day. Two lessons per day.</small></button></div>${EXPECT}</section>
-  </div>`;
 }
 
 function sessionParts(n){const d=DAYS[n-1],labs=labsOf(n),ho=[n+"-b",...d.solve.map((_,i)=>n+"-s"+i)];
   const warm=n===currentDay()?warmIds().length+Math.min(comeback()?1:2,dueLabs().length):0,parts=[],warmDone=S.warmDay===todayISO();
-  if(warm||warmDone)parts.push({k:"warm",name:"Warm-up",time:"10–20 min",done:warmDone,sub:warmDone?"done today":`${warm} to review today (the rest wait for tomorrow)`});
-  parts.push({k:"concept",name:"Concept",time:"10 min",done:!!S.tasks[n+"-c"]});
-  parts.push({k:"drills",name:"Drills",time:"10 min",done:drillsDone(n),sub:`${drillCount(n)}/${d.drills.length}`});
-  if(labs.length)parts.push({k:"labs",name:"Code labs",time:"60–90 min",done:labsDone(n),sub:`${labCount(n)}/${labs.length}`});
-  parts.push({k:"hands",name:"Hands-on",time:"2–3 hrs",done:ho.every(k=>S.tasks[k]),sub:`${ho.filter(k=>S.tasks[k]).length}/${ho.length}`});
-  parts.push({k:"gate",name:"Done-when check",time:"15 min",done:!!S.tasks[n+"-g"]});
+  if(warm||warmDone)parts.push({k:"warm",name:"Warm-up",time:"10–20 min",m:15,done:warmDone,sub:warmDone?"done today":`${warm} to review today (the rest wait for tomorrow)`});
+  parts.push({k:"concept",name:"Concept",time:"10 min",m:10,done:!!S.tasks[n+"-c"]});
+  parts.push({k:"drills",name:"Drills",time:"10 min",m:10,done:drillsDone(n),sub:`${drillCount(n)}/${d.drills.length}`});
+  if(labs.length)parts.push({k:"labs",name:"Code labs",time:"60–90 min",m:75,done:labsDone(n),sub:`${labCount(n)}/${labs.length}`});
+  parts.push({k:"hands",name:"Hands-on",time:"2–3 hrs",m:150,done:ho.every(k=>S.tasks[k]),sub:`${ho.filter(k=>S.tasks[k]).length}/${ho.length}`});
+  parts.push({k:"gate",name:"Done-when check",time:"15 min",m:15,done:!!S.tasks[n+"-g"]});
   return parts;}
 function sessionCard(n){
   const parts=sessionParts(n),dn=parts.filter(p=>p.done).length,next=parts.find(p=>!p.done),pct=isDone(n)?100:Math.round(dn/parts.length*100);
@@ -1302,7 +1463,7 @@ function renderToday(n){
       <p class="can"><b>After today you can</b> ${esc(d.can)}</p>
       <p class="why">${esc(d.why)}</p></section>
     ${cur&&S.start&&comeback()?comebackCard():""}
-    ${sessionCard(n)}${dayNote(n)}
+    ${cur&&S.start?bitesCard(n):""}${sessionCard(n)}${dayNote(n)}
     ${cur&&S.start&&!comeback()?paceCard():""}
     ${cur?warmCard():""}${cur?repSetCard():""}${cur?reviewDueCard():""}${surveyCard()}
     <details class="card lesson" id="concept" ${cDone?"":"open"}><summary><span class="eyebrow">1 · Concept (10 min)</span>${cDone?'<span class="chip ok">Done</span>':""}</summary>
@@ -1490,10 +1651,8 @@ function renderRef(){
     <section class="card"><span class="eyebrow">Your why</span><p class="hint">Shown when a lab gets hard.</p><div class="row"><input class="code" id="whyRef" maxlength="140" style="flex:1 1 240px" value="${esc(S.me.why||"")}" placeholder="e.g. Land an FDE role by March"><button class="btn small" data-act="savewhy">Save</button></div></section>
     <section class="card"><span class="eyebrow">Settings</span>
       <p class="sync" id="syncState">${syncText()}</p>
-      <div class="row"><span class="muted">Pace:</span>
-        <button class="btn small ${S.pace===30?"primary":""}" data-act="setpace" data-pace="30">30 days</button>
-        <button class="btn small ${S.pace===60?"primary":""}" data-act="setpace" data-pace="60">60 days</button>
-        <button class="btn small ${S.pace===15?"primary":""}" data-act="setpace" data-pace="15">15-day sprint</button></div>
+      <div class="plan-sum"><span class="muted">Your plan</span><b>${planLabel()}</b><span class="muted">Finish about ${fmtDateY(shift(S.start||todayISO(),S.pace-1))}</span></div>
+      <div class="row"><a class="btn small primary" href="#plan">Change my plan</a><button class="btn small" data-act="ics">Calendar reminder</button></div>${installBlock()}
       <div class="row"><button class="btn small" data-act="restartclock">Restart the clock from today</button>
         <button class="btn small danger" data-act="askreset">Reset all progress</button></div>
       ${confirmReset?`<div class="confirm"><p><b>Erase all progress?</b> Drills, labs, days, streak and XP will be cleared, and other devices pick this up the next time they open the app. This can't be undone.</p><div class="row"><button class="btn small danger" data-act="reset">Erase everything</button><button class="btn small" data-act="cancelreset">Keep my progress</button></div></div>`:""}
@@ -1523,6 +1682,138 @@ async function renderDiag(){
   await t("eval (unsafe-eval)",async()=>String(new Function("return 2+2")()));
   add("CSP violations seen: "+(CSPV.length?"\n  "+CSPV.join("\n  "):"none"));
 }
+/* ---------- Habit: minutes a day, days a week, flexible or strict ---------- */
+/* COURSE_MIN is my estimate of the work in the course, from the part timings on each day (15+10+10+75+150+15 = 275 min a lesson). It has not been measured with real learners. */
+const COURSE_MIN=30*275;
+const MINOPTS=[[5,"Tiny","Builds the habit. Not enough to finish the course soon."],[10,"Micro","One drill set or one lab step."],[30,"Light","A warm-up and a lab step."],[60,"Steady","One big part of a lesson a day."],[120,"Serious","Most of a lesson a day."],[275,"Full-time","A whole lesson a day. The 30-day plan."],[550,"Sprint","Two lessons a day. 15 days, about 9 hours."]];
+const DPWOPTS=[2,3,4,5,6,7];
+function cleanHabit(h){if(!h||typeof h!=="object")return null;
+  const min=Number.isInteger(h.min)&&h.min>=5&&h.min<=600?h.min:0,dpw=Number.isInteger(h.dpw)&&h.dpw>=1&&h.dpw<=7?h.dpw:0;
+  if(!min||!dpw)return null;
+  return {min,dpw,mode:h.mode==="strict"?"strict":"flex",at:typeof h.at==="string"&&/^\d\d:\d\d$/.test(h.at)?h.at:"19:00"};}
+function paceFor(min,dpw){return Math.max(15,Math.min(1200,Math.ceil(COURSE_MIN/(min*dpw)*7)));}
+function habitOf(){return S.habit||{min:Math.min(600,Math.max(5,Math.round(COURSE_MIN/S.pace))),dpw:7,mode:"strict",at:"19:00",derived:true};}
+const isStrict=()=>!!S.habit&&S.habit.mode==="strict";
+const isFlex=()=>!!S.habit&&S.habit.mode==="flex";
+function spanText(days){if(days<=45)return days+" days";if(days<=120)return Math.round(days/7)+" weeks";if(days<=700)return "about "+Math.round(days/30.4)+" months";return "about "+(Math.round(days/365*10)/10)+" years";}
+function realityNote(days){
+  if(days<=35)return "A full lesson every day. This is the 30-day promise.";
+  if(days<=75)return "Realistic around a job, if you protect the time.";
+  if(days<=240)return "Slower, but it works if you keep showing up. The exam, not the calendar, decides when you are done.";
+  return "This builds the habit, but at this rate the whole course takes "+spanText(days)+". Treat it as the minimum you never skip, and add a longer block when you can.";}
+const fmtDateY=iso=>new Date(iso+"T00:00:00").toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"});
+function planLabel(){const h=habitOf();return `${h.min} min · ${h.dpw===7?"every day":h.dpw+" days a week"} · ${h.mode==="strict"?"strict":"flexible"}`;}
+function slotOf(at){const hr=+String(at||"19:00").slice(0,2);return hr<8?"Early morning":hr<12?"Morning":hr<17?"Afternoon":hr<21?"Evening":"Late night";}
+
+/* Weekly goal (flexible plans): days practised this Monday-to-Sunday week */
+function weekDots(){const t=todayISO(),wd=(new Date(t+"T12:00:00").getDay()+6)%7,ws=shift(t,-wd),set=new Set(S.dates);
+  return Array.from({length:7},(_,i)=>{const d=shift(ws,i);return {d,done:set.has(d),today:d===t,future:d>t,lab:"MTWTFSS"[i]};});}
+function weekCount(){return weekDots().filter(x=>x.done).length;}
+
+/* The minutes plan for today: the next parts that fit in the daily budget (the last one is time-boxed if it is bigger) */
+function bitePlan(parts,B){let rem=B;const out=[];
+  for(const p of parts){if(p.done)continue;
+    if(p.m<=rem){out.push({...p,use:p.m});rem-=p.m;}
+    else{if(!out.length)out.push({...p,use:B,partial:true});break;}}
+  return out;}
+function bitesLoggedToday(){const t=todayISO();return (S.log||[]).some(e=>e.ev==="bite"&&e.d===t);}
+function bitesCard(n){
+  if(isDone(n))return "";const h=habitOf();if(h.min>=240)return "";
+  const parts=sessionParts(n),plan=bitePlan(parts,h.min),first=plan[0];if(!first)return "";
+  const logged=bitesLoggedToday(),dots=weekDots(),wc=weekCount();
+  return `<section class="card bites"><div class="row" style="justify-content:space-between"><span class="eyebrow">Today · ${h.min} minutes</span><span class="chip ${logged?"ok":"acc"}">${logged?"Logged":"Your session"}</span></div>
+    <h2>${logged?"You showed up today.":`${h.min} minutes. That is the whole job today.`}</h2>
+    <ol class="bitelist">${plan.map(p=>`<li><span class="bk" aria-hidden="true"></span><span class="bn">${p.name}${p.partial?` <span class="muted">· work on it until ${h.min} minutes are up; your progress is saved</span>`:""}</span><span class="pt">${p.use} min</span></li>`).join("")}</ol>
+    <button class="btn primary block big-cta" data-act="next" data-day="${n}" data-part="${first.k}">Start: ${first.name} →</button>
+    <div class="row" style="justify-content:space-between"><button class="btn small" data-act="logbite" ${logged?"disabled":""}>${logged?"Logged ✓":`I did my ${h.min} minutes`}</button>
+      <div class="wk" aria-label="${wc} of ${h.dpw} practice days this week">${dots.map(x=>`<span class="wd ${x.done?"on":""} ${x.today?"today":""}"><i>${x.lab}</i></span>`).join("")}<small class="muted">${wc}/${h.dpw}</small></div></div>
+    </section>`;}
+
+/* Calendar reminders. A .ics file works in Google, Apple and Outlook calendars on any device. */
+const ICS_DAYS={1:"SU",2:"TU,TH",3:"MO,WE,FR",4:"MO,TU,TH,FR",5:"MO,TU,WE,TH,FR",6:"MO,TU,WE,TH,FR,SA"};
+function rruleFor(dpw){return dpw>=7?"FREQ=DAILY":"FREQ=WEEKLY;BYDAY="+ICS_DAYS[dpw];}
+function icsStamp(iso,at){return iso.replace(/-/g,"")+"T"+String(at||"19:00").replace(":","")+"00";}
+function icsText(h){const t=todayISO(),url=(location.origin&&location.origin!=="null"?location.origin:"")||"";
+  return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//ShipCode//Habit//EN","CALSCALE:GREGORIAN","BEGIN:VEVENT",
+    "UID:shipcode-habit-"+Date.now()+"@shipcode","DTSTAMP:"+new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z",
+    "DTSTART:"+icsStamp(t,h.at),"DURATION:PT"+h.min+"M","RRULE:"+rruleFor(h.dpw),
+    "SUMMARY:ShipCode: "+h.min+" minutes","DESCRIPTION:Your daily ShipCode session. Open the app and start today's plan."+(url?" "+url:""),
+    "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:ShipCode time","TRIGGER:PT0M","END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n")+"\r\n";}
+function downloadIcs(h){try{const url=URL.createObjectURL(new Blob([icsText(h)],{type:"text/calendar"})),a=document.createElement("a");a.href=url;a.download="shipcode-reminder.ics";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);}catch(e){}}
+function gcalUrl(h){const t=todayISO(),a=icsStamp(t,h.at),end=new Date(new Date(t+"T"+h.at+":00").getTime()+h.min*60000),p=x=>String(x).padStart(2,"0"),
+    e=end.getFullYear()+p(end.getMonth()+1)+p(end.getDate())+"T"+p(end.getHours())+p(end.getMinutes())+"00";
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent("ShipCode: "+h.min+" minutes")+"&dates="+a+"/"+e+"&recur="+encodeURIComponent("RRULE:"+rruleFor(h.dpw))+"&details="+encodeURIComponent("Your daily ShipCode session.");}
+
+/* Install prompt (Android Chrome and desktop Chrome/Edge); iOS uses Share, then Add to Home Screen. */
+let deferredInstall=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstall=e;if(location.hash==="#plan"||!S.start)route();});
+window.addEventListener("appinstalled",()=>{deferredInstall=null;});
+const isStandalone=()=>{try{return window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;}catch(e){return false;}};
+function installBlock(){if(isStandalone())return `<p class="hint">Installed. Open it from your home screen.</p>`;
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent||"");
+  return deferredInstall?`<button class="btn" data-act="install">Install the app on this device</button>`
+    :`<p class="hint">${ios?"On iPhone or iPad: tap Share, then Add to Home Screen.":"To install: use your browser's menu and choose Install app or Add to Home Screen (not every browser offers it)."}</p>`;}
+
+/* ---------- Setup wizard ---------- */
+let ob=null;
+function obInit(edit){
+  if(ob&&ob.edit===edit)return;
+  const h=S.habit||(edit?habitOf():null);
+  ob={edit,step:edit?2:0,mode:h?h.mode:"flex",dpw:h?h.dpw:5,min:h?h.min:30,at:h?h.at:"19:00",why:S.me.why||""};}
+function obRead(){const w=document.getElementById("obwhy"),a=document.getElementById("obat");if(w)ob.why=w.value.trim().slice(0,140);if(a&&/^\d\d:\d\d$/.test(a.value))ob.at=a.value;}
+const obDpw=()=>ob.mode==="strict"?7:ob.dpw;
+function obHabit(){return {min:ob.min,dpw:obDpw(),mode:ob.mode,at:ob.at||"19:00"};}
+function applyHabit(h){S.habit=h;S.pace=paceFor(h.min,h.dpw);
+  S.start=(S.start&&S.done.length)?replanStart():todayISO();
+  S.me={...S.me,why:(ob&&ob.why!==undefined?ob.why:S.me.why)||"",time:slotOf(h.at)};}
+function obAct(act,b){
+  if(act==="obgo"){obRead();ob.step=+b.dataset.step;renderOnboarding();window.scrollTo(0,0);return true;}
+  if(act==="obmode"){obRead();ob.mode=b.dataset.mode;renderOnboarding();return true;}
+  if(act==="obdpw"){obRead();ob.dpw=+b.dataset.dpw;renderOnboarding();return true;}
+  if(act==="obmin"){obRead();ob.min=+b.dataset.min;renderOnboarding();return true;}
+  if(act==="obics"){obRead();downloadIcs(obHabit());return true;}
+  if(act==="obstart"){obRead();const h=obHabit();applyHabit(h);logEv("plan",{min:h.min,dpw:h.dpw,mode:h.mode});ob=null;save();location.hash="";route();window.scrollTo(0,0);return true;}
+  if(act==="install"){if(deferredInstall){deferredInstall.prompt();deferredInstall=null;}return true;}
+  if(act==="ics"){downloadIcs(habitOf());return true;}
+  if(act==="logbite"){markPractice();logEv("bite",{min:habitOf().min});save();route();return true;}
+  return false;}
+function obDots(){const total=ob.edit?3:5,at=ob.edit?ob.step-2:ob.step;
+  return `<div class="wiz-dots" aria-label="Step ${at+1} of ${total}">${Array.from({length:total},(_,i)=>`<span class="${i<=at?"on":""}"></span>`).join("")}</div>`;}
+function renderOnboarding(){
+  if(!ob)obInit(false);
+  const st=ob.step,dpw=obDpw(),days=paceFor(ob.min,dpw),fin=shift(todayISO(),days-1);
+  const back=st>(ob.edit?2:0)?`<button class="btn ghost" data-act="obgo" data-step="${st-1}">Back</button>`:(ob.edit?`<a class="btn ghost" href="#path">Cancel</a>`:"");
+  let body="";
+  if(st===0){body=`<section class="hero"><span class="eyebrow">ShipCode</span><h1>Break it into steps. Code it. Ship it.</h1>
+      <p class="lead">For people who understand the concepts but freeze when it is time to write the code. You will not get there by memorizing syntax. You will learn to break any problem into steps, turn each step into code, and repeat until it is automatic.</p></section>
+    <section class="card"><span class="eyebrow">How every day works</span><ol class="how">
+      <li><b>Think</b><span>Solve one example by hand and write the steps in plain English.</span></li>
+      <li><b>Code</b><span>Turn each step into code and run it against real tests, right here.</span></li>
+      <li><b>Repeat</b><span>Problems you have solved come back from a blank file until they are automatic.</span></li></ol></section>
+    <div class="wiz-foot"><button class="btn primary block big-cta" data-act="obgo" data-step="1">Set up my plan →</button><p class="hint" style="text-align:center">Takes about a minute. Runs on your phone, tablet or computer. Nothing to install.</p></div>`;}
+  else if(st===1){body=`<section class="hero"><span class="eyebrow">Step 1 of 4</span><h1>Why are you doing this?</h1><p class="lead">You will see this on the hard days.</p></section>
+    <section class="card"><label class="field"><input class="code" id="obwhy" maxlength="140" autocomplete="off" placeholder="e.g. Land a forward deployed engineer role by March" value="${esc(ob.why)}"></label></section>
+    <div class="wiz-foot"><button class="btn primary block big-cta" data-act="obgo" data-step="2">Continue →</button></div>`;}
+  else if(st===2){body=`<section class="hero"><span class="eyebrow">${ob.edit?"Your plan":"Step 2 of 4"}</span><h1>How strict do you want to be?</h1><p class="lead">Both work. Pick the one you will actually keep.</p></section>
+    <div class="choices">
+      <button class="choice ${ob.mode==="flex"?"on":""}" data-act="obmode" data-mode="flex" aria-pressed="${ob.mode==="flex"}"><b>Flexible</b><span>Choose how many days a week. A missed day never resets your streak and your finish date simply moves. Best for most people with a job.</span></button>
+      <button class="choice ${ob.mode==="strict"?"on":""}" data-act="obmode" data-mode="strict" aria-pressed="${ob.mode==="strict"}"><b>Strict</b><span>Every day, with a fixed finish date and a daily streak that breaks if you skip. Best if you want pressure and a firm deadline.</span></button></div>
+    ${ob.mode==="flex"?`<section class="card"><span class="eyebrow">Days a week</span><div class="chips">${DPWOPTS.map(d=>`<button class="chipbtn ${ob.dpw===d?"on":""}" data-act="obdpw" data-dpw="${d}" aria-pressed="${ob.dpw===d}">${d===7?"Every day":d+" days"}</button>`).join("")}</div></section>`:""}
+    <div class="wiz-foot row">${back}<button class="btn primary big-cta grow" data-act="obgo" data-step="3">Continue →</button></div>`;}
+  else if(st===3){body=`<section class="hero"><span class="eyebrow">${ob.edit?"Your plan":"Step 3 of 4"}</span><h1>How much time on a ${dpw===7?"day":"practice day"}?</h1><p class="lead">Your finish date is worked out from this. The course is about ${Math.round(COURSE_MIN/60)} hours of work (my estimate, not measured).</p></section>
+    <div class="choices">${MINOPTS.map(([m,name,sub])=>{const d=paceFor(m,dpw);return `<button class="choice mins ${ob.min===m?"on":""}" data-act="obmin" data-min="${m}" aria-pressed="${ob.min===m}"><b>${m<60?m+" min":m%60===0?m/60+" hr":(m/60).toFixed(1)+" hr"} <span class="tier">${name}</span></b><span>${sub}</span><em>Finish: ${spanText(d)} · ${fmtDateY(shift(todayISO(),d-1))}</em></button>`;}).join("")}</div>
+    <section class="card note"><p><b>${ob.min} min × ${dpw===7?"7":dpw} days a week</b> → ${spanText(days)}, about <b>${fmtDateY(fin)}</b>.</p><p class="muted">${realityNote(days)}</p></section>
+    <div class="wiz-foot row">${back}<button class="btn primary big-cta grow" data-act="obgo" data-step="4">Continue →</button></div>`;}
+  else{body=`<section class="hero"><span class="eyebrow">${ob.edit?"Your plan":"Step 4 of 4"}</span><h1>When will you do it?</h1><p class="lead">The same time every day works better than long weekend sessions.</p></section>
+    <section class="card"><label class="field"><span class="eyebrow">Daily time</span><input class="code timein" type="time" id="obat" value="${esc(ob.at||"19:00")}"></label>
+      <div class="row"><button class="btn" data-act="obics">Add to my calendar (.ics)</button><a class="btn" target="_blank" rel="noopener" href="${esc(gcalUrl(obHabit()))}">Add to Google Calendar</a></div>
+      <p class="hint">A calendar reminder works on every phone and computer. Browser notifications are not reliable on all devices, so I did not rely on them.</p>
+      ${installBlock()}</section>
+    <section class="card summary-plan"><span class="eyebrow">Your plan</span><p><b>${ob.min} minutes</b>, ${dpw===7?"every day":dpw+" days a week"}, ${ob.mode==="strict"?"strict":"flexible"}.</p><p>Finish: <b>${fmtDateY(fin)}</b> (${spanText(days)}).</p><p class="muted">You can change this any time from the Reference tab.</p></section>
+    <div class="wiz-foot row">${back}<button class="btn primary big-cta grow" data-act="obstart">${ob.edit?"Save my plan":"Start my plan"} →</button></div>`;}
+  app.innerHTML=`<div class="view wiz">${obDots()}${body}</div>`;
+}
+
 /* ---------- Router ---------- */
 function route(){
   topStats();
@@ -1538,9 +1829,11 @@ function route(){
   else if(h==="think"){tab="think";renderThink();}
   else if(h==="errors"){tab="errors";renderErrors();}
   else if(h==="ref"){tab="ref";renderRef();}
+  else if(h==="plan"){tab="path";obInit(true);renderOnboarding();}
   else if(h==="diag"){renderDiag();}
-  else if(!S.start)renderOnboarding();
+  else if(!S.start){obInit(false);renderOnboarding();}
   else renderToday(currentDay());
+  document.body.classList.toggle("onboarding",!S.start&&!/^(day-|sql|path|think|errors|ref|report|exam|review|portfolio|diag)/.test(h));
   document.querySelectorAll(".tabs a").forEach(a=>{if(a.dataset.tab===tab)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});
 }
 window.addEventListener("hashchange",()=>{route();window.scrollTo(0,0);});
@@ -1548,6 +1841,7 @@ window.addEventListener("hashchange",()=>{route();window.scrollTo(0,0);});
 /* ---------- Actions ---------- */
 app.addEventListener("click",ev=>{
   const b=ev.target.closest("[data-act]");if(!b)return;const act=b.dataset.act,n=+b.dataset.day;
+  if(obAct(act,b))return;
   if(act==="pace"){const w=document.getElementById("why");S.me={...S.me,why:w?w.value.trim().slice(0,140):(S.me.why||"")};S.pace=+b.dataset.pace;S.start=todayISO();save();location.hash="";route();window.scrollTo(0,0);}
   else if(act==="slot"){const w=document.getElementById("why");S.me={...S.me,time:b.dataset.slot,why:w?w.value.trim().slice(0,140):(S.me.why||"")};save();route();}
   else if(act==="next"){goPart(n,b.dataset.part);}
@@ -2222,7 +2516,7 @@ function myMetrics(){const log=S.log||[],on=S.doneOn||{};
   const wk=blankPass.filter(e=>e.gap>=6&&e.gap<=10);
   return {daysDone:S.done.length,dayDates:on,redoOpened:redoOpens.length,blankRedoPassed:log.filter(e=>e.ev==="pass"&&e.blank).length,blankRedoPassedAboutAWeekLater:wk.length,preScore:checkScore("pre"),postScore:checkScore("post")};}
 function reportObj(){S.me=S.me||{};if(!S.me.rid){S.me={...S.me,rid:Math.random().toString(36).slice(2,10)};save();}
-  const m=myMetrics();return {app:"shipcode",v:2,rid:S.me.rid,exported:todayISO(),pace:S.pace,start:S.start,done:S.done,doneOn:S.doneOn||{},metrics:m,checks:S.checks||{},survey:S.survey||{},labsPassed:Object.keys(S.labs).length,exam:exAtts().filter(exFinished).map(a=>({form:a.form,d:a.d,score:exScore(a).total,res:Object.fromEntries(Object.entries(a.res).map(([k,v])=>[k,{ok:v.ok,secs:v.secs}]))})),reviews:(S.reviews||[]).map(r=>({d:r.d,person:!!r.person})),
+  const m=myMetrics();return {app:"shipcode",v:2,rid:S.me.rid,exported:todayISO(),pace:S.pace,habit:S.habit||null,start:S.start,done:S.done,doneOn:S.doneOn||{},metrics:m,checks:S.checks||{},survey:S.survey||{},labsPassed:Object.keys(S.labs).length,exam:exAtts().filter(exFinished).map(a=>({form:a.form,d:a.d,score:exScore(a).total,res:Object.fromEntries(Object.entries(a.res).map(([k,v])=>[k,{ok:v.ok,secs:v.secs}]))})),reviews:(S.reviews||[]).map(r=>({d:r.d,person:!!r.person})),
     redo:Object.fromEntries(Object.entries(S.lsrs).map(([k,v])=>[k,v.b])),mocks:S.mocks.map(({id,secs,helped,d})=>({id,secs,helped,d})),log:(S.log||[]).slice(-300)};}
 function renderReport(){const m=myMetrics(),rep=JSON.stringify(reportObj(),null,1);
   app.innerHTML=`<div class="view"><section style="display:flex;flex-direction:column;gap:8px"><a href="#path" class="muted">← Path</a><span class="eyebrow">Learning report</span><h1>Is it working for you?</h1>

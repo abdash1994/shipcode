@@ -138,3 +138,15 @@ Ask Claude to update the app. For the live site, the change is pushed to `main` 
 - **Unseen problems.** 13 problems (11 Python, 2 SQL) that never appear in a day's lab list. They only come up in interview reps, and unsolved ones are picked first, so a rep is usually a problem you have not met.
 - **Proof of work.** On Days 22, 23, 27 and 29, paste your public GitHub link (and deployed URL where asked). The app checks the real repository through GitHub's public API: commits, README, `fastapi` in requirements, tests, a Dockerfile. The deployed-URL check only confirms that something answers at that address. Private repos can't be checked, and the check doesn't work inside claude.ai (outside requests are blocked there): use the live site.
 - **Comeback mode.** After 3 or more missed days, Today opens with a small restart: 5 recall drills, one redo, a one-tap re-plan with the new finish date, and an option to switch to the 60-day plan. The backlog is spread over later days, oldest first.
+
+## Your habit, your timeline (installable, any device)
+
+On first run the app asks four things: why you are doing this, **flexible or strict**, **minutes per day** (5, 10, 30, 60, 120, 275 or 550) and a daily time. Your finish date is computed from them: `days = ceil(total minutes / (minutes per day x days per week) x 7)`.
+
+- **Flexible:** pick 2 to 7 days a week. A missed day never resets the streak; falling behind just moves the finish date. Today shows a weekly goal dots row.
+- **Strict:** every day, daily streak with no rest day, fixed finish date.
+- **Small daily budgets (5 to 60 min):** Today opens with a "minutes plan" that picks the next parts that fit your budget. If the next part is bigger than the budget it is time-boxed.
+- **Honest numbers:** the course is estimated at about 275 minutes of work per lesson (about 138 hours total). That is my estimate from the part timings, not measured. At 10 minutes a day the full course takes over two years; the app says so rather than hiding it.
+- **Reminders:** a calendar file (.ics) or a Google Calendar link, because browser notifications are not reliable on every device.
+- **Install:** `manifest.webmanifest` and `sw.js` make it installable (Android Chrome, desktop Chrome and Edge; iPhone via Share, Add to Home Screen) and let the app shell load offline. The Python and SQL engines are cached after the first use.
+- Change the plan any time at `#plan` (Reference tab, Settings). Your current day is kept.
