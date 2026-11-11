@@ -52,6 +52,21 @@ Understand → solve one example by hand → write the steps as comments → cod
 | 3 | Name the pattern and write your own steps; code won't run until there are at least 3. |
 | 4 and mocks | Solo: steps as comments, then code. A model breakdown appears after you pass. |
 
+## The Gyms (the `Gyms` tab, `#gyms`)
+
+Six gyms, each five levels that grow the way a job does: **write it, shape the data, make it correct, make it fast or scalable, decide and design**. Every level has a short lesson (all syntax and ideas shown first), graded labs, and a concept check. Routes: `#sql`, `#py`, `#spark`, `#sys`, `#dep`, `#ai`, and `#py-3` style for a level.
+
+| Gym | Labs | What is real and what is simulated |
+|---|---|---|
+| SQL | 51 | Runs on SQLite in the browser; Level 4 plans are SQLite's, not a warehouse's. |
+| Python | 20 | Real Python (Pyodide). Random-input tests against a reference on most labs. |
+| PySpark | 20 | Levels 1 to 3 use real PySpark syntax on a pandas-based stand-in, not a cluster. Level 4 teaches partitions, shuffles, skew and broadcast by having you write the logic in plain Python. |
+| System design | 17 | Levels 1 to 4 are code (sizing arithmetic, hash ring, idempotency, circuit breaker); Level 5 is three interview-style design exercises with keyword feedback and a model answer. |
+| Deployment | 17 | Docker and cloud cannot run in a browser. You write parsers, linters, planners and decision rules, and practise design exercises. Real proof = deploy your own project (steps in Level 5). |
+| AI engineering | 21 | The model is a function you pass in, so every behaviour is testable without an API key. Prices and provider syntax change: the labs say to check current docs. |
+
+Content lives in `gym_py.py`, `gym_spark.py`, `gym_sys.py`, `gym_dep.py`, `gym_ai.py` (built on `gymlib.py`; expected values are computed from the reference solution), executed from `labs.py`. `check_g.py` runs every solution and starter, with the fuzz tests, in CPython.
+
 ## SQL Gym (the `SQL` tab, `#sql`)
 
 Five levels, each with a short lesson, labs graded against a hidden second data set, and a concept quiz:
