@@ -222,7 +222,7 @@ textarea.code:focus{border-color:var(--accent);outline:none}
 .skills li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;font-size:.93rem}
 .sk{font-family:var(--f-mono);font-size:.72rem;padding:2px 7px;border-radius:99px;background:var(--code);color:var(--muted);white-space:nowrap}
 .sk.ok{background:var(--ok-soft);color:var(--ok)}
-.skills.locked{opacity:.65;border-top:1px dashed var(--line);padding-top:10px}
+.skills.locked{color:var(--muted);border-top:1px dashed var(--line);padding-top:10px}
 .celebrate{align-items:center;text-align:center;gap:14px;padding-top:16px}
 .celebrate .stats{width:100%}
 .celebrate .tomorrow,.celebrate .share,.celebrate .lvl{width:100%;text-align:left}
@@ -301,7 +301,7 @@ textarea.code:focus{border-color:var(--accent);outline:none}
 .areas{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
 .areas li{display:flex;flex-direction:column;gap:4px}
 .areas .an{display:flex;justify-content:space-between;gap:10px;font-size:.92rem;font-weight:500}
-.areas li.upcoming{opacity:.5}
+.areas li.upcoming .an,.areas li.upcoming .pmeta{color:var(--muted)}.areas li.upcoming .sbar{opacity:.6}
 .areas li.ready .sbar span{background:var(--ok)} .areas li.solid .sbar span{background:var(--accent)} .areas li.building .sbar span{background:var(--warn)}
 .sbar.sm{height:6px}
 .jl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
@@ -320,7 +320,7 @@ textarea.code:focus{border-color:var(--accent);outline:none}
 .labrow{width:100%;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;text-align:left;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);cursor:pointer;min-height:48px}
 .labrow:hover{border-color:var(--accent)}
 .lk{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);white-space:nowrap}
-.lt{font-weight:600;min-width:0}
+.lt{font-weight:600;min-width:0;overflow-wrap:anywhere}
 .expect summary,.card details summary,details.tables summary{cursor:pointer;font-weight:600}
 .expect ul{margin-top:8px}
 .phasebar{flex:1;display:flex;gap:4px;min-width:0}
@@ -358,7 +358,7 @@ details.tables .tablebox{margin-bottom:8px}
   --bg:#F4F5FC; --surface:#FFFFFF; --fg:#151936; --muted:#626A86; --line:#E4E7F4;
   --accent:#5550E8; --accent-deep:#3B35B5; --accent-ink:#FFFFFF; --accent-soft:#ECEBFF;
   --grad:linear-gradient(135deg,#5550E8 0%,#7B4FE6 100%);
-  --ok:#128A58; --ok-soft:#DDF5EA; --bad:#D63A3F; --bad-soft:#FDE7E8; --warn:#B86A00; --warn-soft:#FFF0D3;
+  --ok:#0F7A4D; --ok-soft:#DDF5EA; --bad:#C42F34; --bad-soft:#FDE7E8; --warn:#B86A00; --warn-soft:#FFF0D3;
   --code:#EFF0FA; --glow1:#DDDBFF; --glow2:#FFE2F0;
   --shadow:0 1px 2px rgba(25,25,80,.05),0 12px 28px -14px rgba(50,45,150,.25);
   --r:20px;
@@ -602,7 +602,7 @@ body.onboarding{padding-bottom:40px}
 .pg{display:grid;place-items:center;min-height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);text-decoration:none;position:relative;font-variant-numeric:tabular-nums}
 .pg.done{background:color-mix(in srgb,var(--ok) 16%,var(--surface));color:var(--ok);border-color:color-mix(in srgb,var(--ok) 35%,var(--line))}
 .pg.cur{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:800}
-.pg.up{opacity:.55}.pg.tgt:not(.cur){border-style:dashed;border-color:var(--accent)}
+.pg.up{color:var(--muted);background:transparent}.pg.tgt:not(.cur){border-style:dashed;border-color:var(--accent)}
 .lg{display:inline-block;width:10px;height:10px;border-radius:3px;border:1px solid var(--line);vertical-align:middle}
 .lg.done{background:color-mix(in srgb,var(--ok) 30%,var(--surface))}.lg.cur{border-color:var(--accent);background:var(--accent-soft)}.lg.up{opacity:.55}
 /* border beam */
@@ -630,7 +630,7 @@ body.onboarding{padding-bottom:40px}
 details.rev,details.erracc{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:0 14px;margin-top:8px}
 details.rev>summary,details.erracc>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700}
 details.rev[open],details.erracc[open]{padding-bottom:12px}
-details.rev.locked>summary{opacity:.55;cursor:not-allowed}
+details.rev.locked>summary{color:var(--muted);cursor:not-allowed}
 details.rev.locked>summary::after{content:"open the one above first";margin-left:auto;font-size:.72rem;font-weight:500;color:var(--muted)}
 .erraccs{display:flex;flex-direction:column}
 .errline{color:var(--bad);white-space:pre-wrap;word-break:break-word}
@@ -643,7 +643,10 @@ details.rev.locked>summary::after{content:"open the one above first";margin-left
 .sheet .fb,.sheet textarea.code{border:1px solid var(--line)}
 .fb.ok.pass{border:1px solid var(--ok);animation:passpulse 1.1s ease-out 1}
 @keyframes passpulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 55%,transparent)}100%{box-shadow:0 0 0 14px transparent}}
-@media (max-width:340px){.brand{font-size:0}.brand span{font-size:1.15rem;margin-right:0}}
+@media (max-width:389px){.brand{font-size:0}.brand span{font-size:1.15rem;margin-right:0}}
+table.syn{min-width:0;display:block;max-width:100%;overflow-x:auto}
+.gymlesson,.card{min-width:0}
+.scroll-focus:focus-visible,[tabindex="0"]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 /* optional CodeMirror editor */
 .ed.cm{display:block}.ed.cm .gutter,.ed.cm textarea.codearea{display:none}
 .cmhost .cm-editor{height:340px;background:transparent;color:var(--fg);outline:none}
@@ -1937,7 +1940,7 @@ function renderToday(n){
       <p>${d.lesson}</p><pre>${esc(d.ex)}</pre>${synCard(n)}${glossCard(n)}${vizButtons(n)?`<div class="row">${vizButtons(n)}</div>`:""}
       <label class="selfcheck"><input type="checkbox" data-task="${n}-c" ${cDone?"checked":""}> I typed this example out myself and ran it</label></details>
     <section class="card"><span class="eyebrow">2 · Drills (10 min)</span>
-      <div class="drills-dots" aria-label="${cnt} of ${tot} drills solved">${d.drills.map(x=>`<span class="dot ${S.solved[x.id]?"ok":""}"></span>`).join("")}</div>
+      <div class="drills-dots" role="img" aria-label="${cnt} of ${tot} drills solved">${d.drills.map(x=>`<span class="dot ${S.solved[x.id]?"ok":""}"></span>`).join("")}</div>
       <p class="muted">${dd?"All drills solved. They come back in your warm-up so the syntax sticks.":"Quick questions on syntax and errors. Wrong answers come back until you get them right."}</p>
       <button class="btn ${dd?"":"primary"} block" data-act="drills" data-day="${n}">${dd?"Practice again":cnt?"Continue drills":"Start drills"}</button></section>
     <section class="card"><span class="eyebrow">3 · Code labs (60–90 min, real code, real tests)</span>
@@ -2175,7 +2178,7 @@ function cleanHabit(h){if(!h||typeof h!=="object")return null;
   if(!min||!dpw)return null;
   const deep=Number.isInteger(h.deep)&&h.deep>=0&&h.deep<=600&&dpw<7?h.deep:0;
   return {min,dpw,mode:h.mode==="strict"?"strict":"flex",at:typeof h.at==="string"&&/^\d\d:\d\d$/.test(h.at)?h.at:"19:00",
-    deep,deepDay:h.deepDay===0?0:6,goal:GOALS.some(g=>g.id===h.goal)?h.goal:"full",depth:h.depth==="core"?"core":"full"};}
+    deep,deepDay:h.deepDay===0?0:6,goal:["sprint","sql","py","data","interview","full"].includes(h.goal)?h.goal:"full",depth:h.depth==="core"?"core":"full"};}
 const MINOPTS=[[5,"Tiny"],[10,"Micro"],[30,"Light"],[60,"Steady"],[120,"Serious"],[275,"Full-time"],[550,"Sprint"]];
 const DEEPOPTS=[0,60,120,180,240];
 const DPWOPTS=[2,3,4,5,6,7];
@@ -2240,7 +2243,7 @@ function bitesCard(n){
     <ol class="bitelist">${plan.map(p=>`<li><span class="bk" aria-hidden="true"></span><span class="bn">${p.name}${p.partial?` <span class="muted">· work on it until your time is up; progress is saved</span>`:""}</span><span class="pt">${p.use} min</span></li>`).join("")}</ol>
     <button class="btn primary block big-cta" data-act="next" data-day="${n}" data-part="${first.k}">Start: ${first.name} →</button>
     <div class="row" style="justify-content:space-between"><button class="btn small" data-act="logbite" ${logged?"disabled":""}>${logged?"Logged ✓":`I did my ${fmtMin(B)}`}</button>
-      <div class="wk" aria-label="${wc} of ${goalN} practice days this week">${dots.map(x=>`<span class="wd ${x.done?"on":""} ${x.today?"today":""}"><i>${x.lab}</i></span>`).join("")}<small class="muted">${wc}/${goalN}</small></div></div>
+      <div class="wk" role="img" aria-label="${wc} of ${goalN} practice days this week">${dots.map(x=>`<span class="wd ${x.done?"on":""} ${x.today?"today":""}"><i>${x.lab}</i></span>`).join("")}<small class="muted">${wc}/${goalN}</small></div></div>
     </section>`;}
 
 /* A destination reached: celebrate, then offer the next stop (the plan only ever commits to the next stop). */
@@ -2312,7 +2315,7 @@ function obAct(act,b){
   if(act==="logbite"){markPractice();logEv("bite",{min:todayBudget(habitOf())});save();route();return true;}
   return false;}
 function obDots(){const first=ob.edit?2:0,total=ob.edit?4:6,at=ob.step-first;
-  return `<div class="wiz-dots" aria-label="Step ${at+1} of ${total}">${Array.from({length:total},(_,i)=>`<span class="${i<=at?"on":""}"></span>`).join("")}</div>`;}
+  return `<div class="wiz-dots" role="img" aria-label="Step ${at+1} of ${total}">${Array.from({length:total},(_,i)=>`<span class="${i<=at?"on":""}"></span>`).join("")}</div>`;}
 function timeNudge(h,days){
   const by=ob.by,avail=by?diffDays(todayISO(),by)+1:0;
   if(by){
@@ -7309,7 +7312,9 @@ function errAccordion(){return `<section class="card"><span class="eyebrow">Comm
   return `<details class="erracc"><summary><b>${esc(r[0])}</b></summary><p><b>Usually means:</b> ${esc(r[1])}</p><p><b>Check first:</b> ${esc(r[2])}</p>${pid?`<button class="btn small" data-act="practice" data-lab="${pid}">Drill this pattern</button>`:""}</details>`;}).join("")}</div></section>`;}
 
 /* copy buttons on code blocks (Think, Errors) */
-function decoratePre(){if(!/^#(think|errors)$/.test(location.hash))return;
+function focusScrollers(){document.querySelectorAll(".tablebox,pre,.syn").forEach(e=>{if(!e.hasAttribute("tabindex")&&(e.scrollWidth>e.clientWidth+1||e.scrollHeight>e.clientHeight+1))e.tabIndex=0;});}
+document.addEventListener("toggle",focusScrollers,true);
+function decoratePre(){focusScrollers();if(!/^#(think|errors)$/.test(location.hash))return;
   app.querySelectorAll("pre").forEach(p=>{if(p.dataset.cp||p.querySelector(".note")||p.classList.contains("errline"))return;p.dataset.cp="1";
     const w=document.createElement("div");w.className="prewrap";p.parentNode.insertBefore(w,p);w.appendChild(p);
     const b=document.createElement("button");b.type="button";b.className="cpbtn";b.dataset.ui="copy";b.textContent="Copy";b.setAttribute("aria-label","Copy code");w.appendChild(b);});}

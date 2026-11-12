@@ -1,0 +1,16 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const c=await b.newContext({viewport:{width:390,height:800}});const p=await c.newPage();
+p.on('pageerror',e=>console.log('PAGEERR',e.message));
+await p.goto('http://127.0.0.1:8766/index.html');
+await p.evaluate(()=>navigator.serviceWorker.ready.then(()=>1));await p.waitForTimeout(2500);
+const ctl=await p.evaluate(()=>!!navigator.serviceWorker.controller);console.log('sw ready; controller on first load:',ctl);
+await p.reload();await p.waitForTimeout(800);
+console.log('controlled after reload:',await p.evaluate(()=>!!navigator.serviceWorker.controller));
+await p.evaluate(()=>{S.start=shift(todayISO(),-2);S.habit={min:120,dpw:7,mode:'flex',at:'19:00',deep:0,deepDay:6,goal:'full',depth:'full'};save();});
+await c.setOffline(true);
+await p.reload();await p.waitForTimeout(1200);
+const r=await p.evaluate(async()=>({tabs:document.querySelectorAll('.tabs a').length,h:document.querySelector('h1,h2')?.textContent.slice(0,40),inter:document.fonts.check('16px Inter'),mono:document.fonts.check('16px "JetBrains Mono"'),start:S.start}));
+console.log('OFFLINE reload:',JSON.stringify(r));
+await p.evaluate(()=>{location.hash='#gyms';route();});await p.waitForTimeout(300);
+console.log('offline gyms route renders:',await p.evaluate(()=>document.querySelector('.view').innerText.length>200));
+await b.close()})();
