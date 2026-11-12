@@ -188,3 +188,7 @@ A seventh gym for the work around the code that forward-deployed engineers do: u
 ## Habit additions
 
 Today now shows a **minimum day** card (5 minutes counts as a practice day), and strict mode gets **streak freezes**: one missed day is bridged automatically, you earn one per 7 practice days, and you can hold two. Flexible mode keeps its existing weekly rest day. There is no guilt messaging, no fake peers and no invented social proof by design.
+
+## Updates reach installed copies
+
+`sw.js` is rebuilt with a per-build hash, so browsers detect each new deploy and purge the old cache. Pages are fetched network-first; when a new version activates, a small "A new version is ready. Reload" bar appears (it never reloads on its own, so unsaved code is safe).
