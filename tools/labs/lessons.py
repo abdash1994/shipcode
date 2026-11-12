@@ -70,6 +70,14 @@ def Sd(h, t, code=None, q=None):
     if q: d["q"] = q
     return d
 
+PRO = {}   # Pro track: insertion order = order shown within its track
+
+def PM(key, track, title, why, screens):
+    """Register one Pro-track module. key: short slug like 'sql-write'. track: one of 'SQL Pro', 'Python Pro', 'Data Engineering Pro', 'AI Engineering Pro', 'System Design Pro'."""
+    assert key not in PRO, key
+    assert len(screens) >= 6, key
+    PRO[key] = dict(track=track, t=title, why=why, s=screens)
+
 LESSONS = {}
 
 # ------------------------------------------------------------------ Day 1
@@ -348,7 +356,7 @@ for _n, _ls in LESSONS.items():
     for _s in _ls:
         assert "q" in _s, (_n, _s["h"])
 exec(open(_os.path.join(_HERE, 'lessons_sql.py'), encoding='utf-8').read())
-for _f in ("lessons_py2.py", "lessons_dsa.py", "lessons_eng.py"):
+for _f in ("lessons_py2.py", "lessons_dsa.py", "lessons_eng.py", "lessons_pro_sql.py", "lessons_pro_py.py", "lessons_pro_data.py", "lessons_pro_ai.py", "lessons_pro_sys.py"):
     _p = _os.path.join(_HERE, _f)
     if _os.path.exists(_p):
         exec(open(_p, encoding="utf-8").read())
