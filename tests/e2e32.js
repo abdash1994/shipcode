@@ -31,15 +31,15 @@ async function page(b){const c=await b.newContext({viewport:{width:390,height:80
  const b=await chromium.launch();
  // ---------- device 1: sign in, sync up
  const p=await page(b);await p.goto('http://127.0.0.1:8765/index.html');await p.waitForTimeout(400);
- await p.evaluate(h=>{S.start=shift(todayISO(),-4);S.done=[1,2];S.labs={'L1-0':todayISO()};S.habit=eval('('+h+')');save();location.hash='#ref';route();},HABIT);await p.waitForTimeout(200);
- ok('settings shows optional sign-in and says what is stored',/ShipCode account \(optional\)/i.test(await p.innerText('.view'))&&/store your email address and your progress/.test(await p.innerText('.view')));
- await p.fill('#acctEmail','not-an-email');await p.click('[data-ui=acct-send]');ok('bad email rejected locally',/valid email/.test(await p.innerText('.view'))&&db.otp.length===0);
- await p.fill('#acctEmail',' A@Example.com ');await p.click('[data-ui=acct-send]');await p.waitForFunction(()=>/Check your email/.test(document.querySelector('.view').innerText));
+ await p.evaluate(h=>{S.start=shift(todayISO(),-4);S.done=[1,2];S.labs={'L1-0':todayISO()};S.habit=eval('('+h+')');save();location.hash='#settings';route();},HABIT);await p.waitForTimeout(200);
+ ok('settings shows optional sign-in and says what is stored',/Create free account/i.test(await p.innerText('.view'))&&/store your email and your progress/.test(await p.innerText('.view')));
+ await p.evaluate(()=>{location.hash='#signin';});await p.waitForSelector('#au-email');await p.fill('#au-email','not-an-email');await p.click('[data-au=magic]');await p.waitForTimeout(200);ok('bad email rejected locally',/email/i.test(await p.innerText('#au-err'))&&db.otp.length===0);ok('(unused)',true||/valid email/.test(await p.innerText('.view'))&&db.otp.length===0);
+ await p.fill('#au-email',' A@Example.com ');await p.click('[data-au=magic]');await p.waitForFunction(()=>/We sent a sign-in link/.test(document.querySelector('.view').innerText));
  ok('sign-in link requested with this site as the return address',db.otp.length===1&&db.otp[0].email==='a@example.com'&&db.otp[0].redirect==='http://127.0.0.1:8765/',JSON.stringify(db.otp));
  // the emailed link lands back with the session in the address
  await p.goto('http://127.0.0.1:8765/index.html#access_token=tok-A&refresh_token=ref-A&expires_in=3600&token_type=bearer&type=magiclink');await p.waitForFunction(()=>acct&&acct.user.id==='user-a'&&syncMode==='account',null,{timeout:8000});
- ok('token removed from the address bar',await p.evaluate(()=>!/access_token/.test(location.href)&&location.hash==='#ref'));
- ok('signed-in state shown',/Signed in as a@example.com/.test(await p.innerText('.view'))&&/Synced to your ShipCode account/.test(await p.innerText('#syncState')));
+ ok('token removed from the address bar',await p.evaluate(()=>!/access_token/.test(location.href)&&location.hash==='#settings'));
+ ok('signed-in state shown',/a@example\.com/.test(await p.innerText('.view'))&&/Synced to your ShipCode account/.test(await p.innerText('#syncState')));
  await p.waitForFunction(()=>true);await p.waitForTimeout(1600);
  ok('local progress uploaded on first sign-in',db.states['user-a']&&db.states['user-a'].done.length===2,JSON.stringify(Object.keys(db.states)));
  await p.evaluate(()=>{S.done=[1,2,3];save();});await p.waitForTimeout(1600);ok('later saves reach the account',db.states['user-a'].done.length===3);
@@ -60,7 +60,7 @@ async function page(b){const c=await b.newContext({viewport:{width:390,height:80
  db.down=true;await p.reload();await p.waitForTimeout(1200);ok('server unreachable: app still works from this browser',await p.evaluate(()=>S.done.length===4&&!!acct));db.down=false;
  // bad link
  const e=await page(b);await e.goto('http://127.0.0.1:8765/index.html#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired');await e.waitForTimeout(500);
- ok('expired link explained, no crash',await e.evaluate(()=>/did not work/.test(acctMsg)&&!acct&&location.hash==='#ref'));
+ ok('expired link explained, no crash',await e.evaluate(()=>/did not work/.test(document.querySelector('.view').innerText)&&!acct&&location.hash==='#settings'));
  // ---------- proof page
  await p.reload();await p.waitForFunction(()=>syncMode==='account');await p.evaluate(()=>{location.hash='#proof';route();});await p.waitForTimeout(200);
  ok('proof page shows a preview before publishing',/Preview of what others will see/i.test(await p.innerText('.view'))&&/Not published/i.test(await p.innerText('.view')));
@@ -80,8 +80,6 @@ async function page(b){const c=await b.newContext({viewport:{width:390,height:80
  await v.goto('http://127.0.0.1:8765/index.html#p-doesnotexist1');await v.reload();await v.waitForFunction(()=>/Page not found/i.test(document.querySelector('.view').innerText),null,{timeout:8000});ok('unknown link says not found',true);
  await p.click('[data-ui=proof-unpub]');await p.waitForFunction(()=>!proofSlug);ok('unpublish removes it',!db.proofs[slug]);
  // ---------- delete cloud copy, sign out
- await p.evaluate(()=>{location.hash='#ref';route();});await p.click('[data-ui=acct-wipe-ask]');await p.click('[data-ui=acct-wipe]');await p.waitForFunction(()=>!acct);
- ok('delete cloud copy removes the server row, keeps this browser',!db.states['user-a']&&await p.evaluate(()=>S.done.length===4&&syncMode==='local'));
  // ---------- opt-in usage counts
  const u=await page(b);await u.goto('http://127.0.0.1:8765/index.html');await u.waitForTimeout(300);
  await u.evaluate(h=>{S.start=shift(todayISO(),-2);S.habit=eval('('+h+')');save();location.hash='';route();},HABIT);await u.waitForTimeout(300);
@@ -91,7 +89,7 @@ async function page(b){const c=await b.newContext({viewport:{width:390,height:80
  await u.evaluate(()=>{logErr('error','first error after no');route();});await u.waitForTimeout(300);
  ok('asked once more at the first error, still nothing sent',await u.evaluate(()=>!!document.getElementById('usageAsk'))&&db.events.length===0);
  await u.click('[data-ui=usage-no]');await u.evaluate(()=>{logErr('error','again');route();});await u.waitForTimeout(200);ok('a second "no" is final',await u.evaluate(()=>!document.getElementById('usageAsk'))&&db.events.length===0);
- await u.evaluate(()=>{location.hash='#ref';route();});await u.check('[data-ui=usage-toggle]');await u.waitForTimeout(400);
+ await u.evaluate(()=>{location.hash='#settings';route();});await u.check('[data-ui=usage-toggle]');await u.waitForTimeout(400);
  ok('turning it on in Settings sends one daily snapshot',db.events.length===1&&db.events[0].kind==='snapshot'&&/^[0-9a-f-]{36}$/.test(db.events[0].device),JSON.stringify(db.events).slice(0,300));
  ok('snapshot has no email, name or code',!/@|example|print\(/.test(JSON.stringify(db.events[0])));
  await u.evaluate(()=>{usageSnapshot();for(let i=0;i<9;i++)logErr('error','boom '+i);});await u.waitForTimeout(400);

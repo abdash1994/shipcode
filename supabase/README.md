@@ -17,5 +17,6 @@ Without this, the emailed sign-in link sends people to `localhost:3000`.
 
 ## Known limits
 - Supabase's built-in email sender is rate-limited and meant for testing. For more than a handful of sign-ups an hour, connect your own email provider (Authentication > Emails > SMTP).
-- Deleting the auth user (the email record) needs the dashboard; the app's "Delete my cloud copy" removes progress and the proof page only.
+- Settings > Delete account calls the `delete_my_account()` function (security definer, signed-in users only), which removes the auth user and, through cascades, their progress and proof page. Verify it against your project before relying on it: the app's tests use a fake server.
+- Password sign-up needs Authentication > Providers > Email enabled. If "Confirm email" is on, new users must open the emailed link first. Turn on leaked-password protection (Authentication > Policies) in the dashboard; the app only enforces 8+ characters locally.
 - Sync happens when the app opens and when progress changes. Two devices open at once: the newest save wins.
