@@ -192,3 +192,13 @@ Today now shows a **minimum day** card (5 minutes counts as a practice day), and
 ## Updates reach installed copies
 
 `sw.js` is rebuilt with a per-build hash, so browsers detect each new deploy and purge the old cache. Pages are fetched network-first; when a new version activates, a small "A new version is ready. Reload" bar appears (it never reloads on its own, so unsaved code is safe).
+
+## Commitments (`#commit`)
+
+All of these are the learner's own choices and stay on the device (they sync with progress):
+- **If-then plan:** "After I ... I do my 5-minute minimum", shown on Today.
+- **Own stake:** a promise written by the learner ("If I miss 2 days I will ..."). Nothing is enforced; the app shows the learner's own words back after the missed stretch.
+- **Pause (up to 14 days):** streak is held, plan dates slide forward by the paused days, no comeback or behind-pace messaging while paused.
+- **Milestone cards:** labs passed, streak, lessons, capstone items and each gym level, with real numbers; dismissible.
+
+Deliberately not built: invented peers or fake social proof, escalating guilt messages, gaslighting copy and reverse-psychology prompts.
