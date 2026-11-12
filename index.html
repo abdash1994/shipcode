@@ -1610,6 +1610,11 @@ const PHASES={design:["clarify","order","trade","model"],guided:["predict","orde
 const ERR_ROWS=[["SyntaxError","Python can't parse the line","Missing :, bracket or quote, often on the line above"],["IndentationError","Block spacing is off","Mixed tabs and spaces; the body of if/for/def isn't indented"],["TabError","Tabs and spaces are mixed in one block","Delete the indentation on those lines and re-indent with spaces only, 4 per level"],["NameError","The name doesn't exist yet","A typo, used before it's defined, or out of scope"],["TypeError","Wrong type for the operation","Mixing str and int; wrong number of arguments"],["AttributeError","The object has no such method or attribute","Check type(x). Often the value is None or a list"],["KeyError","The dict is missing that key","Print d.keys(); use d.get(k, default)"],["IndexError","List position out of range","Off-by-one in a loop; an empty list"],["ValueError","Right type, bad value","int(\"12.5\"); unpacking the wrong count"],["ZeroDivisionError","Dividing by zero","Check the divisor before dividing"],["TimeoutError","The runner stopped code that ran too long","A loop whose condition never changes"],["RecursionError","Recursion never stops","Missing or unreachable base case"],["ModuleNotFoundError","Not installed in this environment","Activate the venv, then pip install"],["FileNotFoundError","Wrong path","Print os.getcwd(); use the full path"],["SQL: must appear in GROUP BY","Column not grouped or aggregated","Add it to GROUP BY or wrap it in MAX/COUNT"],["PySpark AnalysisException","Column or table not found","df.printSchema(); check spelling and case"],["HTTP 401 / 403 / 404 / 422 / 500","Not logged in / not allowed / not found / bad input / server bug","Read the response body and the server logs"]];
 
 /* ---------- State ---------- */
+/* Local error log: the last 20 problems stay in this browser; nothing is sent anywhere. */
+const ELKEY="shipcode.errlog";
+function logErr(kind,msg){try{const a=JSON.parse(localStorage.getItem(ELKEY)||"[]");a.push({at:new Date().toISOString(),kind:String(kind).slice(0,30),msg:String(msg||"").replace(/\s+/g," ").slice(0,300),hash:location.hash.slice(0,40)});localStorage.setItem(ELKEY,JSON.stringify(a.slice(-20)));}catch(e){}}
+addEventListener("error",e=>{if(e&&e.message)logErr("error",e.message+(e.lineno?" @"+e.lineno:""));});
+addEventListener("unhandledrejection",e=>{const r=e&&e.reason;logErr("promise",r&&r.message||r);});
 const KEY="blankfile-state-v1";
 const blank=()=>({v:1,t:0,start:null,pace:30,habit:null,done:[],solved:{},missed:[],xp:0,dates:[],tasks:{},labs:{},plans:{},srs:{},lsrs:{},me:{},lstat:{},errs:{},mocks:[],proof:{},log:[],checks:{},survey:{},doneOn:{},exam:{},reviews:[],cap:{},frozen:[],ifthen:null,pledge:null,pause:null,cele:{}});
 const obj=x=>x&&typeof x==="object"&&!Array.isArray(x)?{...x}:{};
@@ -2114,6 +2119,33 @@ function refCards(){return `<section class="card"><h3>Python</h3><ul>
       <li>Do the warm-up first every day: recall drills and redos from scratch.</li>
       <li>Keep an error log: the message, the cause, the fix.</li>
       <li>If you fall behind, repeat the day. Don't skip ahead with gaps.</li></ul>${EXPECT}</section>`;}
+
+/* Backup, restore and problem report */
+let pendingImport=null,backupMsg="";
+function backupFile(){const b={app:"shipcode",format:1,exported:new Date().toISOString(),state:S,drafts};
+  const blob=new Blob([JSON.stringify(b)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="shipcode-backup-"+todayISO()+".json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  backupMsg="Backup saved. Keep the file somewhere safe (email it to yourself or put it in Drive).";route();}
+function readBackup(file){if(!file)return;
+  if(file.size>5e6){backupMsg="That file is too large to be a ShipCode backup.";route();return;}
+  const fr=new FileReader();fr.onerror=()=>{backupMsg="Could not read that file.";route();};
+  fr.onload=()=>{try{const b=JSON.parse(fr.result);if(!b||b.app!=="shipcode"||!b.state||typeof b.state!=="object")throw 0;
+    const st=clean(b.state);const d=b.drafts&&typeof b.drafts==="object"&&!Array.isArray(b.drafts)?b.drafts:{};
+    pendingImport={st,d,when:typeof b.exported==="string"?b.exported.slice(0,10):"unknown date"};backupMsg="";}
+    catch(e){pendingImport=null;backupMsg="That is not a ShipCode backup file.";}route();};
+  fr.readAsText(file);}
+function applyBackup(){if(!pendingImport)return;const {st,d}=pendingImport;S=st;drafts={};
+  for(const k of Object.keys(d).slice(0,300)){if(typeof d[k]==="string")drafts[k]=d[k].slice(0,20000);}
+  try{localStorage.setItem(DKEY,JSON.stringify(drafts));}catch(e){}
+  pendingImport=null;backupMsg="Backup restored.";save();route();}
+function problemReport(){let log=[];try{log=JSON.parse(localStorage.getItem(ELKEY)||"[]");}catch(e){}
+  const info=["ShipCode problem report (no progress data included)","time: "+new Date().toISOString(),"page: "+location.hash,
+   "browser: "+navigator.userAgent,"screen: "+screen.width+"x"+screen.height+" viewport "+innerWidth+"x"+innerHeight+" dpr "+devicePixelRatio,
+   "memory GB (approx): "+(navigator.deviceMemory||"unknown"),"standalone app: "+(matchMedia("(display-mode: standalone)").matches),
+   "service worker controlling: "+!!(navigator.serviceWorker&&navigator.serviceWorker.controller),"online: "+navigator.onLine,
+   "python engine ready: "+(typeof pyReady!=="undefined"&&pyReady)+", sql engine ready: "+(typeof sqlReady!=="undefined"&&sqlReady),
+   "recent problems ("+log.length+"):"].concat(log.map(x=>"- "+x.at+" ["+x.kind+"] "+x.msg+" (page "+x.hash+")"));
+  return info.join("\n");}
 function renderRef(){
   app.innerHTML=`<div class="view">${Object.keys(GLOSS).map(k=>`<section class="card"><span class="eyebrow">System design words</span>${glossCard(+k).replace("<details class=\"newsyn\" open>","<details open>")}</section>`).join("")}
     <section style="display:flex;flex-direction:column;gap:8px"><span class="eyebrow">Reference</span><h1>Memorize these</h1><p class="muted">Memorize this short list and look up everything else. Senior engineers look up syntax every day.</p></section>
@@ -2122,6 +2154,12 @@ function renderRef(){
     <section class="card"><span class="eyebrow">Settings</span>
       <p class="sync" id="syncState">${syncText()}</p>
       <label class="row" style="align-items:center;gap:10px"><input type="checkbox" data-ui="cm-toggle" ${cmOn()?"checked":""}> <span><b>Colour-coded code editor</b> (beta)</span></label><p class="hint">Highlights Python and SQL and matches brackets. Downloads about 140 KB the first time. If typing feels wrong on your phone, turn it off: the plain editor stays the default.</p>
+      <p class="eyebrow" style="margin-top:14px">Your data</p>
+      <p class="hint">Your progress is saved only in this browser. Clearing browser data or switching phones erases it. Back it up now and then.</p>
+      <div class="row"><button class="btn small" data-ui="backup">Back up my progress</button><label class="btn small" style="cursor:pointer">Restore from backup<input type="file" accept="application/json,.json" data-ui="restore" hidden></label></div>
+      ${backupMsg?`<p class="hint" role="status">${esc(backupMsg)}</p>`:""}
+      ${pendingImport?`<div class="confirm"><p><b>Replace what is on this device?</b> The backup from ${esc(pendingImport.when)} has ${pendingImport.st.done.length} days done and ${Object.keys(pendingImport.st.labs).length} labs passed. This device's current progress will be overwritten.</p><div class="row"><button class="btn small danger" data-ui="restore-go">Restore backup</button><button class="btn small" data-ui="restore-no">Cancel</button></div></div>`:""}
+      <div class="row"><button class="btn small" data-ui="report">Copy problem report</button></div><p class="hint">If something breaks, copy this and send it to whoever gave you the app. It lists the browser and recent errors, not your progress or code.</p>
       <div class="plan-sum"><span class="muted">Your plan</span><b>${planLabel()}</b><span class="muted">Finish about ${fmtDateY(shift(S.start||todayISO(),S.pace-1))}</span></div>
       <div class="row"><a class="btn small primary" href="#plan">Change my plan</a><button class="btn small" data-act="ics">Calendar reminder</button></div>${installBlock()}
       <div class="row"><button class="btn small" data-act="restartclock">Restart the clock from today</button>
@@ -2470,7 +2508,7 @@ app.addEventListener("click",ev=>{
   else if(act==="cancelreset"){confirmReset=false;route();}
   else if(act==="reset"){S=blank();confirmReset=false;try{localStorage.removeItem(DKEY);}catch(e){}drafts={};save();route();}
 });
-app.addEventListener("change",ev=>{const t=ev.target.closest("[data-task]");if(!t)return;
+app.addEventListener("change",ev=>{const rs=ev.target.closest&&ev.target.closest("[data-ui=restore]");if(rs){readBackup(rs.files&&rs.files[0]);rs.value="";return;}const t=ev.target.closest("[data-task]");if(!t)return;
   S.tasks={...S.tasks};if(t.checked)S.tasks[t.dataset.task]=1;else delete S.tasks[t.dataset.task];markPractice();save();route();});
 
 /* ---------- Sheet (drills and labs share it) ---------- */
@@ -2568,10 +2606,10 @@ async function startPyInline(){if(typeof loadPyodide!=="function")await loadScri
 function getPy(){if(!pyP)pyP=withTimeout((async()=>{let P;
   if(window.__SHIPCODE_NO_WORKER||typeof Worker!=="function"){P=await startPyInline();pyMode="page";}
   else{try{P=await startPyWorker();pyMode="worker";}catch(e){P=await startPyInline();pyMode="page";}}
-  pyReady=true;return P;})(),90000).catch(e=>{pyP=null;throw e;});return pyP;}
+  pyReady=true;return P;})(),90000).catch(e=>{logErr("python-engine",e&&e.message);pyP=null;throw e;});return pyP;}
 const KILLMSG="TimeoutError: Stopped after 20 seconds: your code never finished. Look for a loop or recursion that never ends.";
 function getSql(){if(!sqlP)sqlP=withTimeout((async()=>{if(typeof initSqlJs!=="function")await loadScript(SQLJS+"sql-wasm.js");
-  const SQL=await initSqlJs({locateFile:f=>SQLJS+f});sqlReady=true;return SQL;})(),45000).catch(e=>{sqlP=null;throw e;});return sqlP;}
+  const SQL=await initSqlJs({locateFile:f=>SQLJS+f});sqlReady=true;return SQL;})(),45000).catch(e=>{logErr("sql-engine",e&&e.message);sqlP=null;throw e;});return sqlP;}
 function sqlRows(SQL,q,seed){const db=new SQL.Database();try{db.exec(seed||SEED);const r=db.exec(q);return r.length?r[r.length-1]:{columns:[],values:[]};}finally{db.close();}}
 const canon=v=>v.map(r=>r.map(x=>typeof x==="number"?Math.round(x*10000)/10000:x));
 function runSqlLab(SQL,code,L){if(!/\bFROM\s+(employees|customers|orders|\(|\w+\s+AS|\w+)/i.test(code)||/\bVALUES\b/i.test(code))return {kind:"sql",ok:false,error:"Your query needs a FROM clause: read the answer from the tables, don't type the values in."};let got;try{got=sqlRows(SQL,code);}catch(e){return {kind:"sql",ok:false,error:String(e.message||e)};}
@@ -7367,6 +7405,11 @@ document.addEventListener("click",ev=>{const t=ev.target;
   const sc=t.closest("[data-scroll]");if(sc){const e=document.querySelector(sc.dataset.scroll);if(e){if(e.tagName==="DETAILS")e.open=true;e.scrollIntoView({behavior:"smooth",block:"start"});}return;}
   const u=t.closest("[data-ui]");if(!u)return;const a=u.dataset.ui;
   if(a==="dr-go"){const r=drRes[+u.dataset.i];if(r)drGo(r);}
+  else if(a==="backup")backupFile();
+  else if(a==="restore-go")applyBackup();
+  else if(a==="restore-no"){pendingImport=null;route();}
+  else if(a==="report"){const txt=problemReport();const done=()=>{u.textContent="Copied";setTimeout(()=>{u.textContent="Copy problem report";},1500);};
+    try{navigator.clipboard.writeText(txt).then(done,()=>{u.textContent="Copy blocked: use a screenshot";});}catch(e){u.textContent="Copy blocked: use a screenshot";}}
   else if(a==="cm-toggle"){try{localStorage.setItem("shipcode.cm",u.checked?"1":"0");}catch(e){}if(u.checked)cmLoad().catch(()=>{});}
   else if(a==="diagnext"){diagIdx++;renderErrors();decoratePre();}
   else if(a==="copy"){const pre=u.parentNode.querySelector("pre");const txt=pre?pre.innerText:"";const done=()=>{u.textContent="Copied";setTimeout(()=>{u.textContent="Copy";},1200);};

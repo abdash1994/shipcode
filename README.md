@@ -218,3 +218,6 @@ Adapted from a UI/UX review (Gemini), rebuilt in plain CSS/JS because the app is
 - Optional colour-coded editor (CodeMirror 6): turn it on under Reference > Settings. It loads `cm/editor.js` (about 390 KB, about 137 KB gzipped) the first time a code lab opens, then works offline. The plain textarea stays the default, and the app falls back to it if the file fails to load. Rebuild steps are in `tools/cm/package.json`. Tested in Chromium with phone emulation only, not on real phone keyboards.
 - Every row in the Errors list now has a drill button. The new labs are at the end of Python Gym level 3 (10 labs), PySpark Gym level 3 (1) and SQL Gym level 3 (1). Two differences from real life, stated in the labs: ShipCode's PySpark stand-in raises a KeyError listing the real columns instead of an AnalysisException, and SQLite does not raise the GROUP BY error, so that lab teaches the fix by wrong result.
 - Not done: a full dark-surface re-skin, and Geist (one text font is enough).
+
+## Your data
+Progress lives only in the browser (localStorage). Reference > Settings has **Back up my progress** (downloads a JSON file), **Restore from backup** (asks before overwriting) and **Copy problem report** (browser info and the last 20 errors; no progress or code). Errors are kept in a local log (`shipcode.errlog`); nothing is sent to any server.
