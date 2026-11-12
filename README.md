@@ -233,3 +233,6 @@ Three timed loops (60 minutes, four rounds each: scope a vague request, debug co
 
 ## What the app promises
 Onboarding now states: SQL strong enough for interviews in about 3 weeks and Python fundamentals with easy-to-medium problems in 30 days, at 4 to 5 hours a day, as an estimate not yet measured with learners. Labels that implied an outcome ("Interview-ready", "forward-deployed-ready") were renamed.
+
+## Accounts, sync, proof page, usage counts
+Optional sign-in by email link (Reference > Settings) syncs progress to a Supabase database; see `supabase/README.md` for the schema, the rules and the one-time dashboard setup. `#proof` publishes a public page (`#p-<code>`) with the learner's chosen name and progress numbers; it is labelled as a self-reported practice record, not a certificate. Usage counts are opt-in, asked once on Today and once more at the first error if declined. `tests/e2e32.js` covers all of it against an in-memory fake of the Supabase endpoints.

@@ -1617,7 +1617,7 @@ const ERR_ROWS=[["SyntaxError","Python can't parse the line","Missing :, bracket
 /* ---------- State ---------- */
 /* Local error log: the last 20 problems stay in this browser; nothing is sent anywhere. */
 const ELKEY="shipcode.errlog";
-function logErr(kind,msg){try{const a=JSON.parse(localStorage.getItem(ELKEY)||"[]");a.push({at:new Date().toISOString(),kind:String(kind).slice(0,30),msg:String(msg||"").replace(/\s+/g," ").slice(0,300),hash:location.hash.slice(0,40)});localStorage.setItem(ELKEY,JSON.stringify(a.slice(-20)));}catch(e){}}
+function logErr(kind,msg){try{const a=JSON.parse(localStorage.getItem(ELKEY)||"[]");a.push({at:new Date().toISOString(),kind:String(kind).slice(0,30),msg:String(msg||"").replace(/\s+/g," ").slice(0,300),hash:location.hash.slice(0,40)});localStorage.setItem(ELKEY,JSON.stringify(a.slice(-20)));}catch(e){}try{usageErr(kind,msg);}catch(e){}}
 addEventListener("error",e=>{if(e&&e.message)logErr("error",e.message+(e.lineno?" @"+e.lineno:""));});
 addEventListener("unhandledrejection",e=>{const r=e&&e.reason;logErr("promise",r&&r.message||r);});
 const KEY="blankfile-state-v1";
@@ -1657,7 +1657,7 @@ function saveDraft(k,code){drafts[k]=code;try{localStorage.setItem(DKEY,JSON.str
 /* ---------- Cloud sync (claude.ai db, private per user) ---------- */
 let dbRef=null,syncMode="local",saveTimer=null,writing=Promise.resolve();
 function setSync(m){syncMode=m;const el=document.getElementById("syncState");if(el)el.textContent=syncText();}
-function syncText(){return syncMode==="cloud"?"Synced to your claude.ai account. Open it on your phone or laptop and progress follows you. Code drafts stay on each device.":syncMode==="readonly"?"Your access level can't save to the cloud, so progress is kept in this browser only.":(/\.claudeusercontent\.com$/.test(location.hostname)?"Saved in this browser only. Sign in to claude.ai to sync across devices.":"Saved in this browser only. Progress here doesn't sync to your other devices; the claude.ai version does.");}
+function syncText(){return syncMode==="account"?"Synced to your ShipCode account. Sign in on another device and your progress follows you. Code drafts stay on each device.":syncMode==="cloud"?"Synced to your claude.ai account. Open it on your phone or laptop and progress follows you. Code drafts stay on each device.":syncMode==="readonly"?"Your access level can't save to the cloud, so progress is kept in this browser only.":(/\.claudeusercontent\.com$/.test(location.hostname)?"Saved in this browser only. Sign in to claude.ai to sync across devices.":"Saved in this browser only. Sign in below to sync across devices.");}
 function scheduleCloud(){if(!dbRef)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{const body=JSON.parse(JSON.stringify(S));
   writing=writing.then(()=>dbRef.set(body)).catch(e=>{if(e&&e.code==="invalid_argument"){dbRef=null;setSync("readonly");}else if(e&&e.code==="quota_exceeded"){setSync("local");}});},1200);}
 function save(){S.t=Date.now();saveLocal();scheduleCloud();}
@@ -1742,6 +1742,125 @@ function dueLabs(){const t=todayISO();return ALL_LABS.filter(L=>{const c=S.lsrs[
 function logEv(type,data){S.log=[...(S.log||[]),{ev:type,d:todayISO(),ts:Date.now(),...data}].slice(-600);}
 function labPassed(L,redo){const t=todayISO(),c=S.lsrs[L.id];const b=redo&&c?Math.min(c.b+1,LINT.length-1):0;
   if(!S.labs[L.id])S.labs={...S.labs,[L.id]:t};S.lsrs={...S.lsrs,[L.id]:{b,d:shift(t,LINT[b])}};S.xp+=redo?15:20;}
+
+/* ---------- ShipCode account (Supabase): sign-in by email link, cloud sync, public proof page, opt-in usage counts ---------- */
+const SB_URL="https://ljcusofcvjnrrojxsicw.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxqY3Vzb2ZjdmpucnJvanhzaWN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ0NjA2NjUsImV4cCI6MjExMDAzNjY2NX0.gqsJTZRYQ1L4H6m6tw2fW-RYOHyLyWBREpu9PVPDFy0",AKEY="shipcode.auth",UKEY="shipcode.usage",PKEY="shipcode.proof";
+const sbOn=()=>!/\.claudeusercontent\.com$/.test(location.hostname);
+let acct=null,acctMsg="",acctBusy=false,acctNew=false,proofSlug="",proofMsg="",proofView=null;
+function acctLoad(){try{const a=JSON.parse(localStorage.getItem(AKEY)||"null");if(a&&typeof a.access_token==="string"&&typeof a.refresh_token==="string"&&a.user&&typeof a.user.id==="string")acct=a;}catch(e){}try{proofSlug=String(localStorage.getItem(PKEY)||"").replace(/[^a-z0-9]/g,"").slice(0,16);}catch(e){}}
+function acctStore(){try{if(acct)localStorage.setItem(AKEY,JSON.stringify(acct));else localStorage.removeItem(AKEY);}catch(e){}}
+function acctDrop(msg){acct=null;acctStore();dbRef=null;setSync("local");if(msg)acctMsg=msg;}
+async function acctRefresh(){const r=await fetch(SB_URL+"/auth/v1/token?grant_type=refresh_token",{method:"POST",headers:{apikey:SB_KEY,"Content-Type":"application/json"},body:JSON.stringify({refresh_token:acct.refresh_token})});
+  if(!r.ok){if(r.status===400||r.status===401)acctDrop("You were signed out. Sign in again to keep syncing.");throw new Error("session expired");}
+  const d=await r.json();acct={access_token:d.access_token,refresh_token:d.refresh_token,expires_at:Math.floor(Date.now()/1000)+(d.expires_in||3600),user:{id:d.user.id,email:d.user.email||""}};acctStore();}
+async function sb(path,o){o=o||{};const auth=o.auth!==false&&!!acct;
+  if(auth&&acct.expires_at*1000<Date.now()+60000)await acctRefresh();
+  const r=await fetch(SB_URL+path,{method:o.method||"GET",headers:{apikey:SB_KEY,Authorization:"Bearer "+(auth?acct.access_token:SB_KEY),...(o.body!==undefined?{"Content-Type":"application/json"}:{}),...(o.headers||{})},body:o.body!==undefined?JSON.stringify(o.body):undefined});
+  let j=null;try{j=await r.json();}catch(e){}
+  if(!r.ok){const e=new Error((j&&(j.msg||j.message||j.error_description||j.error))||("request failed ("+r.status+")"));e.status=r.status;throw e;}
+  return j;}
+/* Runs before the first render: a sign-in link lands here with the session in the address. */
+function acctBoot(){if(!sbOn())return;acctLoad();const h=(location.hash||"").slice(1);
+  if(/(^|&)access_token=/.test(h)){const q=new URLSearchParams(h);
+    acct={access_token:q.get("access_token")||"",refresh_token:q.get("refresh_token")||"",expires_at:Math.floor(Date.now()/1000)+(+q.get("expires_in")||3600),user:{id:"",email:""}};acctNew=true;
+    try{history.replaceState(null,"",location.pathname+"#ref");}catch(e){location.hash="#ref";}}
+  else if(/(^|&)error(_code|_description)?=/.test(h)){const q=new URLSearchParams(h);acctMsg="That sign-in link did not work ("+String(q.get("error_description")||q.get("error")||"unknown reason").replace(/\+/g," ").slice(0,120)+"). Ask for a new one.";
+    try{history.replaceState(null,"",location.pathname+"#ref");}catch(e){location.hash="#ref";}}}
+async function acctConnect(){if(!sbOn()||!acct)return;
+  try{
+    if(!acct.user.id){const u=await sb("/auth/v1/user");acct.user={id:u.id,email:u.email||""};acctStore();}
+    const rows=await sb("/rest/v1/states?select=state&user_id=eq."+encodeURIComponent(acct.user.id));
+    const before=JSON.stringify(S),had=Array.isArray(rows)&&rows.length>0;
+    if(had){const R=clean(rows[0].state);S=freshAtLoad&&R.t?R:merge(S,R);}
+    const uid=acct.user.id;
+    dbRef={set:body=>sb("/rest/v1/states?on_conflict=user_id",{method:"POST",body:{user_id:uid,state:body,updated_at:new Date().toISOString()},headers:{Prefer:"resolution=merge-duplicates,return=minimal"}})};
+    setSync("account");saveLocal();
+    if((!had||JSON.stringify(clean(rows[0].state))!==JSON.stringify(S))&&(S.t||S.start||S.done.length))scheduleCloud();
+    if(acctNew){acctNew=false;acctMsg="Signed in. Your progress now syncs to your ShipCode account.";}
+    try{const sl=await sb("/rest/v1/rpc/my_proof",{method:"POST",body:{}});proofSlug=typeof sl==="string"?sl:"";localStorage.setItem(PKEY,proofSlug);}catch(e){}
+    if(JSON.stringify(S)!==before||location.hash==="#ref")route();
+  }catch(e){if(acct&&!acct.user.id)acctDrop("Could not finish signing in. Ask for a new link.");else if(acct)acctMsg="Could not reach your ShipCode account just now. Progress is still saved in this browser and will sync next time.";if(location.hash==="#ref")route();}}
+async function acctSend(email){email=String(email||"").trim().toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)||email.length>120){acctMsg="Enter a valid email address.";route();return;}
+  acctBusy=true;acctMsg="";route();
+  try{await sb("/auth/v1/otp?redirect_to="+encodeURIComponent(location.origin+"/"),{method:"POST",auth:false,body:{email,create_user:true}});acctMsg="Check your email for a sign-in link and open it on this device. It can take a minute; look in spam too.";}
+  catch(e){acctMsg=e.status===429?"Too many sign-in emails were requested. Wait a few minutes and try again.":"Could not send the sign-in email: "+String(e.message).slice(0,120);}
+  acctBusy=false;route();}
+async function acctOut(){const a=acct;acctDrop("Signed out. Progress stays in this browser.");route();try{if(a)await fetch(SB_URL+"/auth/v1/logout",{method:"POST",headers:{apikey:SB_KEY,Authorization:"Bearer "+a.access_token}});}catch(e){}}
+async function acctWipe(){try{await sb("/rest/v1/rpc/unpublish_proof",{method:"POST",body:{}});await sb("/rest/v1/states?user_id=eq."+encodeURIComponent(acct.user.id),{method:"DELETE"});proofSlug="";try{localStorage.removeItem(PKEY);}catch(e){}
+    acctDrop("Your cloud copy and proof page were deleted, and you are signed out. Progress in this browser is untouched.");}catch(e){acctMsg="Could not delete the cloud copy: "+String(e.message).slice(0,120);}route();}
+let confirmWipe=false;
+function accountBlock(){if(!sbOn())return "";
+  if(acct&&acct.user.id)return `<p class="eyebrow" style="margin-top:14px">ShipCode account</p><p class="hint">Signed in as <b>${esc(acct.user.email||"your account")}</b>. Progress is saved to your account when it changes and loaded when you open the app. Code drafts stay on each device.</p>
+      <div class="row"><a class="btn small primary" href="#proof">My proof page</a><button class="btn small" data-ui="acct-out">Sign out</button><button class="btn small danger" data-ui="acct-wipe-ask">Delete my cloud copy</button></div>
+      ${confirmWipe?`<div class="confirm"><p><b>Delete your cloud copy?</b> This removes your saved progress and proof page from the ShipCode server and signs you out. Progress in this browser stays.</p><div class="row"><button class="btn small danger" data-ui="acct-wipe">Delete cloud copy</button><button class="btn small" data-ui="acct-wipe-no">Cancel</button></div></div>`:""}
+      ${acctMsg?`<p class="hint" role="status">${esc(acctMsg)}</p>`:""}`;
+  return `<p class="eyebrow" style="margin-top:14px">ShipCode account (optional)</p><p class="hint">Sign in to keep progress when you clear the browser or switch devices, and to publish a proof page. We store your email address and your progress. No password: you get a sign-in link by email.</p>
+      <div class="row"><input class="code" id="acctEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" style="flex:1 1 220px" aria-label="Email address"><button class="btn small primary" data-ui="acct-send" ${acctBusy?"disabled":""}>${acctBusy?"Sending…":"Email me a sign-in link"}</button></div>
+      ${acctMsg?`<p class="hint" role="status">${esc(acctMsg)}</p>`:""}`;}
+
+/* Proof page: numbers come from this learner's own app. Nothing here is proctored. */
+function proofData(){const ex=exAtts().filter(exFinished).map(exScore),best=ex.reduce((m,x)=>x.total>m.total?x:m,{total:-1});
+  const loops=IV_LOOPS.map(l=>{const b=Math.max(-1,...ivAtts().filter(ivDone).filter(a=>a.loop===l.id).map(ivScore));return b<0?null:{loop:l.id,best:b};}).filter(Boolean);
+  const c=(S.proof||{}).contract;
+  return {v:1,at:todayISO(),since:S.start||null,days:S.done.length,labs:ALL_LABS.filter(L=>S.labs[L.id]).length,labsTotal:ALL_LABS.length,unseen:UNSEEN.filter(L=>S.labs[L.id]).length,unseenTotal:UNSEEN.length,
+    exam:best.total<0?null:{total:best.total,of:EXAM_TOTAL,pass:!!best.pass,sql:best.sql,pyEasy:best.pyEasy,pyMed:best.pyMed},tracks:TRACKS.filter(trackDone).map(t=>t.name),
+    loops,mocks:(S.peer||[]).filter(x=>x.role==="candidate").length,contract:c?{passed:c.passed,total:c.total}:null,
+    repos:[...new Set(Object.values(S.proof||{}).filter(p=>p&&p.ok&&/^https:\/\/github\.com\//.test(p.repoUrl||"")).map(p=>p.repoUrl))].slice(0,3)};}
+const num=x=>Number.isFinite(+x)?+x:0;
+function proofBody(name,d,when){d=d&&typeof d==="object"?d:{};const ex=d.exam&&typeof d.exam==="object"?d.exam:null;
+  const row=(k,v)=>`<tr><th scope="row">${esc(k)}</th><td>${v}</td></tr>`;
+  return `<section class="card"><span class="eyebrow">ShipCode progress</span><h1>${esc(String(name).slice(0,40))}</h1>
+    <p class="muted">Hands-on Python and SQL practice${ISO(d.since)?", started "+esc(d.since):""}. Updated ${esc(String(when||d.at||"").slice(0,10))}.</p>
+    <div class="tablebox"><table><tbody>
+      ${row("Lessons completed",num(d.days)+" of 30")}
+      ${row("Graded code labs passed",num(d.labs)+" of "+num(d.labsTotal))}
+      ${row("Unseen problems solved",num(d.unseen)+" of "+num(d.unseenTotal))}
+      ${row("Timed exam (12 unseen problems, 100 min)",ex?`<b>${num(ex.total)} of ${num(ex.of)}</b> without help ${ex.pass?'<span class="chip ok">pass</span>':'<span class="chip">not yet</span>'}<br><span class="hint">SQL ${num(ex.sql)}/4 · Python easier ${num(ex.pyEasy)}/4 · Python harder ${num(ex.pyMed)}/4</span>`:"not taken yet")}
+      ${row("Tracks earned",Array.isArray(d.tracks)&&d.tracks.length?d.tracks.map(t=>esc(String(t).slice(0,40))).join(", "):"none yet")}
+      ${row("Interview practice loops",Array.isArray(d.loops)&&d.loops.length?d.loops.map(l=>"Loop "+esc(String(l.loop).slice(0,2))+": "+num(l.best)+"/4 rounds").join(" · "):"none yet")}
+      ${row("Mock interviews with a person",num(d.mocks))}
+      ${row("Own API passed the contract check",d.contract?num(d.contract.passed)+" of "+num(d.contract.total)+" behaviours":"not run yet")}
+      ${Array.isArray(d.repos)&&d.repos.length?row("Verified public repositories",d.repos.filter(u=>/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+/.test(u)).map(u=>`<a href="${esc(u)}" rel="noopener nofollow" target="_blank">${esc(u.replace("https://github.com/",""))}</a>`).join("<br>")):""}
+    </tbody></table></div>
+    <p class="hint"><b>How to read this:</b> these numbers are reported by the learner's own copy of ShipCode. The exam and loops are timed and count only work done without hints, but nobody watched, so treat this as a practice record, not a certificate.</p></section>`;}
+async function proofPublish(name){name=String(name||"").trim().slice(0,40);if(!name){proofMsg="Type the name to show on the page.";route();return;}
+  try{const sl=await sb("/rest/v1/rpc/publish_proof",{method:"POST",body:{p_name:name,p_data:proofData()}});proofSlug=String(sl||"");try{localStorage.setItem(PKEY,proofSlug);localStorage.setItem(PKEY+".name",name);}catch(e){}proofMsg="Published. Anyone with the link can see it.";}
+  catch(e){proofMsg="Could not publish: "+String(e.message).slice(0,120);}route();}
+async function proofRemove(){try{await sb("/rest/v1/rpc/unpublish_proof",{method:"POST",body:{}});proofSlug="";try{localStorage.removeItem(PKEY);}catch(e){}proofMsg="Unpublished. The link no longer works.";}catch(e){proofMsg="Could not unpublish: "+String(e.message).slice(0,120);}route();}
+function renderProofMine(){let nm="";try{nm=localStorage.getItem(PKEY+".name")||"";}catch(e){}
+  const link=proofSlug?location.origin+"/#p-"+proofSlug:"";
+  app.innerHTML=`<div class="view"><section style="display:flex;flex-direction:column;gap:8px"><a href="#path" class="muted">← Path</a><span class="eyebrow">Proof page</span><h1>A link that shows your work</h1>
+    <p class="muted">Publish a public page with your exam score, labs, interview loops and capstone check, to share with a recruiter, a mentor or a study partner. You choose the name, and you can unpublish at any time.</p></section>
+    ${!sbOn()?`<section class="card"><p>Proof pages are available on the ShipCode website, not inside claude.ai.</p></section>`:!(acct&&acct.user.id)?`<section class="card"><p>Sign in first: a proof page belongs to an account. <a href="#ref" data-scroll="#acctEmail">Go to sign-in</a></p></section>`:
+    `<section class="card"><span class="eyebrow">${proofSlug?"Published":"Not published"}</span>
+      <label class="field"><span>Name to show (up to 40 characters)</span><input class="code" id="proofName" maxlength="40" autocomplete="name" value="${esc(nm)}" placeholder="e.g. Aditya D."></label>
+      <div class="row"><button class="btn small primary" data-ui="proof-pub">${proofSlug?"Update my page":"Publish my page"}</button>${proofSlug?`<button class="btn small" data-ui="proof-copy" data-link="${esc(link)}">Copy link</button><a class="btn small" href="#p-${esc(proofSlug)}">View it</a><button class="btn small danger" data-ui="proof-unpub">Unpublish</button>`:""}</div>
+      ${link?`<p class="hint">Your link: <code>${esc(link)}</code></p>`:""}${proofMsg?`<p class="hint" role="status">${esc(proofMsg)}</p>`:""}
+      <p class="hint">The page shows a snapshot from when you last pressed Publish or Update. It does not include your email, your code or your error log.</p></section>`}
+    <section style="display:flex;flex-direction:column;gap:8px"><span class="eyebrow">Preview of what others will see</span></section>${proofBody(nm||"Your name",proofData(),todayISO())}</div>`;}
+function renderProofPublic(slug){const cta=`<section class="card"><p><b>ShipCode</b> is free, hands-on Python and SQL practice that runs in the browser.</p><a class="btn primary" href="#today">Try it yourself</a></section>`;
+  if(proofView&&proofView.slug===slug){app.innerHTML=`<div class="view">${proofView.row?proofBody(proofView.row.display_name,proofView.row.data,proofView.row.updated_at):`<section class="card"><h1>Page not found</h1><p class="muted">${proofView.err?"Could not load this page. Check your connection and try again.":"This proof page does not exist or was unpublished."}</p></section>`}${cta}</div>`;return;}
+  app.innerHTML=`<div class="view"><section class="card"><p class="muted" role="status">Loading…</p></section></div>`;
+  sb("/rest/v1/rpc/get_proof",{method:"POST",auth:false,body:{p_slug:slug}}).then(r=>{proofView={slug,row:Array.isArray(r)&&r[0]?r[0]:null};},()=>{proofView={slug,row:null,err:true};}).then(()=>{if(location.hash==="#p-"+slug)route();});}
+
+/* Opt-in usage counts: off until the learner agrees. A random device id, progress counts and error messages. No name, email or code. */
+function usageGet(){try{const u=JSON.parse(localStorage.getItem(UKEY)||"null");if(u&&typeof u==="object")return u;}catch(e){}return {on:null};}
+function usageSet(u){try{localStorage.setItem(UKEY,JSON.stringify(u));}catch(e){}}
+function usageAsk(){if(!sbOn()||!S.start)return false;const u=usageGet();return u.on===null||(u.on===false&&u.again===1);}
+function usageCard(){const again=usageGet().on===false;
+  return `<section class="card" id="usageAsk"><span class="eyebrow">${again?"Something just went wrong":"One question"}</span><p><b>Help improve ShipCode?</b> Share anonymous progress counts and error messages. No name, email or code is sent. You can turn this off in Settings.</p>
+    <details><summary>Exactly what is sent</summary><ul><li>A random id for this device (not linked to your account or email)</li><li>Once a day: the day you have reached, lessons and labs done, exam and interview-loop scores, your plan settings, and whether this is a phone or a computer</li><li>When something breaks: the error message and the page it happened on (up to 5 a day)</li></ul></details>
+    <div class="row"><button class="btn small primary" data-ui="usage-yes">Yes, share</button><button class="btn small" data-ui="usage-no">No thanks</button></div></section>`;}
+function usagePost(kind,data){const u=usageGet();if(!sbOn()||u.on!==true||!u.device)return;
+  try{fetch(SB_URL+"/rest/v1/events",{method:"POST",keepalive:true,headers:{apikey:SB_KEY,Authorization:"Bearer "+SB_KEY,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify({device:u.device,kind,data})}).catch(()=>{});}catch(e){}}
+function usageSnapshot(){const u=usageGet();if(u.on!==true||u.snap===todayISO()||!S.start)return;u.snap=todayISO();usageSet(u);
+  const ex=exAtts().filter(exFinished).map(a=>exScore(a).total);
+  usagePost("snapshot",{day:currentDay(),started:S.start,lessons:S.done.length,labs:Object.keys(S.labs).length,drills:Object.keys(S.solved).length,practiceDays:S.dates.length,examBest:ex.length?Math.max(...ex):null,exams:ex.length,loops:ivAtts().filter(ivDone).length,mocks:(S.peer||[]).length,goal:(S.habit||{}).goal||null,minutes:(S.habit||{}).min||null,phone:matchMedia("(max-width:700px)").matches,installed:matchMedia("(display-mode: standalone)").matches,signedIn:!!acct});}
+function usageErr(kind,msg){try{const u=usageGet();
+    if(u.on===false&&!u.again){u.again=1;usageSet(u);return;}
+    if(u.on!==true)return;const t=todayISO();if(u.ed!==t){u.ed=t;u.en=0;}if(u.en>=5)return;u.en++;usageSet(u);
+    usagePost("error",{kind:String(kind).slice(0,30),msg:String(msg||"").replace(/\s+/g," ").slice(0,300),page:(location.hash||"").slice(0,40)});}catch(e){}}
 
 /* ---------- Views ---------- */
 const app=document.getElementById("app");
@@ -2024,7 +2143,7 @@ function skillsCard(){
 
 function renderPath(){
   const cur=currentDay(),tgt=targetDay();
-  app.innerHTML=`<div class="view">${pathGrid()}${progressCard()}${readinessCard()}${skillsCard()}${S.start?paceCard():""}${tracksCard(true)}<p class="hint"><a href="#exam">Tracks and exam</a> · <a href="#interview">Interview practice</a> · <a href="#review">Weekly review</a> · <a href="#portfolio">Portfolio</a></p><p class="hint">Each row shows drills solved, then code labs passed.</p>${WEEKS.map(w=>{
+  app.innerHTML=`<div class="view">${pathGrid()}${progressCard()}${readinessCard()}${skillsCard()}${S.start?paceCard():""}${tracksCard(true)}<p class="hint"><a href="#exam">Tracks and exam</a> · <a href="#interview">Interview practice</a> · <a href="#proof">Proof page</a> · <a href="#review">Weekly review</a> · <a href="#portfolio">Portfolio</a></p><p class="hint">Each row shows drills solved, then code labs passed.</p>${WEEKS.map(w=>{
     const rows=[];for(let n=w.from;n<=w.to;n++){const d=DAYS[n-1],lt=labsOf(n).length;
       rows.push(`<a class="prow ${isDone(n)?"done":""} ${n===cur&&!isDone(n)?"current":""} ${tgt===n&&!isDone(n)?"target":""}" href="#day-${n}">
         <span class="node">${isDone(n)?"✓":n}</span><span class="ptitle">${esc(d.t)}${DAY_NOTES[n]?` <span class="chip">${DAY_NOTES[n][0].toLowerCase()}</span>`:""}</span><span class="pmeta">${drillCount(n)}/${d.drills.length}${lt?` · ${labCount(n)}/${lt}`:""}</span></a>`);}
@@ -2166,6 +2285,8 @@ function renderRef(){
     <section class="card"><span class="eyebrow">Settings</span>
       <p class="sync" id="syncState">${syncText()}</p>
       <label class="row" style="align-items:center;gap:10px"><input type="checkbox" data-ui="cm-toggle" ${cmOn()?"checked":""}> <span><b>Colour-coded code editor</b> (beta)</span></label><p class="hint">Highlights Python and SQL and matches brackets. Downloads about 140 KB the first time. If typing feels wrong on your phone, turn it off: the plain editor stays the default.</p>
+      ${accountBlock()}${sbOn()?`<label class="row" style="align-items:center;gap:10px;margin-top:14px"><input type="checkbox" data-ui="usage-toggle" ${usageGet().on===true?"checked":""}> <span><b>Share anonymous usage counts</b></span></label><p class="hint">Progress counts and error messages, tied to a random id. No name, email or code. Off unless you tick this.</p>`:""}
+      ${sbOn()?`<details style="margin-top:10px"><summary>Privacy: what ShipCode stores, and where</summary><ul><li><b>Always, in this browser only:</b> your progress, code drafts and the last 20 error messages.</li><li><b>If you sign in:</b> your email address and your progress, on ShipCode's database (hosted by Supabase). Only you can read your progress. "Delete my cloud copy" removes the progress and proof page; to remove the email record too, ask whoever gave you ShipCode.</li><li><b>If you publish a proof page:</b> the name you type and the progress numbers shown in the preview, visible to anyone with the link until you unpublish.</li><li><b>If you agree to share usage counts:</b> a random device id, daily progress counts and error messages. Not your name, email or code.</li><li><b>Never:</b> advertising trackers or selling data.</li></ul></details>`:""}
       <p class="eyebrow" style="margin-top:14px">Your data</p>
       <p class="hint">Your progress is saved only in this browser. Clearing browser data or switching phones erases it. Back it up now and then.</p>
       <div class="row"><button class="btn small" data-ui="backup">Back up my progress</button><label class="btn small" style="cursor:pointer">Restore from backup<input type="file" accept="application/json,.json" data-ui="restore" hidden></label></div>
@@ -2455,6 +2576,8 @@ function route(){
   else if(h==="report"){tab="path";renderReport();}
   else if(h==="exam"){tab="path";renderExam();}
   else if(h==="interview"){tab="path";renderInterview();}
+  else if(h==="proof"){tab="path";renderProofMine();}
+  else if(/^p-[a-z0-9]{6,16}$/.test(h)){tab="";renderProofPublic(h.slice(2));}
   else if(h==="review"){tab="path";renderReview();}
   else if(h==="portfolio"){tab="path";renderPortfolio();}
   else if(h==="path"){tab="path";renderPath();}
@@ -2465,10 +2588,11 @@ function route(){
   else if(h==="diag"){renderDiag();}
   else if(!S.start){obInit(false);renderOnboarding();}
   else renderToday(currentDay());
-  document.body.classList.toggle("onboarding",!S.start&&!/^(day-|sql|path|think|errors|ref|report|exam|review|portfolio|diag)/.test(h));
+  if(tab==="today"&&S.start&&!/^day-/.test(h)&&usageAsk()){const v=app.querySelector(".view");if(v&&!document.getElementById("usageAsk"))v.insertAdjacentHTML("afterbegin",usageCard());}
+  document.body.classList.toggle("onboarding",!S.start&&!/^(day-|sql|path|think|errors|ref|report|exam|review|portfolio|diag|interview|proof|capstone)/.test(h));
   document.querySelectorAll(".tabs a").forEach(a=>{if(a.dataset.tab===tab)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});decoratePre();
 }
-window.addEventListener("hashchange",()=>{route();window.scrollTo(0,0);});
+window.addEventListener("hashchange",()=>{if(/(^|[#&])(access_token|error_description)=/.test(location.hash)){acctBoot();route();acctConnect();return;}route();window.scrollTo(0,0);});
 
 /* ---------- Actions ---------- */
 app.addEventListener("click",ev=>{
@@ -7493,7 +7617,7 @@ function cmUpgrade(){if(!cmOn()||!lab||!(lab.L.kind==="py"||lab.L.kind==="sql"))
 
 /* Reference drawer + search */
 function searchIndex(){const out=[];
-  [["Today","#today"],["Path","#path"],["Gyms","#gyms"],["Think","#think"],["Errors","#errors"],["Reference page and settings","#ref"],["30-day sprint","#sprint"],["Capstone studio","#capstone"],["Interview practice","#interview"],["Commitments","#commit"],["Tracks and exam","#exam"],["Weekly review","#review"],["Portfolio","#portfolio"],["Change my plan","#plan"]].forEach(([t,h])=>out.push({k:"Page",t,h}));
+  [["Today","#today"],["Path","#path"],["Gyms","#gyms"],["Think","#think"],["Errors","#errors"],["Reference page and settings","#ref"],["30-day sprint","#sprint"],["Capstone studio","#capstone"],["Interview practice","#interview"],["Proof page","#proof"],["Commitments","#commit"],["Tracks and exam","#exam"],["Weekly review","#review"],["Portfolio","#portfolio"],["Change my plan","#plan"]].forEach(([t,h])=>out.push({k:"Page",t,h}));
   DAYS.forEach((d,i)=>out.push({k:"Day "+(i+1),t:d.t,h:"#day-"+(i+1)}));
   (typeof GYMS!=="undefined"?GYMS:[]).forEach(G=>G.levels.forEach(g=>out.push({k:G.short+" L"+g.lvl,t:g.name,h:"#"+G.key+"-"+g.lvl})));
   ALL_LABS.forEach(L=>out.push({k:"Lab",t:L.title,lab:L.id}));
@@ -7541,6 +7665,17 @@ document.addEventListener("click",ev=>{const t=ev.target;
     else{const role=u.dataset.role==="interviewer"?"interviewer":"candidate";let score=total;
       if(role==="candidate"){const g=(document.getElementById("peerGot")||{}).value;score=Math.round(+g);if(g===""||!Number.isFinite(score)||score<0||score>20){peerMsg="Enter the score you were given, from 0 to 20.";route();return;}}
       S.peer=[...(S.peer||[]),{d:todayISO(),loop:peerLoop,role,score,note:role==="interviewer"?note:""}].slice(-40);logEv("peer_mock",{role,loop:peerLoop});peerMsg=role==="candidate"?"Logged. Mock interviews with a person so far: "+S.peer.filter(x=>x.role==="candidate").length+".":"Logged that you interviewed someone.";save();route();}}
+  else if(a==="acct-send")acctSend((document.getElementById("acctEmail")||{}).value);
+  else if(a==="acct-out")acctOut();
+  else if(a==="acct-wipe-ask"){confirmWipe=true;route();}
+  else if(a==="acct-wipe-no"){confirmWipe=false;route();}
+  else if(a==="acct-wipe"){confirmWipe=false;acctWipe();}
+  else if(a==="proof-pub")proofPublish((document.getElementById("proofName")||{}).value);
+  else if(a==="proof-unpub")proofRemove();
+  else if(a==="proof-copy"){const done=()=>{u.textContent="Copied";setTimeout(()=>{u.textContent="Copy link";},1500);};try{navigator.clipboard.writeText(u.dataset.link).then(done,()=>{u.textContent="Copy blocked";});}catch(e){u.textContent="Copy blocked";}}
+  else if(a==="usage-yes"||a==="usage-no"||a==="usage-toggle"){const o=usageGet(),on=a==="usage-yes"||(a==="usage-toggle"&&u.checked);
+    const n={...o,on,again:on?0:(o.on===false&&o.again===1)||a==="usage-toggle"?2:o.again||0};if(on&&!n.device)n.device=(crypto.randomUUID?crypto.randomUUID():"10000000-1000-4000-8000-100000000000".replace(/[018]/g,c=>(+c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>+c/4).toString(16)));
+    usageSet(n);if(on)usageSnapshot();if(a!=="usage-toggle")route();}
   else if(a==="cm-toggle"){try{localStorage.setItem("shipcode.cm",u.checked?"1":"0");}catch(e){}if(u.checked)cmLoad().catch(()=>{});}
   else if(a==="diagnext"){diagIdx++;renderErrors();decoratePre();}
   else if(a==="copy"){const pre=u.parentNode.querySelector("pre");const txt=pre?pre.innerText:"";const done=()=>{u.textContent="Copied";setTimeout(()=>{u.textContent="Copy";},1200);};
@@ -7552,8 +7687,11 @@ function hudTipEl(){let e=document.getElementById("hudTip");if(!e){e=document.cr
 function hudTipToggle(){const e=hudTipEl();if(!e.hidden){hudTipHide();return;}e.innerHTML=`<div class="col"><div class="wkbar" aria-hidden="true">${weekDotsHTML(1)}</div><p>${esc(weekTip())}</p><p class="hint">Filled = practised · dashed = rest day used · ring = today</p></div>`;e.hidden=false;clearTimeout(hudTimer);hudTimer=setTimeout(hudTipHide,7000);}
 function hudTipHide(){const e=document.getElementById("hudTip");if(e)e.hidden=true;}
 
+acctBoot();
 route();
 connectCloud();
+acctConnect();
+try{usageSnapshot();}catch(e){}
 
 </script>
 
