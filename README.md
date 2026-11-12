@@ -184,3 +184,7 @@ Honest limits: time estimates (about 5,250 minutes at Core depth, roughly 3 hour
 ## The Field Gym
 
 A seventh gym for the work around the code that forward-deployed engineers do: understand a vague ask, read messy customer data and logs, debug a system you did not build, build integration glue (normalise, idempotent upsert, retries, reconcile), and communicate (incident updates, saying no, handover runbooks). 27 labs: code labs graded on real tests, plus written scenarios checked against a rubric and a model answer. In the sprint it adds one level on days 7, 14, 21, 28 and 30. Honest limit: scenarios are written; real customer practice has to happen with real people.
+
+## Habit additions
+
+Today now shows a **minimum day** card (5 minutes counts as a practice day), and strict mode gets **streak freezes**: one missed day is bridged automatically, you earn one per 7 practice days, and you can hold two. Flexible mode keeps its existing weekly rest day. There is no guilt messaging, no fake peers and no invented social proof by design.

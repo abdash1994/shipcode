@@ -1510,14 +1510,14 @@ const ERR_ROWS=[["SyntaxError","Python can't parse the line","Missing :, bracket
 
 /* ---------- State ---------- */
 const KEY="blankfile-state-v1";
-const blank=()=>({v:1,t:0,start:null,pace:30,habit:null,done:[],solved:{},missed:[],xp:0,dates:[],tasks:{},labs:{},plans:{},srs:{},lsrs:{},me:{},lstat:{},errs:{},mocks:[],proof:{},log:[],checks:{},survey:{},doneOn:{},exam:{},reviews:[],cap:{}});
+const blank=()=>({v:1,t:0,start:null,pace:30,habit:null,done:[],solved:{},missed:[],xp:0,dates:[],tasks:{},labs:{},plans:{},srs:{},lsrs:{},me:{},lstat:{},errs:{},mocks:[],proof:{},log:[],checks:{},survey:{},doneOn:{},exam:{},reviews:[],cap:{},frozen:[]});
 const obj=x=>x&&typeof x==="object"&&!Array.isArray(x)?{...x}:{};
 function clean(o){const b=blank();if(!o||typeof o!=="object")return b;
   return {v:1,t:Number.isFinite(o.t)?o.t:0,start:typeof o.start==="string"?o.start:null,pace:Number.isInteger(o.pace)&&o.pace>=2&&o.pace<=1200?o.pace:30,habit:cleanHabit(o.habit),
     done:Array.isArray(o.done)?o.done.filter(n=>Number.isInteger(n)&&n>=1&&n<=30):[],
     solved:obj(o.solved),missed:Array.isArray(o.missed)?o.missed.filter(x=>typeof x==="string"):[],
     xp:Number.isFinite(o.xp)?o.xp:0,dates:Array.isArray(o.dates)?o.dates.filter(x=>typeof x==="string"):[],
-    tasks:obj(o.tasks),labs:obj(o.labs),plans:obj(o.plans),srs:obj(o.srs),lsrs:obj(o.lsrs),me:{why:typeof (o.me||{}).why==="string"?o.me.why.slice(0,140):"",time:typeof (o.me||{}).time==="string"?o.me.time:""},lstat:obj(o.lstat),proof:obj(o.proof),errs:obj(o.errs),warmDay:typeof o.warmDay==="string"?o.warmDay:"",mocks:Array.isArray(o.mocks)?o.mocks.filter(x=>x&&typeof x==="object").slice(-200):[],log:Array.isArray(o.log)?o.log.filter(x=>x&&typeof x==="object").slice(-600):[],checks:obj(o.checks),survey:obj(o.survey),doneOn:obj(o.doneOn),exam:obj(o.exam),cap:obj(o.cap),reviews:Array.isArray(o.reviews)?o.reviews.filter(x=>x&&typeof x==='object').slice(-60):[]};}
+    tasks:obj(o.tasks),labs:obj(o.labs),plans:obj(o.plans),srs:obj(o.srs),lsrs:obj(o.lsrs),me:{why:typeof (o.me||{}).why==="string"?o.me.why.slice(0,140):"",time:typeof (o.me||{}).time==="string"?o.me.time:""},lstat:obj(o.lstat),proof:obj(o.proof),errs:obj(o.errs),warmDay:typeof o.warmDay==="string"?o.warmDay:"",mocks:Array.isArray(o.mocks)?o.mocks.filter(x=>x&&typeof x==="object").slice(-200):[],log:Array.isArray(o.log)?o.log.filter(x=>x&&typeof x==="object").slice(-600):[],checks:obj(o.checks),survey:obj(o.survey),doneOn:obj(o.doneOn),exam:obj(o.exam),cap:obj(o.cap),frozen:Array.isArray(o.frozen)?o.frozen.filter(x=>typeof x==="string"&&/^\d{4}-\d\d-\d\d$/.test(x)).slice(-30):[],reviews:Array.isArray(o.reviews)?o.reviews.filter(x=>x&&typeof x==='object').slice(-60):[]};}
 function loadLocal(){try{return clean(JSON.parse(localStorage.getItem(KEY)||"null"));}catch(e){return blank();}}
 function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){/* storage blocked: cloud sync or this visit only */}}
 let S=loadLocal();const freshAtLoad=!S.t&&!S.start&&!S.done.length;
@@ -1531,7 +1531,7 @@ function merge(a,b){a=clean(a);b=clean(b);
   return {v:1,t:0,start:starts[0]||null,pace:b.start?b.pace:a.pace,habit:b.start?b.habit:a.habit,
     done:[...new Set([...a.done,...b.done])].sort((x,y)=>x-y),solved,
     missed:[...new Set([...a.missed,...b.missed])].filter(id=>!solved[id]),
-    xp:Math.max(a.xp,b.xp),dates:[...new Set([...a.dates,...b.dates])].sort().slice(-120),tasks:{...a.tasks,...b.tasks},
+    xp:Math.max(a.xp,b.xp),dates:[...new Set([...a.dates,...b.dates])].sort().slice(-120),frozen:[...new Set([...(a.frozen||[]),...(b.frozen||[])])].sort().slice(-30),cap:{...a.cap,...b.cap},tasks:{...a.tasks,...b.tasks},
     labs:{...a.labs,...b.labs},plans:{...a.plans,...b.plans},srs:{...a.srs,...b.srs},lsrs:{...a.lsrs,...b.lsrs},me:{...a.me,...b.me},lstat:{...a.lstat,...b.lstat},errs:{...a.errs,...b.errs},mocks:[...a.mocks,...b.mocks].slice(-200)};}
 
 /* Code drafts stay in this browser only (they can be large). */
@@ -1574,11 +1574,17 @@ function norm(s,sql){let t=String(s).replace(/[‘’]/g,"'").replace(/[“”]/
 function isCorrect(d,input){const accN=(d.acc||[]).map(a=>norm(a,d.sql));const n=norm(input,d.sql);const c=[n];
   if(!d.sql){const r=n.replace(/^return(?=[\w(\[{'])/,"");if(r!==n)c.push(r);const a=r.replace(/^[A-Za-z_]\w*=(?!=)/,"");if(a!==r)c.push(a);}
   return c.some(x=>(d.re&&d.re.test(x))||accN.includes(x));}
-function streak(){const set=new Set(S.dates);let d=todayISO(),n=0,lastRest=null;if(!set.has(d))d=shift(d,-1);
+function streak(){const set=new Set(S.dates),fz=new Set(S.frozen||[]);let d=todayISO(),n=0,lastRest=null;if(!set.has(d))d=shift(d,-1);
   for(let g=0;g<400;g++){if(set.has(d)){n++;d=shift(d,-1);continue;}
+    if(fz.has(d)){d=shift(d,-1);continue;}
     if(!isStrict()&&(lastRest===null||diffDays(d,lastRest)>=7)&&set.has(shift(d,-1))){lastRest=d;d=shift(d,-1);continue;}break;}
   return n;}
-function markPractice(){const t=todayISO();if(!S.dates.includes(t))S.dates=[...S.dates,t].slice(-120);}
+/* Streak freeze (strict mode only): one missed day is bridged automatically; earn one per 7 practice days, hold at most 2. Flexible mode already forgives a rest day each week. */
+function freezesLeft(){const first=S.dates[0]||"0000",used=(S.frozen||[]).filter(d=>d>=first).length;return Math.max(0,Math.min(2,Math.floor(S.dates.length/7)-used));}
+function markPractice(){const t=todayISO();if(S.dates.includes(t))return;
+  const y=shift(t,-1),yy=shift(t,-2);
+  if(isStrict()&&S.dates.length&&!S.dates.includes(y)&&!(S.frozen||[]).includes(y)&&(S.dates.includes(yy)||(S.frozen||[]).includes(yy))&&freezesLeft()>0)S.frozen=[...(S.frozen||[]),y].slice(-30);
+  S.dates=[...S.dates,t].slice(-120);}
 const isDone=n=>S.done.includes(n);
 const drillsDone=n=>DAYS[n-1].drills.every(d=>S.solved[d.id]);
 const drillCount=n=>DAYS[n-1].drills.filter(d=>S.solved[d.id]).length;
@@ -1769,6 +1775,12 @@ function comebackCard(){const away=awayDays(),drills=warmIds().length,redo=dueLa
     <p class="hint">Everything else that came due while you were away is spread over the next days, oldest first. Nothing is lost and there's no pile to clear.</p>
     <div class="row">${drills?`<button class="btn primary" data-act="review">Start the 5-minute restart</button>`:""}<button class="btn" data-act="replan">Re-plan: finish ${fin}</button>${S.pace===30?`<button class="btn" data-act="pace60">Switch to 60 days (2–3 h a day)</button>`:""}</div></section>`;}
 
+function habitCard(){const t=todayISO(),done=S.dates.includes(t),st=streak(),h=habitOf(),goal=h.dpw>=7?7:h.dpw,w={k:weekCount()},drills=warmIds().length;
+  const mode=isStrict()?`Streak freezes: <b>${freezesLeft()}</b> of 2. A freeze covers one missed day automatically; you earn one for every 7 practice days.`:`Flexible mode already forgives one rest day a week, so one missed day will not break your streak.`;
+  return `<section class="card habit"><span class="eyebrow">${done?"Today counted":"Today's minimum: 5 minutes"}</span>
+    <p>${done?`You practised today${st>1?`: <b>${st}-day streak</b>`:""}. Anything more is a bonus.`:`${st>0?`Your <b>${st}-day streak</b> continues if you practise before midnight. `:""}A <b>minimum day</b> is ${drills?`${Math.min(3,drills)} quick recall drills (about 5 minutes)`:"the first task of today's lesson (about 5 minutes)"}. It counts as a practice day. Doing more is optional.`}</p>
+    ${!done&&drills?`<button class="btn primary" data-act="review">Start the 5-minute minimum</button>`:""}
+    <p class="hint">This week: <b>${w.k}</b> of ${goal} practice days. ${mode}</p></section>`;}
 function renderToday(n){
   const d=DAYS[n-1],w=weekOf(n),dd=drillsDone(n),cnt=drillCount(n),tot=d.drills.length,gateOK=!!S.tasks[n+"-g"];
   const labs=labsOf(n),ld=labsDone(n),cDone=!!S.tasks[n+"-c"];
@@ -1781,7 +1793,7 @@ function renderToday(n){
       <p class="can"><b>After today you can</b> ${esc(d.can)}</p>
       <p class="why">${esc(d.why)}</p></section>
     ${cur&&S.start&&comeback()?comebackCard():""}
-    ${cur&&S.start?gymSlotCard(n):""}${cur&&S.start?reachedCard():""}${cur&&S.start?bitesCard(n):""}${sessionCard(n)}${dayNote(n)}
+    ${cur&&S.start&&!comeback()?habitCard():""}${cur&&S.start?gymSlotCard(n):""}${cur&&S.start?reachedCard():""}${cur&&S.start?bitesCard(n):""}${sessionCard(n)}${dayNote(n)}
     ${cur&&S.start&&!comeback()?paceCard():""}
     ${cur?warmCard():""}${cur?repSetCard():""}${cur?reviewDueCard():""}${surveyCard()}
     <details class="card lesson" id="concept" ${cDone?"":"open"}><summary><span class="eyebrow">1 · Concept (10 min)</span>${cDone?'<span class="chip ok">Done</span>':""}</summary>
