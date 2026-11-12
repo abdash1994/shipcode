@@ -48,7 +48,7 @@ await p.waitForTimeout(1000);ok('counter lands on the right number',await p.eval
 await p.evaluate(()=>{S.habit.mode='strict';});ok('strict tip mentions freezes',await p.evaluate(()=>/freeze/.test(weekTip())));
 // desktop sidebar keeps Reference
 const n=await b.newContext({...devices['iPhone SE']});await n.route('**/*',r=>r.request().url().startsWith('file:')?r.continue():r.abort());const sm=await n.newPage();await sm.goto('file://'+process.cwd()+'/vercel/index.html');await sm.waitForTimeout(400);await sm.evaluate(()=>{S.start=shift(todayISO(),-3);save();location.hash='#today';route();});await sm.waitForTimeout(300);
-ok('320px: every header item inside the screen',await sm.evaluate(()=>innerWidth<=320&&[...document.querySelectorAll('header .col > *')].every(e=>e.getBoundingClientRect().right<=innerWidth&&e.getBoundingClientRect().width>0)));
+ok('320px: every header item inside the screen',await sm.evaluate(()=>innerWidth<=320&&[...document.querySelectorAll('header .col > *')].filter(e=>getComputedStyle(e).display!=='none').every(e=>e.getBoundingClientRect().right<=innerWidth&&e.getBoundingClientRect().width>0)));
 const d=await c.newPage();await d.setViewportSize({width:1280,height:800});await d.goto('file://'+process.cwd()+'/vercel/index.html');await d.waitForTimeout(400);
 ok('desktop sidebar shows Reference',await d.evaluate(()=>getComputedStyle(document.querySelector('.tabs a[data-tab=ref]')).display!=='none'));
 ok('no page errors '+errs.join('|'),!errs.length);console.log(f?'FAILS '+f:'ALL PASS');await b.close();})();

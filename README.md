@@ -245,3 +245,6 @@ Today shows one next step in order: lesson, drills, labs, hands-on, check. All 3
 
 ## App shell (settings, accounts, journey)
 `#settings` holds profile, plan, theme (auto/light/dark), code-editor toggle, privacy and data, backup/restore and the danger zone. `#path` is a Duolingo-style journey: four units for Days 1-30 plus the Pro track, with a node sheet per day. Tests: `tests/e2e37.js` (uses an in-memory fake of the Supabase auth endpoints; no real accounts are created).
+
+## Maker credit
+A small "Built by" card (photo, LinkedIn, GitHub star, email) sits in Settings and at the end of the Path; a "Star" pill shows in the header from 700px up; one dismissible star request appears on Today after the first finished day and never returns after either choice. Visit `#owner` on your own device to switch the request off. Test: `tests/e2e38.js`. The photo is embedded as a 200px JPEG data URI.
