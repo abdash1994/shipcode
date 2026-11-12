@@ -58,9 +58,9 @@ Six gyms, each five levels that grow the way a job does: **write it, shape the d
 
 | Gym | Labs | What is real and what is simulated |
 |---|---|---|
-| SQL | 51 | Runs on SQLite in the browser; Level 4 plans are SQLite's, not a warehouse's. |
-| Python | 20 | Real Python (Pyodide). Random-input tests against a reference on most labs. |
-| PySpark | 20 | Levels 1 to 3 use real PySpark syntax on a pandas-based stand-in, not a cluster. Level 4 teaches partitions, shuffles, skew and broadcast by having you write the logic in plain Python. |
+| SQL | 37 | Runs on SQLite in the browser; Level 4 plans are SQLite's, not a warehouse's. |
+| Python | 30 | Real Python (Pyodide). Random-input tests against a reference on most labs. |
+| PySpark | 21 | Levels 1 to 3 use real PySpark syntax on a pandas-based stand-in, not a cluster. Level 4 teaches partitions, shuffles, skew and broadcast by having you write the logic in plain Python. |
 | System design | 17 | Levels 1 to 4 are code (sizing arithmetic, hash ring, idempotency, circuit breaker); Level 5 is three interview-style design exercises with keyword feedback and a model answer. |
 | Deployment | 17 | Docker and cloud cannot run in a browser. You write parsers, linters, planners and decision rules, and practise design exercises. Real proof = deploy your own project (steps in Level 5). |
 | AI engineering | 21 | The model is a function you pass in, so every behaviour is testable without an API key. Prices and provider syntax change: the labs say to check current docs. |
@@ -214,4 +214,7 @@ Adapted from a UI/UX review (Gemini), rebuilt in plain CSS/JS because the app is
 - Path starts with a 30-day map. Nothing is locked.
 - Errors: "Diagnose it first" (hint, root cause, fix open one at a time), the error list as accordions, "Drill this pattern" on rows that have a matching lab. Think's worked example opens step by step.
 - Lab panes use hairline borders; passing all tests pulses the result once. Copy buttons on code blocks in Think and Errors.
-- Not done: Inter/Geist/JetBrains Mono (would add font downloads to an offline app), CodeMirror (bundle size and mobile behaviour not evaluated), a full dark-surface re-skin.
+- Fonts are self-hosted (Inter for text, JetBrains Mono for code, both SIL OFL; licences in `fonts/`), cached by the service worker, so they work offline. The old build loaded fonts from Google at run time.
+- Optional colour-coded editor (CodeMirror 6): turn it on under Reference > Settings. It loads `cm/editor.js` (about 390 KB, about 137 KB gzipped) the first time a code lab opens, then works offline. The plain textarea stays the default, and the app falls back to it if the file fails to load. Rebuild steps are in `tools/cm/package.json`. Tested in Chromium with phone emulation only, not on real phone keyboards.
+- Every row in the Errors list now has a drill button. The new labs are at the end of Python Gym level 3 (10 labs), PySpark Gym level 3 (1) and SQL Gym level 3 (1). Two differences from real life, stated in the labs: ShipCode's PySpark stand-in raises a KeyError listing the real columns instead of an AnalysisException, and SQLite does not raise the GROUP BY error, so that lab teaches the fix by wrong result.
+- Not done: a full dark-surface re-skin, and Geist (one text font is enough).

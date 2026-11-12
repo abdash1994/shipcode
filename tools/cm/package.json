@@ -1,0 +1,14 @@
+{
+  "name": "shipcode-editor",
+  "private": true,
+  "description": "Optional CodeMirror 6 editor bundle for ShipCode. Build: npm install && npx esbuild entry.js --bundle --minify --format=iife --target=es2019 --outfile=editor.js",
+  "dependencies": {
+    "@codemirror/commands": "6.11.1",
+    "@codemirror/lang-python": "6.2.1",
+    "@codemirror/lang-sql": "6.10.0",
+    "@codemirror/language": "6.13.1",
+    "@codemirror/state": "6.7.6",
+    "@codemirror/view": "6.43.15",
+    "esbuild": "0.28.2"
+  }
+}
