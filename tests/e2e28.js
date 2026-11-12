@@ -15,7 +15,7 @@ async function newPage(opts={},init){const c=await b.newContext(opts);const p=aw
  ok('plan saved: Today renders with bento mission and 5 tabs',await p.evaluate(()=>!!document.querySelector('.bento .bm.primary')&&[...document.querySelectorAll('.tabs a')].filter(a=>getComputedStyle(a).display!=='none').length===5));
  ok('header streak 0, week dots 7',await p.evaluate(()=>document.getElementById('streak').textContent==='0'&&document.querySelectorAll('#wkDots .wd').length===7));
  // open mission lab through the real button
- await p.click('.bento .primary [data-act=lab]');await p.waitForTimeout(500);
+ await p.click('.bento [data-act=next]');await p.waitForTimeout(300);if(!await p.evaluate(()=>!!les&&les.n===currentDay()))throw new Error('bento first step should open the lesson');await p.evaluate(()=>{closeSheet();const n=currentDay();S.tasks[n+'-c']=true;DAYS[n-1].drills.forEach(d=>{S.solved[d.id]=todayISO();});save();route();});await p.waitForTimeout(200);await p.click('.bento [data-act=next][data-part=labs]');await p.waitForTimeout(500);
  const info=await p.evaluate(()=>({id:lab.L.id,kind:lab.L.kind,phase:lab.phase,sol:lab.L.solution,start:lab.L.starter}));
  ok('mission lab opened in sheet',!!info.id,info.id+' '+info.kind+' phase='+info.phase);
  await p.evaluate(()=>{lab.phase='code';renderLab();});await p.waitForTimeout(300);
