@@ -59,11 +59,11 @@ Six gyms, each five levels that grow the way a job does: **write it, shape the d
 | Gym | Labs | What is real and what is simulated |
 |---|---|---|
 | SQL | 37 | Runs on SQLite in the browser; Level 4 plans are SQLite's, not a warehouse's. |
-| Python | 30 | Real Python (Pyodide). Random-input tests against a reference on most labs. |
+| Python | 31 | Real Python (Pyodide). Random-input tests against a reference on most labs. |
 | PySpark | 21 | Levels 1 to 3 use real PySpark syntax on a pandas-based stand-in, not a cluster. Level 4 teaches partitions, shuffles, skew and broadcast by having you write the logic in plain Python. |
 | System design | 17 | Levels 1 to 4 are code (sizing arithmetic, hash ring, idempotency, circuit breaker); Level 5 is three interview-style design exercises with keyword feedback and a model answer. |
-| Deployment | 17 | Docker and cloud cannot run in a browser. You write parsers, linters, planners and decision rules, and practise design exercises. Real proof = deploy your own project (steps in Level 5). |
-| AI engineering | 21 | The model is a function you pass in, so every behaviour is testable without an API key. Prices and provider syntax change: the labs say to check current docs. |
+| Deployment | 18 | Docker and cloud cannot run in a browser. You write parsers, linters, planners and decision rules, and practise design exercises. Real proof = deploy your own project (steps in Level 5). |
+| AI engineering | 25 | The model is a function you pass in, so every behaviour is testable without an API key. Prices and provider syntax change: the labs say to check current docs. |
 
 Content lives in `gym_py.py`, `gym_spark.py`, `gym_sys.py`, `gym_dep.py`, `gym_ai.py` (built on `gymlib.py`; expected values are computed from the reference solution), executed from `labs.py`. `check_g.py` runs every solution and starter, with the fuzz tests, in CPython.
 
@@ -221,3 +221,6 @@ Adapted from a UI/UX review (Gemini), rebuilt in plain CSS/JS because the app is
 
 ## Your data
 Progress lives only in the browser (localStorage). Reference > Settings has **Back up my progress** (downloads a JSON file), **Restore from backup** (asks before overwriting) and **Copy problem report** (browser info and the last 20 errors; no progress or code). Errors are kept in a local log (`shipcode.errlog`); nothing is sent to any server.
+
+## Build-from-blank labs
+`gym_build.py` appends 8 labs that ask for a whole small thing from a blank file, with only a behaviour spec and tests against fake dependencies that fail on purpose: a resilient LLM client, a mini RAG pipeline, a guarded tool-using agent, an eval harness (AI gym, levels 3 to 5); a small orders API with idempotency keys and a paginated rate-limit-aware fetcher (Field gym, level 4); a Dockerfile generator that must pass the Deployment gym's own linter (level 2); a pandas report from a messy export (Python gym, level 5). They run in the browser with fakes. Nothing here starts a real server, container or model call. Each was mutation-checked: a plausible wrong solution fails at least one test.
