@@ -227,3 +227,9 @@ Progress lives only in the browser (localStorage). Reference > Settings has **Ba
 
 ## Capstone contract check
 Capstone studio (`#capstone`) has a **Contract check**: paste the address of your running FastAPI orders service (a deployed `https://` address, or `http://localhost:8000` while testing) and ShipCode calls it from your browser with 8 requests (health, create, two validation failures, get one, 404, idempotency key, list) and names the exact behaviours that fail. Your service must allow CORS. Days 27 and 29 repository checks also look inside the Dockerfile for a pinned base image, a non-root USER and a HEALTHCHECK. `tests/e2e30.js` runs the checker against a reference service in `tests/capapi/` (and three deliberately broken variants) in a real browser. Limits: the check needs a network path from the browser to your service, so it does not work inside claude.ai's artifact sandbox, and it checks behaviour, not code quality.
+
+## Interview practice (`#interview`)
+Three timed loops (60 minutes, four rounds each: scope a vague request, debug code you did not write, a business SQL question, a design talk) built on 12 problems that appear nowhere else (`tools/labs/iv.py`, checked by `check_iv.py`). Each round can be attempted once; hints and shown answers count as help. Below it, a peer mock interview: an interviewer script per loop, a five-line rubric scored 1 to 4, a copyable feedback message and a personal log. ShipCode cannot match partners or verify that a mock happened. The design rounds are checked by key ideas in a written summary, which is a rough check.
+
+## What the app promises
+Onboarding now states: SQL strong enough for interviews in about 3 weeks and Python fundamentals with easy-to-medium problems in 30 days, at 4 to 5 hours a day, as an estimate not yet measured with learners. Labels that implied an outcome ("Interview-ready", "forward-deployed-ready") were renamed.
