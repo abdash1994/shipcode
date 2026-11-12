@@ -54,8 +54,8 @@ ok('"I already know this" unlocks the labs for the day',await p.evaluate(()=>[..
 await p.evaluate(()=>{DAYS[0].drills.forEach(d=>{S.solved[d.id]=todayISO();});save();route();});await p.waitForTimeout(200);
 ok('after drills the next step is the lab',await p.evaluate(()=>document.querySelector('.bento [data-act=next]').dataset.part==='labs'));
 // a day without an authored lesson still gets the guided lesson
-await p.evaluate(()=>{closeSheet();openLesson(8);});
-ok('Day 8 (no authored lesson) builds screens from its notes and can be finished',await p.evaluate(()=>{const n=les.sc.length;if(n<3)return false;for(let i=0;i<n;i++){if(!les.ok)return false;lesAct('next');}return les.fin&&S.tasks['8-c']===true}));
+await p.evaluate(()=>{closeSheet();openLesson(12);});
+ok('Day 12 (no authored lesson) builds screens from its notes and can be finished',await p.evaluate(()=>{const n=les.sc.length;if(n<3)return false;for(let i=0;i<n;i++){if(!les.ok)return false;lesAct('next');}return les.fin&&S.tasks['12-c']===true}));
 await p.evaluate(()=>closeSheet());
 // layout + keyboardless basics
 for(const w of [320,390]){await p.setViewportSize({width:w,height:700});await p.evaluate(()=>{location.hash='';route();openLesson(3);});await p.waitForTimeout(200);

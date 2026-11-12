@@ -340,3 +340,4 @@ for _n, _ls in LESSONS.items():
     assert _ls[-1]["q"]["k"] == "write", _n
     for _s in _ls:
         assert "q" in _s, (_n, _s["h"])
+exec(open(_os.path.join(_HERE, 'lessons_sql.py'), encoding='utf-8').read())
