@@ -63,6 +63,13 @@ def W(task, starter, sol, runs=None, exprs=None, hint="", prelude=""):
         d["prelude"] = prelude
     return d
 
+def Sd(h, t, code=None, q=None):
+    """Display-only screen: shows code but never runs it (use for FastAPI, Docker, shell, pyspark, anything CPython-at-build cannot run)."""
+    d = dict(h=h, t=t)
+    if code is not None: d["code"] = code
+    if q: d["q"] = q
+    return d
+
 LESSONS = {}
 
 # ------------------------------------------------------------------ Day 1
@@ -341,3 +348,7 @@ for _n, _ls in LESSONS.items():
     for _s in _ls:
         assert "q" in _s, (_n, _s["h"])
 exec(open(_os.path.join(_HERE, 'lessons_sql.py'), encoding='utf-8').read())
+for _f in ("lessons_py2.py", "lessons_dsa.py", "lessons_eng.py"):
+    _p = _os.path.join(_HERE, _f)
+    if _os.path.exists(_p):
+        exec(open(_p, encoding="utf-8").read())
