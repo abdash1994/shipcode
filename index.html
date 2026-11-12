@@ -1821,19 +1821,25 @@ function goPart(n,part){
 /* ---------- Proof of work: the project days are checked against the learner's real GitHub repo ---------- */
 const PROOF={22:{what:"a project you pushed to GitHub today",checks:["public","commits","readme"]},
   23:{what:"your FastAPI service",checks:["public","fastapi","tests"]},
-  27:{what:"your containerized API",checks:["public","dockerfile"],live:true},
-  29:{what:"your capstone",checks:["public","readme","fastapi","dockerfile"],live:true}};
-const PROOF_LABEL={public:"Public repository found",commits:"At least 3 commits",readme:"Has a README",fastapi:"requirements.txt (or pyproject.toml) lists fastapi",tests:"Has tests (a tests folder or test_*.py)",dockerfile:"Has a Dockerfile at the top level",live:"Deployed URL responds"};
+  27:{what:"your containerized API",checks:["public","dockerfile","dock-pin","dock-user","dock-health"],live:true},
+  29:{what:"your capstone",checks:["public","readme","fastapi","dockerfile","dock-pin","dock-user","dock-health"],live:true}};
+const PROOF_LABEL={public:"Public repository found",commits:"At least 3 commits",readme:"Has a README",fastapi:"requirements.txt (or pyproject.toml) lists fastapi",tests:"Has tests (a tests folder or test_*.py)",dockerfile:"Has a Dockerfile at the top level","dock-pin":"Dockerfile: base image has a pinned tag (not latest)","dock-user":"Dockerfile: runs as a non-root USER","dock-health":"Dockerfile: has a HEALTHCHECK",live:"Deployed URL responds"};
 async function verifyProof(day,repoUrl,liveUrl){
   const m=String(repoUrl).trim().match(/github\.com[/:]([\w.-]+)\/([\w.-]+?)(?:\.git)?(?:[/?#].*)?$/);
   if(!m)return {error:"That doesn't look like a GitHub repository link. It should look like https://github.com/your-name/your-repo"};
   const api="https://api.github.com/repos/"+m[1]+"/"+m[2],get=async p=>{const r=await fetch(api+p,{headers:{Accept:"application/vnd.github+json"}});if(r.status===403||r.status===429)throw new Error("GitHub's hourly limit for checks was reached. Try again in an hour.");return r;};
-  const res=[];let files=null;
+  const res=[];let files=null,dockSrc=null;
   try{const r=await get("");if(!r.ok)return {error:r.status===404?"GitHub can't find that repository. Check the link, and make sure the repo is public (private repos can't be checked).":"GitHub answered "+r.status+"."};
     for(const c of PROOF[day].checks){let ok=false;
       if(c==="public")ok=true;
       else if(c==="commits"){const x=await get("/commits?per_page=3");ok=x.ok&&(await x.json()).length>=3;}
       else if(c==="readme")ok=(await get("/readme")).ok;
+      else if(/^dock-/.test(c)){if(!files){const x=await get("/contents/");files=x.ok?await x.json():[];}
+        if(dockSrc===null){dockSrc="";const f=files.find(f=>/^dockerfile$/i.test(f.name));if(f){const x=await get("/contents/"+f.name);if(x.ok){const j=await x.json();try{dockSrc=atob(String(j.content||"").replace(/\s/g,""));}catch(e){dockSrc="";}}}}
+        const lines=dockSrc.split("\n").map(l=>l.trim()).filter(l=>l&&!l.startsWith("#"));
+        if(c==="dock-pin"){const froms=lines.filter(l=>/^FROM\s/i.test(l)).map(l=>l.split(/\s+/)[1]);ok=froms.length>0&&froms.every(i=>i==="scratch"||i.includes("@sha256")||(()=>{const last=i.split("/").pop();return last.includes(":")&&!last.endsWith(":latest");})());}
+        else if(c==="dock-user")ok=lines.some(l=>/^USER\s+\S+/i.test(l)&&!/^USER\s+(root|0)(:|\s|$)/i.test(l));
+        else ok=lines.some(l=>/^HEALTHCHECK\s/i.test(l));}
       else{if(!files){const x=await get("/contents/");files=x.ok?await x.json():[];}
         const names=files.map(f=>f.name.toLowerCase());
         if(c==="dockerfile")ok=names.includes("dockerfile");
@@ -2481,6 +2487,8 @@ app.addEventListener("click",ev=>{
   else if(act==="repdl"){try{const u=URL.createObjectURL(new Blob([JSON.stringify(reportObj(),null,1)],{type:"application/json"})),a=document.createElement("a");a.href=u;a.download="shipcode-report.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}catch(e){}}
   else if(act==="gymquiz"){const G=gymByKey(b.dataset.key||"sql"),g=G.levels[+b.dataset.lvl-1];startSession(g.quiz.map((q,i)=>({...q,id:(G.key==="sql"?"gq":"gq"+G.key)+g.lvl+"-"+i})),G.short+" level "+g.lvl+" check");}
   else if(act==="pace60"){S.pace=60;S.start=replanStart();save();route();}
+  else if(act==="capcheck"){if(capBusy)return;const base=(document.getElementById("capUrl")||{}).value||"";capBusy=true;capRes=null;route();
+    runContract(base).then(r=>{capBusy=false;capRes={...r,base:base.trim().slice(0,200)};if(r.res&&r.res.length===CONTRACT.length&&!r.error){S.proof={...(S.proof||{}),contract:{base:base.trim().slice(0,200).replace(/^(https?:\/\/[^/]+).*$/,"$1"),at:todayISO(),passed:r.res.filter(x=>x[1]).length,total:CONTRACT.length}};save();}route();const el=document.getElementById("contract");if(el&&el.scrollIntoView)el.scrollIntoView({block:"nearest"});});}
   else if(act==="proof"){const n=+b.dataset.day,repoUrl=(document.getElementById("proofRepo")||{}).value||"",liveUrl=(document.getElementById("proofLive")||{}).value||"";
     b.disabled=true;b.textContent="Checking…";
     verifyProof(n,repoUrl,liveUrl).then(r=>{S.proof={...(S.proof||{}),[n]:{repoUrl:repoUrl.trim().slice(0,200),liveUrl:liveUrl.trim().slice(0,200),ok:!!r.ok,res:r.res||null,error:r.error||"",at:todayISO()}};save();
@@ -7019,6 +7027,51 @@ function renderSprint(){
     <section class="card"><span class="eyebrow">The plan</span><ul class="labs">${rows}</ul></section>
     <section class="card"><span class="eyebrow">Gates: do not skip these</span><ul>${gate.map(([d,t,x])=>`<li><b>${t}</b> (after day ${d}): ${x}</li>`).join("")}</ul></section>
     <p class="hint"><a href="#capstone">Capstone studio</a> · <a href="#gyms">All gyms</a> · <a href="#plan">Change plan</a></p></div>`;}
+
+/* ---------- Contract check: black-box tests against the learner's own running service ---------- */
+const CONTRACT=[
+ ["GET /health","Returns 200 and JSON {\"status\": \"ok\"}"],
+ ["POST /orders (valid)","Body {\"item\": \"pen\", \"qty\": 2} returns 201 with id (a whole number), item and qty"],
+ ["POST /orders (empty item, qty 0)","Returns 422"],
+ ["POST /orders (qty as text)","Body {\"item\": \"pen\", \"qty\": \"two\"} returns 422"],
+ ["GET /orders/{id}","The order you created comes back with 200 and the same item"],
+ ["GET /orders/999999","Returns 404"],
+ ["Idempotency-Key","Two POSTs with the same Idempotency-Key header return the same id and create one order"],
+ ["GET /orders","Returns 200 and JSON {\"orders\": [...]} that includes the order you created"]];
+let capRes=null,capBusy=false;
+async function runContract(base){
+  base=String(base||"").trim().replace(/\/+$/,"");
+  if(!/^https:\/\/[\w.-]+\.[a-z]{2,}(:\d+)?(\/.*)?$/i.test(base)&&!/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/.*)?$/i.test(base))
+    return {error:"Use your service's web address, like https://my-api.onrender.com, or http://localhost:8000 while testing on your computer."};
+  const call=async(method,path,body,headers)=>{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),10000);
+    try{const r=await fetch(base+path,{method,signal:ac.signal,headers:{...(body!==undefined?{"Content-Type":"application/json"}:{}),...(headers||{})},body:body!==undefined?JSON.stringify(body):undefined});
+      let j=null;try{j=await r.json();}catch(e){}return {status:r.status,json:j};}finally{clearTimeout(t);}};
+  const out=[];const add=(i,ok,why)=>out.push([i,!!ok,ok?"":why]);
+  let created=null;
+  try{
+    const h=await call("GET","/health");add(0,h.status===200&&h.json&&h.json.status==="ok",h.status!==200?"got status "+h.status+", expected 200":"body was not {\"status\": \"ok\"}");
+    const c=await call("POST","/orders",{item:"pen",qty:2});created=c.json;
+    add(1,c.status===201&&c.json&&Number.isInteger(c.json.id)&&c.json.item==="pen"&&c.json.qty===2,c.status!==201?"got status "+c.status+", expected 201":"the body needs an integer id, item 'pen' and qty 2");
+    const b1=await call("POST","/orders",{item:"  ",qty:0});add(2,b1.status===422,"got status "+b1.status+", expected 422");
+    const b2=await call("POST","/orders",{item:"pen",qty:"two"});add(3,b2.status===422,"got status "+b2.status+", expected 422");
+    if(created&&Number.isInteger(created.id)){const g=await call("GET","/orders/"+created.id);add(4,g.status===200&&g.json&&g.json.item==="pen",g.status!==200?"got status "+g.status+", expected 200":"the item did not match");}
+    else add(4,false,"skipped: the create step did not return an id");
+    const nf=await call("GET","/orders/999999");add(5,nf.status===404,"got status "+nf.status+", expected 404");
+    const k={"Idempotency-Key":"shipcode-"+Date.now()},i1=await call("POST","/orders",{item:"cup",qty:1},k),i2=await call("POST","/orders",{item:"cup",qty:1},k);
+    add(6,i1.status===201&&i2.json&&i1.json&&i1.json.id===i2.json.id,i1.status!==201?"got status "+i1.status+", expected 201":"the second call returned a different id, so it created a second order");
+    const l=await call("GET","/orders");add(7,l.status===200&&l.json&&Array.isArray(l.json.orders)&&created&&l.json.orders.some(o=>o.id===created.id),l.status!==200?"got status "+l.status+", expected 200":"the list was not {\"orders\": [...]} containing your order");
+  }catch(e){
+    const hint=out.length?"The service stopped answering partway: "+(e.name==="AbortError"?"it took more than 10 seconds.":e.message):"Your browser could not reach the service. Check, in order: (1) it is running and the address is right; (2) CORS is on (in FastAPI add CORSMiddleware with allow_origins=['*'], allow_methods=['*'], allow_headers=['*']); (3) a deployed address must start with https://.";
+    return {res:out,error:hint};}
+  return {res:out};}
+function contractCard(){const p=(S.proof||{}).contract;
+  return `<section class="card" id="contract"><span class="eyebrow">Contract check · a real test of your running service</span><h3>Does your API behave?</h3>
+    <p class="muted">Build a small orders API in FastAPI (the Field Gym lab "Build: a small orders API" is the logic), run it, and paste its address. ShipCode calls it from your browser with 8 requests and tells you exactly which behaviours fail. It sends test orders to your service and nothing to anyone else.</p>
+    <details><summary>The 8 behaviours it checks</summary><ol>${CONTRACT.map(c=>`<li><b>${esc(c[0])}</b>: ${esc(c[1])}</li>`).join("")}</ol>
+    <p class="hint">Your service must allow cross-origin calls (CORS), or the browser blocks the check. That is also true for any real front end that will call your API.</p></details>
+    <div class="row"><input class="code" id="capUrl" type="url" inputmode="url" autocomplete="off" placeholder="https://your-api.onrender.com or http://localhost:8000" style="flex:1 1 240px" value="${esc(capRes&&capRes.base||(p&&p.base)||"")}"><button class="btn small primary" data-act="capcheck" ${capBusy?"disabled":""}>${capBusy?"Checking…":"Run the check"}</button></div>
+    ${capRes?(capRes.error&&!capRes.res?`<p class="hint" role="status">${esc(capRes.error)}</p>`:`<ul class="plain" role="status">${capRes.res.map(r=>`<li class="${r[1]?"y":"n"}"><b>${r[1]?"Pass":"Fail"}</b> · ${esc(CONTRACT[r[0]][0])}${r[1]?"":`<br><span class="hint">${esc(r[2])}</span>`}</li>`).join("")}</ul>${capRes.error?`<p class="hint">${esc(capRes.error)}</p>`:`<p><b>${capRes.res.filter(r=>r[1]).length} of ${CONTRACT.length} pass.</b></p>`}`):(p?`<p class="hint">Last check ${esc(p.at)}: ${p.passed} of ${p.total} passed.</p>`:"")}
+    </section>`;}
 const CAP_MILESTONES=[
  ["m1","Pick the problem and write a one-page spec","Day 22 or earlier. One user, one painful workflow, a list of what you will NOT build."],
  ["m2","Data model and database","Tables, keys, indexes; seed data; at least 3 queries with a join and a window function."],
@@ -7040,6 +7093,7 @@ function renderCapstone(){const c=S.cap||{},mDone=CAP_MILESTONES.filter(m=>c[m[0
   app.innerHTML=`<div class="view"><section style="display:flex;flex-direction:column;gap:8px"><a href="#sprint" class="muted">← Sprint map</a><span class="eyebrow">Capstone studio</span><h1>Build one real system, yourself</h1>
     <p class="muted">This is the actual test. Lessons and gyms train the parts; the capstone proves you can combine them without a tutorial. ${mDone} of ${CAP_MILESTONES.length} milestones · ${eDone} of ${CAP_ENTERPRISE.length} enterprise checks.</p>
     <p class="hint"><b>Honest limits:</b> ShipCode does not teach frontend (HTML/CSS/React), and it cannot run Docker or a cloud account inside the browser. Build the capstone in a real editor on your computer; tick items only when they are true. Whether 30 days is enough to reach enterprise grade depends on your hours and prior experience; treat this checklist, not the calendar, as the bar.</p></section>
+    ${contractCard()}
     <section class="card"><span class="eyebrow">Milestones</span><ul class="plain">${CAP_MILESTONES.map(m=>li(m)).join("")}</ul></section>
     <section class="card"><span class="eyebrow">Enterprise-grade checklist</span><ul class="plain">${CAP_ENTERPRISE.map(m=>li(m)).join("")}</ul></section></div>`;}
 
