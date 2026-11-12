@@ -202,3 +202,16 @@ All of these are the learner's own choices and stay on the device (they sync wit
 - **Milestone cards:** labs passed, streak, lessons, capstone items and each gym level, with real numbers; dismissible.
 
 Deliberately not built: invented peers or fake social proof, escalating guilt messages, gaslighting copy and reverse-psychology prompts.
+
+## Interface refresh
+
+Adapted from a UI/UX review (Gemini), rebuilt in plain CSS/JS because the app is one static file, so the suggested React libraries (shadcn, Magic UI, Origin UI) don't apply.
+
+- Bottom bar is 5 tabs (Today, Path, Gyms, Think, Errors). Reference moved to a book icon in the header that opens a slide-over with search and the cheat sheet. Inside a lab it opens on top without touching the editor. Ctrl/Cmd+K opens it too. The desktop sidebar still lists Reference.
+- Streak pill shows this week as 7 dots (filled = practised, dashed = rest day used, ring = today). Tap it for the rule in words; the text follows flexible or strict mode.
+- Header counters count up when they change (skipped with reduced motion).
+- Today opens with a bento row: today's next lab with one Start button, this week, and the error to review.
+- Path starts with a 30-day map. Nothing is locked.
+- Errors: "Diagnose it first" (hint, root cause, fix open one at a time), the error list as accordions, "Drill this pattern" on rows that have a matching lab. Think's worked example opens step by step.
+- Lab panes use hairline borders; passing all tests pulses the result once. Copy buttons on code blocks in Think and Errors.
+- Not done: Inter/Geist/JetBrains Mono (would add font downloads to an offline app), CodeMirror (bundle size and mobile behaviour not evaluated), a full dark-surface re-skin.

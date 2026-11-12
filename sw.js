@@ -1,5 +1,5 @@
 /* ShipCode service worker: app shell works offline; the Python and SQL engines are cached after first use. */
-const V="shipcode-769e4ef44b",SHELL=["/","/manifest.webmanifest","/icon-192.png","/icon-512.png"];
+const V="shipcode-302167cbd2",SHELL=["/","/manifest.webmanifest","/icon-192.png","/icon-512.png"];
 const CDN=/^https:\/\/(cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)\//;
 self.addEventListener("install",e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()));});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});

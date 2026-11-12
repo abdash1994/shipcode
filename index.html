@@ -117,7 +117,7 @@ pre .hl{color:var(--bad);font-weight:500} pre .note{color:var(--muted)}
 /* bottom nav */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
-.tabs .col{display:grid;grid-template-columns:repeat(6,1fr)} .tabs a{padding:9px 2px!important;font-size:.7rem!important}
+.tabs .col{display:grid;grid-template-columns:repeat(5,1fr)} .tabs a{padding:9px 2px!important;font-size:.7rem!important} .tabs a.desk{display:none} @media (min-width:1000px){.tabs a.desk{display:flex}}
 .tabs a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px;color:var(--muted);text-decoration:none;font-size:.74rem;font-weight:500}
 .tabs a svg{width:22px;height:22px}
 .tabs a[aria-current="page"]{color:var(--accent)}
@@ -567,6 +567,79 @@ body.onboarding{padding-bottom:40px}
 .vz-opts .btn.ok{outline:2px solid #2e9e5b}.vz-opts .btn.bad{outline:2px solid #d9534f}
 .vz-stage{flex-shrink:0}
 .vz-say code,.vz-stage code{white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere}
+
+/* ---- UI refresh: week dots, bento, 30-day map, drawer, accordions, beam ---- */
+.stat.streak{cursor:pointer}
+.stat.bump{animation:hudbump .6s ease}
+@keyframes hudbump{40%{transform:scale(1.12);color:var(--ok)}}
+.wk{display:inline-flex;gap:4px;margin-left:4px}
+.wd{display:block;box-sizing:border-box;width:6px;height:6px;border-radius:50%;background:var(--line)}
+.wd.done{background:var(--ok)}
+.wd.now{box-shadow:0 0 0 1px var(--bg),0 0 0 2.5px var(--accent)}
+.wd.rest{background:transparent;border:1.5px dashed var(--muted)}
+.wd.missed{background:transparent;border:1.5px solid var(--muted)}
+.wd.frozen{background:#7aa9ff}
+.wd.future{opacity:.55}
+.hbtn{display:grid;place-items:center;width:36px;height:36px;flex:none;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.hbtn:hover{color:var(--accent);border-color:var(--accent)}
+@media (max-width:420px){.stat .sfx{display:none}.top .col{gap:8px}.stat{padding:5px 9px}}
+.hudtip{border-bottom:1px solid var(--line);background:var(--surface);padding:10px 16px}
+.hudtip .col{display:flex;flex-direction:column;gap:6px}.hudtip p{margin:0;font-size:.88rem}
+.wkbar{display:flex;gap:6px}.wkbar .wd{width:14px;height:14px}.wkbar .wd.now{box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px var(--accent)}
+/* bento */
+.bento{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bm{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.bm.primary{grid-column:1/-1;padding:20px;gap:10px;align-items:stretch}
+.bm h2{margin:0;font-size:1.3rem;line-height:1.2}
+.bm .btn.small{min-height:36px}
+@media (max-width:340px){.bento{grid-template-columns:1fr}}
+/* 30-day map */
+.pgw{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.pgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.pg{display:grid;place-items:center;min-height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);text-decoration:none;position:relative;font-variant-numeric:tabular-nums}
+.pg.done{background:color-mix(in srgb,var(--ok) 16%,var(--surface));color:var(--ok);border-color:color-mix(in srgb,var(--ok) 35%,var(--line))}
+.pg.cur{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:800}
+.pg.up{opacity:.55}.pg.tgt:not(.cur){border-style:dashed;border-color:var(--accent)}
+.lg{display:inline-block;width:10px;height:10px;border-radius:3px;border:1px solid var(--line);vertical-align:middle}
+.lg.done{background:color-mix(in srgb,var(--ok) 30%,var(--surface))}.lg.cur{border-color:var(--accent);background:var(--accent-soft)}.lg.up{opacity:.55}
+/* border beam */
+@property --beam{syntax:"<angle>";inherits:false;initial-value:0deg}
+.beam{position:relative}
+.beam::after{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:2px;pointer-events:none;background:conic-gradient(from var(--beam),transparent 0 62%,var(--accent) 82%,transparent 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:beam 3.4s linear infinite}
+@keyframes beam{to{--beam:360deg}}
+@media (prefers-reduced-motion:reduce){.beam::after{animation:none;background:var(--accent);opacity:.5}.stat.bump{animation:none}.fb.ok.pass{animation:none!important}}
+/* drawer */
+.drawer{position:fixed;inset:0;z-index:40}
+.drawer[hidden]{display:none}
+.dr-back{position:absolute;inset:0;background:rgba(8,10,24,.5)}
+.dr-panel{position:absolute;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--bg);border-left:1px solid var(--line);display:flex;flex-direction:column;animation:drin .18s ease-out;outline:none}
+@keyframes drin{from{transform:translateX(24px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.dr-panel{animation:none}}
+.dr-head{display:flex;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line)}
+.dr-head input{flex:1;min-width:0;height:40px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:inherit;font:inherit}
+.dr-head input[hidden]{display:none}
+.dr-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.drlinks{display:flex;flex-wrap:wrap;gap:8px}.drlinks a{padding:7px 12px;border:1px solid var(--line);border-radius:99px;background:var(--surface);text-decoration:none;font-size:.86rem;font-weight:600}
+.drlist{display:flex;flex-direction:column;gap:6px}
+.drres{display:flex;gap:10px;align-items:baseline;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);cursor:pointer;min-height:44px}
+.drres .lk{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);flex:none;min-width:64px}
+/* accordions */
+details.rev,details.erracc{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:0 14px;margin-top:8px}
+details.rev>summary,details.erracc>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700}
+details.rev[open],details.erracc[open]{padding-bottom:12px}
+details.rev.locked>summary{opacity:.55;cursor:not-allowed}
+details.rev.locked>summary::after{content:"open the one above first";margin-left:auto;font-size:.72rem;font-weight:500;color:var(--muted)}
+.erraccs{display:flex;flex-direction:column}
+.errline{color:var(--bad);white-space:pre-wrap;word-break:break-word}
+/* code blocks with copy */
+.prewrap{position:relative}.prewrap pre{padding-right:64px}
+.cpbtn{position:absolute;top:8px;right:8px;min-height:30px;padding:2px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-size:.74rem;font-weight:700;cursor:pointer}
+.cpbtn:hover{color:var(--accent);border-color:var(--accent)}
+/* lab panes: hairline borders instead of heavy shadows; one pulse when every test passes */
+.sheet .card,.sheet .fb,.sheet textarea.code{box-shadow:none}
+.sheet .fb,.sheet textarea.code{border:1px solid var(--line)}
+.fb.ok.pass{border:1px solid var(--ok);animation:passpulse 1.1s ease-out 1}
+@keyframes passpulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 55%,transparent)}100%{box-shadow:0 0 0 14px transparent}}
 /* aiB explainers: all classes prefixed vx-aiB- */
 .vx-aiB-box{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface);margin:8px 0;min-width:0}
 .vx-aiB-box.good{border-color:var(--ok);background:var(--ok-soft)}
@@ -851,8 +924,9 @@ body.onboarding{padding-bottom:40px}
 
 <header class="top"><div class="col">
   <div class="brand"><span>&gt;_</span>ShipCode</div>
-  <div class="stat streak" title="Days practised in a row. One missed day a week won't break it."><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c1 3.5 5 6 5 11a5 5 0 0 1-10 0c0-2.2 1-3.7 2.2-4.8.2 1.6 1 2.6 2 3.1C11 8.5 11.6 5 12 2z"/></svg><span id="streak">0</span><span class="muted">d</span></div>
-  <div class="stat xp" title="Code labs passed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg><span id="labsN">0</span><span class="muted">labs</span></div>
+  <div class="stat streak" role="button" tabindex="0" data-hud="week" aria-label="Streak and this week" title="Tap to see this week"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c1 3.5 5 6 5 11a5 5 0 0 1-10 0c0-2.2 1-3.7 2.2-4.8.2 1.6 1 2.6 2 3.1C11 8.5 11.6 5 12 2z"/></svg><span id="streak">0</span><span class="muted sfx">d</span><span class="wk" id="wkDots" aria-hidden="true"></span></div>
+  <div class="stat xp" title="Code labs passed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg><span id="labsN">0</span><span class="muted sfx">labs</span></div>
+  <button class="hbtn" data-drawer="open" aria-label="Search and reference" aria-haspopup="dialog" title="Search and reference (Ctrl or Cmd + K)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg></button>
 </div></header>
 
 <main class="col" id="app"></main>
@@ -863,9 +937,13 @@ body.onboarding{padding-bottom:40px}
   <a href="#gyms" data-tab="gyms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>Gyms</a>
   <a href="#think" data-tab="think"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>Think</a>
   <a href="#errors" data-tab="errors"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></svg>Errors</a>
-  <a href="#ref" data-tab="ref"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>Reference</a>
+  <a href="#ref" data-tab="ref" class="desk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>Reference</a>
 </div></nav>
 
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Search and reference" hidden>
+  <div class="dr-back" data-drawer="close"></div>
+  <div class="dr-panel" tabindex="-1"><div class="dr-head"><input id="drQ" type="search" placeholder="Search days, labs, errors" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Search"><button class="xbtn" data-drawer="close" aria-label="Close">×</button></div><div class="dr-body" id="drBody"></div></div>
+</aside>
 <div class="sheet" id="sheet" hidden><div class="sheet-in" id="sheetIn"></div></div>
 
 <script>
@@ -1634,7 +1712,7 @@ function labPassed(L,redo){const t=todayISO(),c=S.lsrs[L.id];const b=redo&&c?Mat
 
 /* ---------- Views ---------- */
 const app=document.getElementById("app");
-function topStats(){document.getElementById("streak").textContent=streak();const l=document.getElementById("labsN");if(l)l.textContent=labsPassedN();}
+/* topStats lives in the UI refresh block below */
 const EXPECT=`<details class="expect"><summary>What 30 days can and can't do</summary><ul>
   <li><b>Can:</b> give you a real 30-day foundation: break a problem into steps and code easy problems and some mediums from a blank file, write everyday SQL, read a traceback and fix it, and build and deploy a small AI service by following a recipe, then explain it.</li>
   <li><b>Can't promise:</b> an offer, "pro" level, or speed on hard problems. 30 days at 5–6 hours is roughly 150–180 hours; comparable bootcamps and curricula run several times that. Plan on 2–5 more months of daily practice, which the redos and your gaps list are for. Estimate based on published course lengths, not a guarantee.</li>
@@ -1831,7 +1909,7 @@ function renderToday(n){
       <h1>${esc(d.t)}</h1>
       <p class="can"><b>After today you can</b> ${esc(d.can)}</p>
       <p class="why">${esc(d.why)}</p></section>
-    ${cur&&S.start?pausedCard():""}${cur&&S.start?milestoneCards():""}${cur&&S.start&&comeback()?comebackCard():""}
+    ${cur&&S.start?bentoCard(n):""}${cur&&S.start?pausedCard():""}${cur&&S.start?milestoneCards():""}${cur&&S.start&&comeback()?comebackCard():""}
     ${cur&&S.start&&!comeback()&&!pauseActive()?habitCard():""}${cur&&S.start?gymSlotCard(n):""}${cur&&S.start?reachedCard():""}${cur&&S.start?bitesCard(n):""}${sessionCard(n)}${dayNote(n)}
     ${cur&&S.start&&!comeback()?paceCard():""}
     ${cur?warmCard():""}${cur?repSetCard():""}${cur?reviewDueCard():""}${surveyCard()}
@@ -1906,7 +1984,7 @@ function skillsCard(){
 
 function renderPath(){
   const cur=currentDay(),tgt=targetDay();
-  app.innerHTML=`<div class="view">${progressCard()}${readinessCard()}${skillsCard()}${S.start?paceCard():""}${tracksCard(true)}<p class="hint"><a href="#exam">Tracks and exam</a> · <a href="#review">Weekly review</a> · <a href="#portfolio">Portfolio</a></p><p class="hint">Each row shows drills solved, then code labs passed.</p>${WEEKS.map(w=>{
+  app.innerHTML=`<div class="view">${pathGrid()}${progressCard()}${readinessCard()}${skillsCard()}${S.start?paceCard():""}${tracksCard(true)}<p class="hint"><a href="#exam">Tracks and exam</a> · <a href="#review">Weekly review</a> · <a href="#portfolio">Portfolio</a></p><p class="hint">Each row shows drills solved, then code labs passed.</p>${WEEKS.map(w=>{
     const rows=[];for(let n=w.from;n<=w.to;n++){const d=DAYS[n-1],lt=labsOf(n).length;
       rows.push(`<a class="prow ${isDone(n)?"done":""} ${n===cur&&!isDone(n)?"current":""} ${tgt===n&&!isDone(n)?"target":""}" href="#day-${n}">
         <span class="node">${isDone(n)?"✓":n}</span><span class="ptitle">${esc(d.t)}${DAY_NOTES[n]?` <span class="chip">${DAY_NOTES[n][0].toLowerCase()}</span>`:""}</span><span class="pmeta">${drillCount(n)}/${d.drills.length}${lt?` · ${labCount(n)}/${lt}`:""}</span></a>`);}
@@ -1936,20 +2014,20 @@ function renderThink(){
       <li><b>Test and debug.</b> Run the examples, then an edge case: empty, one item, duplicates. If it crashes, read the error from the bottom up (Errors tab).</li></ol></section>
     <section class="card"><span class="eyebrow">Worked example · Two Sum</span>
       <p><b>1. Understand:</b> list of ints and a target in; the two indexes that add up to target out.</p>
-      <p><b>2. By hand</b> with <code>[2, 7, 11, 15]</code>, target 9: I look at 2 and think "I need a 7. Have I seen a 7?" Not yet. Then 7: "I need a 2. Have I seen a 2? Yes, at index 0." Answer <code>[0, 1]</code>. What my hands did: for each number, check whether its partner was seen already.</p>
-      <p><b>3. Steps:</b> "have I seen it?" means a dict.</p>
+      <p class="muted">Step 1 is open. Do each step on paper before opening the next.</p><details class="rev"><summary>Step 2 · by hand</summary><p><b>2. By hand</b> with <code>[2, 7, 11, 15]</code>, target 9: I look at 2 and think "I need a 7. Have I seen a 7?" Not yet. Then 7: "I need a 2. Have I seen a 2? Yes, at index 0." Answer <code>[0, 1]</code>. What my hands did: for each number, check whether its partner was seen already.</p></details>
+      <details class="rev locked"><summary>Step 3 · steps as comments</summary><p><b>3. Steps:</b> "have I seen it?" means a dict.</p>
 <pre># make an empty dict of value -> index
 # go through nums with their indexes
 # if target - x is in the dict, return [its index, i]
-# otherwise remember x -> i</pre>
-      <p><b>4. Code each comment:</b></p>
+# otherwise remember x -> i</pre></details>
+      <details class="rev locked"><summary>Step 4 · code each comment</summary><p><b>4. Code each comment:</b></p>
 <pre>def two_sum(nums, target):
     seen = {}                                # make an empty dict
     for i, x in enumerate(nums):             # go through nums
         if target - x in seen:               # partner seen?
             return [seen[target - x], i]
-        seen[x] = i                          # remember x</pre>
-      <p><b>5. Test:</b> <code>[3, 3]</code>, target 6 gives <code>[0, 1]</code>, which works because we check before storing.</p></section>
+        seen[x] = i                          # remember x</pre></details>
+      <details class="rev locked"><summary>Step 5 · test</summary><p><b>5. Test:</b> <code>[3, 3]</code>, target 6 gives <code>[0, 1]</code>, which works because we check before storing.</p></details></section>
     <section class="card"><span class="eyebrow">See the patterns move</span><p class="muted">Step through each pattern on a small example. Watching the pointers move is what makes the code make sense.</p>
       <div class="vz-list">${Object.entries(VIZ).filter(([,V])=>!V.arch).map(([id,V])=>`<button class="labrow" data-act="viz" data-viz="${id}"><span class="lk">${esc(vizTag(V))}</span><span class="lt">${esc(V.title)}</span><span class="chip">▶</span></button>`).join("")}</div></section>
     ${sysMapCard()}
@@ -1971,7 +2049,7 @@ function renderErrors(){
   app.innerHTML=`<div class="view">
     <section style="display:flex;flex-direction:column;gap:8px"><span class="eyebrow">Debugging</span><h1>Reading an error</h1>
     <p>Read tracebacks from the bottom up. The last line tells you <b>what</b> went wrong; the last line that mentions <b>your</b> file tells you <b>where</b>.</p></section>
-    ${journalCard()}
+    ${journalCard()}${diagCard()}
 <pre><span class="note">Traceback (most recent call last):</span>
   File "expenses.py", line 14, in &lt;module&gt;
     total = add_up(rows)
@@ -1984,16 +2062,12 @@ function renderErrors(){
       <li><code>print()</code> each variable on that line along with its <code>type()</code>.</li>
       <li>Still stuck? Reproduce it in 5 lines in a new file. Here, <code>row["amount"]</code> is the text <code>"12.50"</code>, so the fix is <code>float(row["amount"])</code>.</li></ul>
       <p class="hint">The "Fix the bug" labs give you real errors to practise on. Error wording can differ slightly between Python versions.</p></section>
-    <div class="tablebox"><table><thead><tr><th>Error</th><th>Usually means</th><th>Check first</th></tr></thead><tbody>
-      ${ERR_ROWS.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("")}</tbody></table></div>
+    ${errAccordion()}
   </div>`;
 }
 
 let confirmReset=false;
-function renderRef(){
-  app.innerHTML=`<div class="view">${Object.keys(GLOSS).map(k=>`<section class="card"><span class="eyebrow">System design words</span>${glossCard(+k).replace("<details class=\"newsyn\" open>","<details open>")}</section>`).join("")}
-    <section style="display:flex;flex-direction:column;gap:8px"><span class="eyebrow">Reference</span><h1>Memorize these</h1><p class="muted">Memorize this short list and look up everything else. Senior engineers look up syntax every day.</p></section>
-    <section class="card"><h3>Python</h3><ul>
+function refCards(){return `<section class="card"><h3>Python</h3><ul>
       <li><code>for i, x in enumerate(xs)</code>, <code>range(n)</code>, <code>while</code>, <code>break</code>/<code>continue</code></li>
       <li>Strings: <code>split join strip lower replace startswith</code>, <code>s[::-1]</code>, f-strings</li>
       <li>Lists: <code>append pop sort</code>, <code>sorted(xs, key=...)</code>, comprehensions</li>
@@ -2016,7 +2090,11 @@ function renderRef(){
       <li>Steps as comments before code, on every problem. The Think tab has the method.</li>
       <li>Do the warm-up first every day: recall drills and redos from scratch.</li>
       <li>Keep an error log: the message, the cause, the fix.</li>
-      <li>If you fall behind, repeat the day. Don't skip ahead with gaps.</li></ul>${EXPECT}</section>
+      <li>If you fall behind, repeat the day. Don't skip ahead with gaps.</li></ul>${EXPECT}</section>`;}
+function renderRef(){
+  app.innerHTML=`<div class="view">${Object.keys(GLOSS).map(k=>`<section class="card"><span class="eyebrow">System design words</span>${glossCard(+k).replace("<details class=\"newsyn\" open>","<details open>")}</section>`).join("")}
+    <section style="display:flex;flex-direction:column;gap:8px"><span class="eyebrow">Reference</span><h1>Memorize these</h1><p class="muted">Memorize this short list and look up everything else. Senior engineers look up syntax every day.</p></section>
+    ${refCards()}
     <section class="card"><span class="eyebrow">Your why</span><p class="hint">Shown when a lab gets hard.</p><div class="row"><input class="code" id="whyRef" maxlength="140" style="flex:1 1 240px" value="${esc(S.me.why||"")}" placeholder="e.g. Land an FDE role by March"><button class="btn small" data-act="savewhy">Save</button></div></section>
     <section class="card"><span class="eyebrow">Settings</span>
       <p class="sync" id="syncState">${syncText()}</p>
@@ -2312,7 +2390,7 @@ function route(){
   else if(!S.start){obInit(false);renderOnboarding();}
   else renderToday(currentDay());
   document.body.classList.toggle("onboarding",!S.start&&!/^(day-|sql|path|think|errors|ref|report|exam|review|portfolio|diag)/.test(h));
-  document.querySelectorAll(".tabs a").forEach(a=>{if(a.dataset.tab===tab)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});
+  document.querySelectorAll(".tabs a").forEach(a=>{if(a.dataset.tab===tab)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});decoratePre();
 }
 window.addEventListener("hashchange",()=>{route();window.scrollTo(0,0);});
 
@@ -2547,7 +2625,7 @@ function phaseBar(){const seq=[...(lab.L.scenario&&!lab.redo&&!lab.mixed&&lab.L.
 const mmss=()=>{const s=Math.floor((Date.now()-lab.t0)/1000);return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");};
 function renderLab(){
   const L=lab.L;
-  const head=`<div class="sheet-head"><button class="xbtn" data-l="close" aria-label="Close lab">×</button>${phaseBar()||'<span style="flex:1"></span>'}<span class="pmeta" id="ltimer" title="Time on this lab">${mmss()}${lab.mixed?" / "+lab.target+":00":""}</span></div>`;
+  const head=`<div class="sheet-head"><button class="xbtn" data-l="close" aria-label="Close lab">×</button>${phaseBar()||'<span style="flex:1"></span>'}<span class="pmeta" id="ltimer" title="Time on this lab">${mmss()}${lab.mixed?" / "+lab.target+":00":""}</span><button class="xbtn" data-drawer="open" aria-label="Open the reference cheat sheet" title="Reference"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg></button></div>`;
   let body="",foot="";
   if(lab.phase==="predict"){const P=predictQ(L);
     body=`${taskCard(L)}<section class="card"><span class="eyebrow">Step 1 · Solve one example by hand</span><p>${P.q}</p>
@@ -7157,6 +7235,111 @@ function renderReview(){const r=reviewData(),last=lastReview();
   <section class="card"><h3>For the person helping you</h3><ol><li>Pick any lab the learner passed. Ask them to explain it out loud without looking at the code (2 minutes).</li><li>Change the requirement slightly and watch them write it from a blank editor.</li><li>Have them read one error message aloud and say what it means before fixing it.</li><li>Ask for the Big-O of one solution and why.</li><li>Agree one goal for next week.</li></ol>
   <p class="hint">You do not need to be an engineer for items 1, 3 and 5. A study partner who is also learning works.</p></section></div>`;}
 function reviewDueCard(){if(!reviewDue())return "";return `<section class="card"><span class="eyebrow">Weekly review</span><p>It has been a week. Show your work to a person: 30 minutes.</p><a class="btn small primary" href="#review">Prepare the sheet</a></section>`;}
+
+/* ---------- UI refresh: week dots, ticker, bento Today, 30-day map, reference drawer + search, accordions ---------- */
+var hudShown={s:null,l:null},drIdx=null,drRes=[],drOpener=null,diagIdx=new Date().getDate()%3;
+function weekModel(){const fz=new Set([...(S.frozen||[]),...pauseDays()]);let rest=false;
+  return weekDots().map(x=>{let st=x.done?"done":x.today?"today":x.future?"future":"missed";
+    if(st==="missed"){if(fz.has(x.d))st="frozen";else if(!rest&&!isStrict()){st="rest";rest=true;}}
+    return {...x,st};});}
+function weekDotsHTML(cls){return weekModel().map(x=>`<i class="wd ${x.st}${x.today?" now":""}"${cls?` title="${x.lab}"`:""}></i>`).join("");}
+function weekTip(){const c=weekCount(),m=weekModel(),used=m.some(x=>x.st==="rest");
+  const rule=isStrict()?`Strict mode: a missed day ends the streak unless a freeze covers it (${freezesLeft()} left).`:(used?"Your rest day this week is used. A second missed day would break the streak.":"One missed day this week is forgiven: it sits between two practice days.");
+  return `${c} of 7 days this week · ${streak()}-day streak. ${rule}`;}
+function tickNum(el,v,k){if(!el)return;const from=hudShown[k];hudShown[k]=v;
+  if(from===null||from===v||v<from||(window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches)){el.textContent=v;return;}
+  const box=el.parentElement,t0=performance.now(),d=600;box.classList.add("bump");
+  (function f(t){const p=Math.min(1,(t-t0)/d);el.textContent=Math.round(from+(v-from)*p);if(p<1)requestAnimationFrame(f);else setTimeout(()=>box.classList.remove("bump"),250);})(t0);}
+function topStats(){const wk=document.getElementById("wkDots");if(wk)wk.innerHTML=weekDotsHTML();
+  if(!sheet.hidden)return; /* a lab is open: the header is hidden, so the counters animate when it closes */
+  tickNum(document.getElementById("streak"),streak(),"s");tickNum(document.getElementById("labsN"),labsPassedN(),"l");}
+
+/* Today: bento row */
+function nextLabFor(n){return labsOf(n).find(L=>!S.labs[L.id]&&!L.opt)||null;}
+function bentoCard(n){const L=nextLabFor(n),labs=labsOf(n).filter(x=>!x.opt),ld=labs.filter(x=>S.labs[x.id]).length,top=Object.entries(S.errs||{}).sort((a,b)=>b[1]-a[1])[0],c=weekCount(),m=weekModel();
+  const rest=isStrict()?`${freezesLeft()} freeze${freezesLeft()===1?"":"s"} left`:(m.some(x=>x.st==="rest")?"rest day used":"1 rest day is safe");
+  const main=isDone(n)?`<div class="bm primary"><span class="eyebrow">Day ${n} · done</span><h2>Today is complete</h2><p class="muted">Anything below is extra. A redo from scratch is the best extra.</p><a class="btn block" href="#path">See the 30-day map</a></div>`
+    :L?`<div class="bm primary beam"><span class="eyebrow">Today's mission · Day ${n}</span><h2>${esc(L.title)}</h2><p class="muted">${ld} of ${labs.length} lab${labs.length===1?"":"s"} passed so far today.</p><button class="btn primary block" data-act="lab" data-lab="${L.id}">Start lab</button></div>`
+    :`<div class="bm primary beam"><span class="eyebrow">Today's mission · Day ${n}</span><h2>${esc(DAYS[n-1].t)}</h2><p class="muted">${labs.length?"All labs passed. ":""}Finish the concept, drills and the “Done when” check below.</p><button class="btn primary block" data-scroll="#concept">Open today's steps</button></div>`;
+  return `<div class="bento">${main}
+    <div class="bm"><span class="eyebrow">This week</span><div class="wkbar" aria-hidden="true">${weekDotsHTML(1)}</div><b>${c}/7 days</b><span class="hint">${rest}</span></div>
+    <div class="bm"><span class="eyebrow">Review 1 error</span>${top?`<b>${esc(top[0])} <span class="chip">${top[1]}×</span></b>${PRACTICE[top[0]]?`<button class="btn small" data-act="practice" data-lab="${PRACTICE[top[0]]}">Practise</button>`:`<a class="btn small" href="#errors">Read about it</a>`}`:`<b>None logged</b><a class="btn small" href="#errors">Try a bug</a>`}</div></div>`;}
+
+/* Path: 30-day map */
+function pathGrid(){const cur=currentDay(),tgt=targetDay();
+  return `<section class="card"><span class="eyebrow">30-day map</span>${WEEKS.map(w=>`<div class="pgw"><span class="hint">Week ${w.n}</span><div class="pgrid">${Array.from({length:w.to-w.from+1},(_,i)=>{const n=w.from+i,dn=isDone(n),c=n===cur&&!dn;
+    return `<a class="pg ${dn?"done":""} ${c?"cur beam":""} ${!dn&&!c&&n>cur?"up":""} ${tgt===n&&!dn&&!c?"tgt":""}" href="#day-${n}" aria-label="Day ${n}: ${esc(DAYS[n-1].t)}${dn?", done":c?", today":""}"><b>${dn?"✓":n}</b></a>`;}).join("")}</div></div>`).join("")}
+    <p class="hint"><span class="lg done"></span> done · <span class="lg cur"></span> today · <span class="lg up"></span> upcoming. Every day stays open; nothing is locked.</p></section>`;}
+
+/* Errors: diagnose first, then reveal; accordion list */
+var DIAG=[
+ {code:'rows = [{"item": "tea", "amount": "12.50"}]\ntotal = 0\nfor row in rows:\n    total += row["amount"]',err:"TypeError: unsupported operand type(s) for +=: 'int' and 'str'",hint:"Look at the two things being added. Print each one with type().",root:'row["amount"] is the text "12.50", not a number, and Python will not add text to an int.',fix:'total += float(row["amount"])',lab:"TypeError"},
+ {code:'scores = {"ana": 90, "ben": 72}\nname = "Ana"\nprint(scores[name])',err:"KeyError: 'Ana'",hint:"Compare the key you look up with the keys that exist. Print scores.keys().",root:'Dict keys are case-sensitive: the key is "ana", not "Ana".',fix:'print(scores.get(name.lower(), 0))  # lower-case the lookup; .get avoids the crash',lab:"KeyError"},
+ {code:'nums = [4, 8, 15]\nfor i in range(len(nums) + 1):\n    print(nums[i])',err:"IndexError: list index out of range",hint:"How many items does nums have, and what is the largest i the loop reaches?",root:"range(len(nums) + 1) reaches 3, but the last valid index is 2 (indexes start at 0).",fix:"for i in range(len(nums)):  # or simply: for x in nums: print(x)"}];
+function diagCard(){const c=DIAG[diagIdx%DIAG.length],pid=c.lab&&PRACTICE[c.lab];
+  return `<section class="card diag"><span class="eyebrow">Diagnose it first</span><p class="muted">Read the code and the error. Say what is wrong before you open anything. The clues open one at a time.</p>
+  <pre>${esc(c.code)}</pre><pre class="errline">${esc(c.err)}</pre>
+  <details class="rev"><summary>Hint</summary><p>${esc(c.hint)}</p></details>
+  <details class="rev locked"><summary>Root cause</summary><p>${esc(c.root)}</p></details>
+  <details class="rev locked"><summary>Fix</summary><pre>${esc(c.fix)}</pre></details>
+  <div class="row">${pid?`<button class="btn small primary" data-act="practice" data-lab="${pid}">Drill this pattern</button>`:""}<button class="btn small" data-ui="diagnext">Another case</button></div></section>`;}
+function errAccordion(){return `<section class="card"><span class="eyebrow">Common errors</span><div class="erraccs">${ERR_ROWS.map(r=>{const pid=PRACTICE[r[0]]||(/^SQL/.test(r[0])?PRACTICE["SQL error"]:null);
+  return `<details class="erracc"><summary><b>${esc(r[0])}</b></summary><p><b>Usually means:</b> ${esc(r[1])}</p><p><b>Check first:</b> ${esc(r[2])}</p>${pid?`<button class="btn small" data-act="practice" data-lab="${pid}">Drill this pattern</button>`:""}</details>`;}).join("")}</div></section>`;}
+
+/* copy buttons on code blocks (Think, Errors) */
+function decoratePre(){if(!/^#(think|errors)$/.test(location.hash))return;
+  app.querySelectorAll("pre").forEach(p=>{if(p.dataset.cp||p.querySelector(".note")||p.classList.contains("errline"))return;p.dataset.cp="1";
+    const w=document.createElement("div");w.className="prewrap";p.parentNode.insertBefore(w,p);w.appendChild(p);
+    const b=document.createElement("button");b.type="button";b.className="cpbtn";b.dataset.ui="copy";b.textContent="Copy";b.setAttribute("aria-label","Copy code");w.appendChild(b);});}
+
+/* Reference drawer + search */
+function searchIndex(){const out=[];
+  [["Today","#today"],["Path","#path"],["Gyms","#gyms"],["Think","#think"],["Errors","#errors"],["Reference page and settings","#ref"],["30-day sprint","#sprint"],["Capstone studio","#capstone"],["Commitments","#commit"],["Tracks and exam","#exam"],["Weekly review","#review"],["Portfolio","#portfolio"],["Change my plan","#plan"]].forEach(([t,h])=>out.push({k:"Page",t,h}));
+  DAYS.forEach((d,i)=>out.push({k:"Day "+(i+1),t:d.t,h:"#day-"+(i+1)}));
+  (typeof GYMS!=="undefined"?GYMS:[]).forEach(G=>G.levels.forEach(g=>out.push({k:G.short+" L"+g.lvl,t:g.name,h:"#"+G.key+"-"+g.lvl})));
+  ALL_LABS.forEach(L=>out.push({k:"Lab",t:L.title,lab:L.id}));
+  Object.entries(VIZ).forEach(([id,V])=>out.push({k:"Explainer",t:V.title,viz:id}));
+  ERR_ROWS.forEach(r=>out.push({k:"Error",t:r[0]+": "+r[1],h:"#errors"}));
+  return out;}
+function drSearch(q){q=q.trim();const t=q.toLowerCase().split(/\s+/).filter(Boolean);if(!t.length)return[];drIdx=drIdx||searchIndex();
+  const sc=[];drIdx.forEach(r=>{const h=(r.k+" "+r.t).toLowerCase();if(t.every(w=>h.includes(w)))sc.push([(r.k.toLowerCase()===q.toLowerCase().trim()||h.startsWith(q.toLowerCase().trim()))?0:r.t.toLowerCase().startsWith(t[0])?1:2,r]);});
+  sc.sort((a,b)=>a[0]-b[0]);return sc.slice(0,14).map(x=>x[1]);}
+function drawerOpen(){const dr=document.getElementById("drawer");if(!dr)return;drOpener=document.activeElement;const inLab=!sheet.hidden;
+  dr.hidden=false;dr.classList.toggle("inlab",inLab);document.body.style.overflow="hidden";
+  const q=document.getElementById("drQ");q.value="";q.hidden=inLab;drawerBody();setTimeout(()=>{(inLab?dr.querySelector(".dr-panel"):q).focus();},30);}
+function drawerClose(){const dr=document.getElementById("drawer");if(!dr||dr.hidden)return;dr.hidden=true;document.body.style.overflow=sheet.hidden?"":"hidden";if(drOpener&&drOpener.focus&&document.contains(drOpener))drOpener.focus();}
+function drawerBody(){const q=document.getElementById("drQ").value.trim(),el=document.getElementById("drBody"),inLab=!sheet.hidden;
+  if(q&&!inLab){drRes=drSearch(q);el.innerHTML=drRes.length?`<div class="drlist">${drRes.map((r,i)=>`<button class="drres" data-ui="dr-go" data-i="${i}"><span class="lk">${esc(r.k)}</span><span class="lt">${esc(r.t)}</span></button>`).join("")}</div>`:`<p class="muted">Nothing matches “${esc(q)}”. Try a day number, a lab name or an error type.</p>`;return;}
+  el.innerHTML=`${inLab?`<p class="hint">Your lab stays exactly as it is. Close this panel to go back to it.</p>`:`<div class="drlinks"><a href="#ref">Reference page and settings</a><a href="#sprint">Sprint</a><a href="#capstone">Capstone</a><a href="#commit">Commitments</a></div>`}<span class="eyebrow">Cheat sheet</span>${refCards()}`;}
+function drGo(r){drawerClose();if(r.h)location.hash=r.h.slice(1);else if(r.lab)openLab(r.lab,false);else if(r.viz)openViz(r.viz);}
+document.addEventListener("keydown",ev=>{const dr=document.getElementById("drawer");if(!dr)return;
+  if((ev.ctrlKey||ev.metaKey)&&ev.key&&ev.key.toLowerCase()==="k"&&!document.body.classList.contains("onboarding")){ev.preventDefault();ev.stopImmediatePropagation();if(dr.hidden)drawerOpen();else drawerClose();return;}
+  if(!dr||dr.hidden)return;
+  if(ev.key==="Escape"){ev.preventDefault();ev.stopImmediatePropagation();drawerClose();return;}
+  if(ev.key==="Enter"&&ev.target.id==="drQ"&&drRes[0]){ev.preventDefault();ev.stopImmediatePropagation();drGo(drRes[0]);return;}
+  if(ev.key==="Tab"){const f=[...dr.querySelectorAll("input,button,a[href],summary")].filter(x=>!x.hidden&&x.offsetParent!==null);if(!f.length)return;
+    const i=f.indexOf(document.activeElement),n=ev.shiftKey?(i<=0?f.length-1:i-1):(i===f.length-1?0:i+1);ev.preventDefault();f[n].focus();}},true);
+document.addEventListener("input",ev=>{if(ev.target.id==="drQ")drawerBody();});
+document.addEventListener("toggle",ev=>{const d=ev.target;if(!d.matches||!d.matches("details.rev")||!d.open)return;
+  const sib=[...d.parentNode.querySelectorAll(":scope > details.rev")],nx=sib[sib.indexOf(d)+1];if(nx)nx.classList.remove("locked");},true);
+document.addEventListener("click",ev=>{const t=ev.target;
+  const sm=t.closest&&t.closest("details.rev.locked > summary");if(sm){ev.preventDefault();return;}
+  const dw=t.closest("[data-drawer]");if(dw){ev.preventDefault();if(dw.dataset.drawer==="close")drawerClose();else drawerOpen();return;}
+  if(t.closest("#drawer a[href^='#']"))setTimeout(drawerClose,0);
+  const hd=t.closest("[data-hud]");if(hd){hudTipToggle();return;}
+  if(!t.closest(".hudtip"))hudTipHide();
+  const sc=t.closest("[data-scroll]");if(sc){const e=document.querySelector(sc.dataset.scroll);if(e){if(e.tagName==="DETAILS")e.open=true;e.scrollIntoView({behavior:"smooth",block:"start"});}return;}
+  const u=t.closest("[data-ui]");if(!u)return;const a=u.dataset.ui;
+  if(a==="dr-go"){const r=drRes[+u.dataset.i];if(r)drGo(r);}
+  else if(a==="diagnext"){diagIdx++;renderErrors();decoratePre();}
+  else if(a==="copy"){const pre=u.parentNode.querySelector("pre");const txt=pre?pre.innerText:"";const done=()=>{u.textContent="Copied";setTimeout(()=>{u.textContent="Copy";},1200);};
+    try{navigator.clipboard.writeText(txt).then(done,()=>{u.textContent="Press and hold to copy";});}catch(e){u.textContent="Press and hold to copy";}}
+});
+document.addEventListener("keydown",ev=>{if((ev.key==="Enter"||ev.key===" ")&&ev.target.matches&&ev.target.matches("[data-hud]")){ev.preventDefault();hudTipToggle();}});
+var hudTimer=null;
+function hudTipEl(){let e=document.getElementById("hudTip");if(!e){e=document.createElement("div");e.id="hudTip";e.className="hudtip";e.setAttribute("role","status");e.hidden=true;document.querySelector("header.top").appendChild(e);}return e;}
+function hudTipToggle(){const e=hudTipEl();if(!e.hidden){hudTipHide();return;}e.innerHTML=`<div class="col"><div class="wkbar" aria-hidden="true">${weekDotsHTML(1)}</div><p>${esc(weekTip())}</p><p class="hint">Filled = practised · dashed = rest day used · ring = today</p></div>`;e.hidden=false;clearTimeout(hudTimer);hudTimer=setTimeout(hudTipHide,7000);}
+function hudTipHide(){const e=document.getElementById("hudTip");if(e)e.hidden=true;}
 
 route();
 connectCloud();
