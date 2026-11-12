@@ -180,3 +180,7 @@ Honest limits: time estimates (about 5,250 minutes at Core depth, roughly 3 hour
 ## Interactive explainers
 
 118 step-through explainers (about 100 new) cover almost every concept in the course days and the six Gyms: loops, references, joins, window functions, shuffles, call stacks, caching, queues, RAG, Docker layers and more. Each opens from the lesson's Concept card or the Gym level page, uses tiny worked examples computed in code, and asks you to **predict the next step first** before the answer shows. Numbers are labelled examples; tokenisers, hashes and vectors are toy stand-ins and say so on screen. They are for understanding; the labs are what build the skill of writing code from a blank editor.
+
+## The Field Gym
+
+A seventh gym for the work around the code that forward-deployed engineers do: understand a vague ask, read messy customer data and logs, debug a system you did not build, build integration glue (normalise, idempotent upsert, retries, reconcile), and communicate (incident updates, saying no, handover runbooks). 27 labs: code labs graded on real tests, plus written scenarios checked against a rubric and a model answer. In the sprint it adds one level on days 7, 14, 21, 28 and 30. Honest limit: scenarios are written; real customer practice has to happen with real people.
