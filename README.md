@@ -28,6 +28,10 @@ A single-file web app (`index.html`) for going from non-coder to FDE / AI Engine
 | Week complete | A level-up (Python writer → Data wrangler → Problem solver → Interview-ready) and optional post-ready text to share your progress. |
 | Path tab | Your level, stats, a 5-week practice heatmap, and every skill you've unlocked. |
 
+## Updates reach installed users
+
+`sw.js` carries a cache version stamped from the hash of `index.html`, `qa.json` and the manifest. `tools/release.py` does the stamping; run `sh tools/install-hooks.sh` once per clone so git does it before every commit. When a new version deploys, open tabs and installed copies check for it on return to the app, every 10 minutes and when back online, then show a "new version available, Refresh" bar. Progress lives in the browser and is not lost. Without the stamp a deploy would not trigger the bar, so do not commit with the hook off.
+
 ## AI-PM Q&A
 
 A separate section (home tile, menu entry **AI-PM Q&A**, `#qa`) with 464 AI, system-design, technical and product interview questions and model answers, loaded on demand from `qa.json`. Search, topic and ★ filters, random question, and a private "I can answer this" tracker. It is optional and never blocks a day. A quiet footer on every page links to starring the repo and following on LinkedIn.
