@@ -24,7 +24,7 @@ async function page(b,w){const c=await b.newContext({viewport:{width:w||390,heig
   await p.route('https://**',r=>r.abort());await p.route(SB+'/**',fake);await p.addInitScript(()=>{window.__SHIPCODE_SELF_RT=true});p.errs=[];p.on('pageerror',e=>p.errs.push(e.message));return p;}
 const URL0='http://127.0.0.1:8765/index.html';
 const go=async(p,h)=>{await p.evaluate(h=>{location.hash=h;},h);await p.waitForTimeout(250);};
-(async()=>{const web=require('child_process').spawn('python3',['-m','http.server','8765','-d','site','--bind','127.0.0.1']);for(let i=0;i<60;i++){try{await fetch(URL0);break;}catch(e){await new Promise(r=>setTimeout(r,200));}}
+(async()=>{const web=require('child_process').spawn('python3',['-m','http.server','8765','-d',require('path').join(__dirname,'..'),'--bind','127.0.0.1']);for(let i=0;i<60;i++){try{await fetch(URL0);break;}catch(e){await new Promise(r=>setTimeout(r,200));}}
  const b=await chromium.launch();let p=await page(b);await p.goto(URL0);await p.waitForTimeout(500);
  await p.evaluate(()=>{S.start=shift(todayISO(),-3);S.done=[1,2];save();location.hash='#today';route();});await p.waitForTimeout(300);
  // avatar + guest settings

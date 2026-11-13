@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');const fs=require('fs');const axe=fs.readFileSync('/tmp/axe/node_modules/axe-core/axe.min.js','utf8');
 let fails=0;const ok=(n,c,d)=>{console.log((c?'PASS ':'FAIL ')+n+(c?'':' '+(d||'')));if(!c)fails++;};
-(async()=>{const web=require('child_process').spawn('python3',['-m','http.server','8765','-d','site','--bind','127.0.0.1']);await new Promise(r=>setTimeout(r,1200));
+(async()=>{const web=require('child_process').spawn('python3',['-m','http.server','8765','-d',require('path').join(__dirname,'..'),'--bind','127.0.0.1']);await new Promise(r=>setTimeout(r,1200));
 const b=await chromium.launch();
 async function pg(w,h,scheme){const c=await b.newContext({viewport:{width:w,height:h||800},colorScheme:scheme||'light',deviceScaleFactor:1});const p=await c.newPage();p.errs=[];p.on('pageerror',e=>p.errs.push(e.message));await p.route('https://**',r=>r.abort());await p.goto('http://127.0.0.1:8765/index.html');await p.waitForTimeout(400);return p;}
 let p=await pg(390);

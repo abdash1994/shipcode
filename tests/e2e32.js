@@ -27,7 +27,7 @@ async function fake(route){const req=route.request(),u=new URL(req.url()),m=req.
 const HABIT="{min:120,dpw:7,mode:'flex',at:'19:00',deep:0,deepDay:6,goal:'full',depth:'full'}";
 async function page(b){const c=await b.newContext({viewport:{width:390,height:800},permissions:['clipboard-read','clipboard-write']});const p=await c.newPage();
   await p.route('https://**',r=>r.abort());await p.route(SB+'/**',fake);await p.addInitScript(()=>{window.__SHIPCODE_SELF_RT=true});p.errs=[];p.on('pageerror',e=>p.errs.push(e.message));return p;}
-(async()=>{const web=require('child_process').spawn('python3',['-m','http.server','8765','-d','site','--bind','127.0.0.1']);for(let i=0;i<60;i++){try{await fetch('http://127.0.0.1:8765/index.html');break;}catch(e){await new Promise(r=>setTimeout(r,200));}}
+(async()=>{const web=require('child_process').spawn('python3',['-m','http.server','8765','-d',require('path').join(__dirname,'..'),'--bind','127.0.0.1']);for(let i=0;i<60;i++){try{await fetch('http://127.0.0.1:8765/index.html');break;}catch(e){await new Promise(r=>setTimeout(r,200));}}
  const b=await chromium.launch();
  // ---------- device 1: sign in, sync up
  const p=await page(b);await p.goto('http://127.0.0.1:8765/index.html');await p.waitForTimeout(400);

@@ -12,7 +12,7 @@ async function newPage(opts={},init){const c=await b.newContext(opts);const p=aw
  await p.goto(BASE);await p.waitForTimeout(600);
  ok('first visit shows onboarding, tabs hidden',await p.evaluate(()=>document.body.classList.contains('onboarding')&&getComputedStyle(document.querySelector('.tabs')).display==='none'));
  await p.evaluate(()=>{S.me={...S.me,why:'Land an FDE role'};S.pace=30;S.start=todayISO();S.habit={min:120,dpw:7,mode:'flex',at:'19:00',deep:0,deepDay:6,goal:'sprint',depth:'core'};save();location.hash='';route();});await p.waitForTimeout(400);
- ok('plan saved: Today renders with bento mission and 5 tabs',await p.evaluate(()=>!!document.querySelector('.bento .bm.primary')&&[...document.querySelectorAll('.tabs a')].filter(a=>getComputedStyle(a).display!=='none').length===5));
+ ok('plan saved: Today renders with bento mission and 6 tabs',await p.evaluate(()=>!!document.querySelector('.bento .bm.primary')&&[...document.querySelectorAll('.tabs a')].filter(a=>getComputedStyle(a).display!=='none').length===6));
  ok('header streak 0, week dots 7',await p.evaluate(()=>document.getElementById('streak').textContent==='0'&&document.querySelectorAll('#wkDots .wd').length===7));
  // open mission lab through the real button
  await p.click('.bento [data-act=next]');await p.waitForTimeout(300);if(!await p.evaluate(()=>!!les&&les.n===currentDay()))throw new Error('bento first step should open the lesson');await p.evaluate(()=>{closeSheet();const n=currentDay();S.tasks[n+'-c']=true;DAYS[n-1].drills.forEach(d=>{S.solved[d.id]=todayISO();});save();route();});await p.waitForTimeout(200);await p.click('.bento [data-act=next][data-part=labs]');await p.waitForTimeout(500);

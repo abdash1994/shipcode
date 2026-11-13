@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');
 let fails=0;const ok=(n,c,d)=>{console.log((c?'PASS ':'FAIL ')+n+(c?'':' '+(d||'')));if(!c)fails++;};
-(async()=>{const web=require('child_process').spawn('python3',['serve.py']);for(let i=0;i<60;i++){try{await fetch('http://127.0.0.1:8765/index.html');break;}catch(e){await new Promise(r=>setTimeout(r,200));}}
+(async()=>{const web=require('child_process').spawn('python3',[require('path').join(__dirname,'serve.py')]);for(let i=0;i<60;i++){try{await fetch('http://127.0.0.1:8765/index.html');break;}catch(e){await new Promise(r=>setTimeout(r,200));}}
 const b=await chromium.launch();const c=await b.newContext({viewport:{width:390,height:800}});const p=await c.newPage();
 await p.route('https://**',r=>r.abort());await p.addInitScript(()=>{window.__SHIPCODE_SELF_RT=true});
 const errs=[];p.on('pageerror',e=>errs.push(e.message));

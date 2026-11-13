@@ -1,9 +1,9 @@
 const {chromium,devices}=require('playwright');(async()=>{const b=await chromium.launch();const c=await b.newContext({...devices['iPhone 13']});await c.route('**/*',r=>r.request().url().startsWith('file:')?r.continue():r.abort());const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+process.cwd()+'/vercel/index.html');await p.waitForTimeout(500);let f=0;const ok=(n,v)=>{if(!v)f++;console.log((v?'PASS ':'FAIL ')+n)};
+await p.goto('file://'+require('path').join(__dirname,'..','index.html'));await p.waitForTimeout(500);let f=0;const ok=(n,v)=>{if(!v)f++;console.log((v?'PASS ':'FAIL ')+n)};
 const base=`S.habit={min:120,dpw:7,mode:'flex',at:'19:00',deep:0,deepDay:6,goal:'sprint',depth:'core'};S.start=shift(todayISO(),-3);S.done=[1];S.dates=[shift(todayISO(),-2),shift(todayISO(),-1)];S.frozen=[];S.pause=null;S.pledge=null;S.ifthen=null;S.cele={};S.labs={};S.errs={TypeError:3};save();`;
 const go=async h=>{await p.evaluate(h=>{location.hash=h;route();},h);await p.waitForTimeout(250);};
 await p.evaluate(base);await go('#today');
-ok('5 tabs on phone',await p.evaluate(()=>[...document.querySelectorAll('.tabs a')].filter(a=>getComputedStyle(a).display!=='none').length===5));
+ok('6 tabs on phone',await p.evaluate(()=>[...document.querySelectorAll('.tabs a')].filter(a=>getComputedStyle(a).display!=='none').length===6));
 ok('reference tab hidden on phone',await p.evaluate(()=>getComputedStyle(document.querySelector('.tabs a[data-tab=ref]')).display==='none'));
 ok('7 week dots',await p.evaluate(()=>document.querySelectorAll('#wkDots .wd').length===7));
 ok('header fits (no horizontal overflow)',await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
@@ -47,8 +47,8 @@ await p.waitForTimeout(1000);ok('counter lands on the right number',await p.eval
 // strict mode text
 await p.evaluate(()=>{S.habit.mode='strict';});ok('strict tip mentions freezes',await p.evaluate(()=>/freeze/.test(weekTip())));
 // desktop sidebar keeps Reference
-const n=await b.newContext({...devices['iPhone SE']});await n.route('**/*',r=>r.request().url().startsWith('file:')?r.continue():r.abort());const sm=await n.newPage();await sm.goto('file://'+process.cwd()+'/vercel/index.html');await sm.waitForTimeout(400);await sm.evaluate(()=>{S.start=shift(todayISO(),-3);save();location.hash='#today';route();});await sm.waitForTimeout(300);
+const n=await b.newContext({...devices['iPhone SE']});await n.route('**/*',r=>r.request().url().startsWith('file:')?r.continue():r.abort());const sm=await n.newPage();await sm.goto('file://'+require('path').join(__dirname,'..','index.html'));await sm.waitForTimeout(400);await sm.evaluate(()=>{S.start=shift(todayISO(),-3);save();location.hash='#today';route();});await sm.waitForTimeout(300);
 ok('320px: every header item inside the screen',await sm.evaluate(()=>innerWidth<=320&&[...document.querySelectorAll('header .col > *')].filter(e=>getComputedStyle(e).display!=='none').every(e=>e.getBoundingClientRect().right<=innerWidth&&e.getBoundingClientRect().width>0)));
-const d=await c.newPage();await d.setViewportSize({width:1280,height:800});await d.goto('file://'+process.cwd()+'/vercel/index.html');await d.waitForTimeout(400);
+const d=await c.newPage();await d.setViewportSize({width:1280,height:800});await d.goto('file://'+require('path').join(__dirname,'..','index.html'));await d.waitForTimeout(400);
 ok('desktop sidebar shows Reference',await d.evaluate(()=>getComputedStyle(document.querySelector('.tabs a[data-tab=ref]')).display!=='none'));
 ok('no page errors '+errs.join('|'),!errs.length);console.log(f?'FAILS '+f:'ALL PASS');await b.close();})();
