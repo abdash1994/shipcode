@@ -6,7 +6,7 @@ const errs=[];p.on('pageerror',e=>errs.push(e.message));
 await p.goto('http://127.0.0.1:8765/index.html');await p.waitForTimeout(500);
 // 1. promise copy
 const hero=await p.innerText('.view');
-ok('onboarding shows the narrower promise',/SQL strong enough for interviews in about 3 weeks/.test(hero)&&/not yet measured with learners/.test(hero),hero.slice(0,300));
+ok('onboarding shows the narrower promise',/SQL is interview-ready in about 3 weeks/.test(hero)&&/not yet measured with learners/.test(hero),hero.slice(0,300));
 const html=await p.content();
 ok('no "forward-deployed-ready" or "Interview-ready" outcome labels left',!/forward-deployed-ready/i.test(html)&&!/"Interview-ready"/.test(html)&&!/interview-ready"/.test(html));
 await p.evaluate(()=>{S.start=shift(todayISO(),-3);S.habit={min:120,dpw:7,mode:'flex',at:'19:00',deep:0,deepDay:6,goal:'full',depth:'full'};save();});await p.reload();await p.waitForTimeout(500);

@@ -1,6 +1,6 @@
 # ShipCode — 30-day coding trainer
 
-A single-file web app (`index.html`) for going from non-coder to FDE / AI Engineer interview-ready in 30 days (or a 15-day sprint). Tagline: **Break it into steps. Code it. Ship it.** It is built around one idea: freezing at a blank file is a breakdown problem, not a syntax problem. Every lab trains the same method, with help that fades week by week.
+A single-file web app (`index.html`) for moving from non-coder toward writing real Python and SQL, with interview practice for AI, data and solutions roles (a 30-day sprint, or a slower plan that fits your week). Tagline: **Break it into steps. Code it. Ship it.** It is built around one idea: freezing at a blank file is a breakdown problem, not a syntax problem. Every lab trains the same method, with help that fades week by week.
 
 - **Live site:** https://shipcode-30.vercel.app (deployed from this repo on every push to main; progress is saved in your browser)
 - **claude.ai version:** https://claude.ai/artifact/WZKB783PseCFNLfgnafibM (private; syncs progress across your devices)
