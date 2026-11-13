@@ -536,6 +536,16 @@ pre{border-radius:14px}
 .qa-ans{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
 .qa-ans p{margin:0;line-height:1.65}
 .qa-ans .pv{font-size:.84rem;color:var(--muted)}
+.qa-ex{border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 12px 12px 0;padding:10px 14px}
+.qa-ex .lbl{display:block;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:3px}
+.qa-ex p{font-size:.94rem}
+.gl{border-bottom:1.5px dotted var(--accent);cursor:help;text-decoration:none}
+.gl:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+#gltip{position:fixed;z-index:200;max-width:min(300px,calc(100vw - 24px));padding:9px 12px;border-radius:12px;background:var(--fg);color:var(--bg);font-size:.84rem;line-height:1.45;box-shadow:0 8px 28px rgba(0,0,0,.28);pointer-events:none;opacity:0;transition:opacity .12s}
+#gltip.on{opacity:1}#gltip b{display:block;margin-bottom:2px}
+.qa-gloss summary{cursor:pointer}.qa-gloss dl{margin:8px 0 0;display:grid;gap:8px;max-height:340px;overflow:auto}
+.qa-gloss dt{font-weight:800}.qa-gloss dd{margin:0;color:var(--muted);font-size:.9rem}
+@media (prefers-reduced-motion:reduce){#gltip{transition:none}}
 .mkfoot{max-width:820px;margin:18px auto 0;padding:12px 16px;font-size:.84rem;color:var(--muted);text-align:center;line-height:1.7}
 .mkfoot a{color:var(--accent);font-weight:700;text-decoration:none;white-space:nowrap}
 .mkfoot a:hover{text-decoration:underline}
@@ -3024,8 +3034,18 @@ function qaItems(){const g=QA.g[QAS.g],done=qaDone(),q=QAS.q.trim().toLowerCase(
     if(QAS.star&&!x[1])return;if(QAS.hide&&done[id])return;if(q&&!(x[0]+" "+x[2]).toLowerCase().includes(q))return;
     out.push({x,id,s:s.t,dn:!!done[id]});});});
   out.sort((a,b)=>b.x[1]-a.x[1]);return out;}
+let GLRE=null,GLMAP=null;
+function glInit(){if(GLRE||!QA||!QA.gl)return;GLMAP={};const keys=[];
+  QA.gl.forEach(e=>{[e[0]].concat(e[1]||[]).forEach(k=>{GLMAP[k.toLowerCase()]=e;keys.push(k);});});
+  keys.sort((a,b)=>b.length-a.length);
+  GLRE=new RegExp("(^|[^A-Za-z0-9@])("+keys.map(k=>esc(k).replace(/[.*+?^${}()|[\]\\\/]/g,"\\$&")).join("|")+")(?![A-Za-z0-9@])","gi");}
+function glz(html,seen){glInit();if(!GLRE)return html;
+  const SKIP={agent:/(human|support|sales|travel|field|customer|service) $/i,token:/(access|refresh|short-lived|per-user|auth|api|login|session) $/i};
+  return html.replace(GLRE,(m,pre,t,off,str)=>{const e=GLMAP[t.toLowerCase()];if(!e||seen[e[0]])return m;
+    const sk=SKIP[e[0].toLowerCase()];if(sk&&sk.test(str.slice(Math.max(0,off-14),off+pre.length)))return m;seen[e[0]]=1;
+    return pre+'<span class="gl" tabindex="0" role="note" data-gl="'+esc(e[0])+'" aria-label="'+esc(t+": "+e[2])+'">'+t+'</span>';});}
 function qaListHTML(items){if(!items.length)return `<p class="hint">Nothing matches. Clear the search or the filters.</p>`;
-  return items.map((o,i)=>`<details class="${o.dn?"dn":""}" data-id="${o.id}"><summary>${o.x[1]?`<span class="st" title="High priority" aria-label="High priority">★</span>`:""}<span>${esc(o.x[0])}</span></summary><div class="qa-ans"><p>${esc(o.x[2])}</p>${o.x[3]?`<p class="pv"><b>Also covers:</b> ${esc(o.x[3])}</p>`:""}<div class="row"><button class="btn small" data-qa="done" data-id="${o.id}">${o.dn?"Mark as not answered":"I can answer this"}</button></div></div></details>`).join("");}
+  return items.map((o,i)=>`<details class="${o.dn?"dn":""}" data-id="${o.id}"><summary>${o.x[1]?`<span class="st" title="High priority" aria-label="High priority">★</span>`:""}<span>${esc(o.x[0])}</span></summary><div class="qa-ans">${(()=>{const seen={};return `<p>${glz(esc(o.x[2]),seen)}</p>${o.x[4]?`<div class="qa-ex"><span class="lbl">Example</span><p>${glz(esc(o.x[4]),seen)}</p></div>`:""}`;})()}${o.x[3]?`<p class="pv"><b>Also covers:</b> ${esc(o.x[3])}</p>`:""}<div class="row"><button class="btn small" data-qa="done" data-id="${o.id}">${o.dn?"Mark as not answered":"I can answer this"}</button></div></div></details>`).join("");}
 function qaRefresh(){const items=qaItems(),l=document.getElementById("qaList"),c=document.getElementById("qaCount");if(!l)return;
   l.innerHTML=qaListHTML(items);const dn=qaDone(),all=QA.g.reduce((n,g)=>n+g.s.reduce((m,s)=>m+s.q.length,0),0),mine=Object.keys(dn).length;
   c.textContent=items.length+" shown · "+mine+" of "+all+" marked answerable";}
@@ -3034,7 +3054,8 @@ function renderQA(){
     fetch("qa.json").then(r=>{if(!r.ok)throw 0;return r.json();}).then(j=>{QA=j;if((location.hash||"")==="#qa")renderQA();}).catch(()=>{if((location.hash||"")==="#qa")app.innerHTML=`<div class="view"><section class="card"><h2>AI-PM Q&amp;A</h2><p class="hint">The question bank could not load. Check your connection and reopen this page; once loaded it also works offline.</p><button class="btn" onclick="location.reload()">Try again</button></section></div>`;});return;}
   const g=QA.g[QAS.g];
   app.innerHTML=`<div class="view"><section class="card qa-top"><span class="eyebrow">Interview prep</span><h2>AI-PM Q&amp;A</h2>
-    <p class="hint">${QA.g.reduce((n,x)=>n+x.s.reduce((m,s)=>m+s.q.length,0),0)} questions with model answers written the way you would say them. Answer out loud first, then tap to open. ★ marks the ones that come up most.</p><details class="hint"><summary style="cursor:pointer">How to use these answers</summary><p style="margin:6px 0 0">They are study aids, not scripts. Check company examples and regulation details yourself, and swap the sample stories for your own experience.</p></details>
+    <p class="hint">${QA.g.reduce((n,x)=>n+x.s.reduce((m,s)=>m+s.q.length,0),0)} questions with model answers written the way you would say them. Answer out loud first, then tap to open. Each answer has a small example. Words with a dotted underline explain themselves when you hover or tap. ★ marks the ones that come up most.</p><details class="hint"><summary style="cursor:pointer">How to use these answers</summary><p style="margin:6px 0 0">They are study aids, not scripts. Check company examples and regulation details yourself, and swap the sample stories for your own experience.</p></details>
+    ${QA.gl?`<details class="hint qa-gloss"><summary>Glossary: ${QA.gl.length} terms in plain English</summary><dl>${QA.gl.slice().sort((a,b)=>a[0].localeCompare(b[0])).map(e=>`<dt>${esc(e[0])}</dt><dd>${esc(e[2])}</dd>`).join("")}</dl></details>`:""}
     <div class="qa-groups" role="group" aria-label="Category">${QA.g.map((x,i)=>`<button class="chipbtn" data-qa="g" data-i="${i}" aria-pressed="${i===QAS.g}">${esc(QASHORT[i]||x.t)}</button>`).join("")}</div>
     <div class="qa-ctl"><input type="search" id="qaSearch" placeholder="Search questions and answers" aria-label="Search" value="${esc(QAS.q)}"><select id="qaSec" aria-label="Topic"><option value="">All topics</option>${g.s.map(s=>`<option ${s.t===QAS.sec?"selected":""} value="${esc(s.t)}">${esc(s.t)} (${s.q.length})</option>`).join("")}</select></div>
     <div class="qa-ctl"><label><input type="checkbox" id="qaStar" ${QAS.star?"checked":""}> ★ only</label><label><input type="checkbox" id="qaHide" ${QAS.hide?"checked":""}> Hide answerable</label><button class="btn small" data-qa="rand">Random question</button></div>
@@ -3052,6 +3073,24 @@ document.addEventListener("input",ev=>{if(!QA)return;const t=ev.target;
   if(t.id==="qaSearch"){QAS.q=t.value;qaRefresh();}});
 document.addEventListener("change",ev=>{if(!QA)return;const t=ev.target;
   if(t.id==="qaSec"){QAS.sec=t.value;qaRefresh();}else if(t.id==="qaStar"){QAS.star=t.checked;qaRefresh();}else if(t.id==="qaHide"){QAS.hide=t.checked;qaRefresh();}});
+/* glossary tooltip: hover, keyboard focus or tap */
+(function(){let tip=null,cur=null;
+  const get=()=>{if(!tip){tip=document.createElement("div");tip.id="gltip";tip.setAttribute("aria-hidden","true");document.body.appendChild(tip);}return tip;};
+  let shownAt=0;function show(el){if(!QA||!GLMAP)return;shownAt=Date.now();const e=GLMAP[(el.dataset.gl||"").toLowerCase()];if(!e)return;const t=get();cur=el;
+    t.innerHTML="<b>"+esc(e[0])+"</b>"+esc(e[2]);t.classList.add("on");
+    const r=el.getBoundingClientRect(),w=t.offsetWidth,h=t.offsetHeight;let x=Math.min(Math.max(12,r.left+r.width/2-w/2),innerWidth-w-12),y=r.top-h-8;if(y<8)y=r.bottom+8;
+    t.style.left=x+"px";t.style.top=y+"px";}
+  function hide(){cur=null;if(tip)tip.classList.remove("on");}
+  const gl=n=>n&&n.closest&&n.closest(".gl");
+  const canHover=()=>matchMedia("(hover:hover)").matches;
+  document.addEventListener("mouseover",ev=>{if(!canHover())return;const g=gl(ev.target);if(g)show(g);});
+  document.addEventListener("mouseout",ev=>{if(canHover()&&gl(ev.target))hide();});
+  document.addEventListener("focusin",ev=>{const g=gl(ev.target);if(g)show(g);});
+  document.addEventListener("focusout",ev=>{if(canHover()&&gl(ev.target))hide();});
+  document.addEventListener("click",ev=>{const g=gl(ev.target);if(g){if(cur===g&&tip&&tip.classList.contains("on")&&Date.now()-shownAt>500){hide();}else show(g);}else hide();});
+  document.addEventListener("keydown",ev=>{if(ev.key==="Escape")hide();});
+  addEventListener("scroll",hide,true);addEventListener("hashchange",hide);
+})();
 /* maker footer: a quiet, always-visible star and follow line; never a popup */
 function mkFoot(){const f=document.getElementById("mkfoot");if(!f)return;const n=(typeof S!=="undefined"&&S.done?S.done.length:0),st=starDone();
   const lead=n>=7?`You have finished ${n} day${n===1?"":"s"}. `:"";
