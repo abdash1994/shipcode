@@ -9,7 +9,7 @@ const p=await b.newPage({viewport:{width:1000,height:800}});
 await p.goto(`http://localhost:${PORT}/index.html#qa`);await p.waitForSelector('#qaList details',{timeout:15000});
 const data=await p.evaluate(()=>fetch('qa.json').then(r=>r.json()));
 let n=0,withEx=0,short=0;data.g.forEach(g=>g.s.forEach(s=>s.q.forEach(q=>{n++;if(q[4]&&q[4].length>40)withEx++;if(q[4]&&q[4].length<60)short++;})));
-ok('464 questions',n===464);ok('every answer has an example',withEx===464);ok('glossary has 120+ terms',data.gl.length>=120);
+ok('478 questions',n===478);ok('every answer has an example',withEx===478);ok('glossary has 120+ terms',data.gl.length>=120);
 // open first and check the example box
 await p.click('#qaList details summary');
 ok('example box shown',await p.evaluate(()=>!!document.querySelector('#qaList details[open] .qa-ex p')));
