@@ -59,7 +59,7 @@ const go=async(p,h)=>{await p.evaluate(h=>{location.hash=h;},h);await p.waitForT
  await p.fill('#au-email','new@example.com');await p.fill('#au-pw','longenough1');await p.fill('#au-pw2','longenough1');await p.click('form button[type=submit]');
  await p.waitForFunction(()=>acct&&acct.user.id==='user-new',null,{timeout:8000});await p.waitForTimeout(500);
  ok('signup success: signed in, back on Today, toast shown',await p.evaluate(()=>location.hash==='#today'&&document.getElementById('toast')&&document.getElementById('toast').classList.contains('on')));
- ok('avatar shows initials once signed in',await p.evaluate(()=>/^[A-Z]{1,2}$/.test(document.getElementById('avatar').innerText.trim())));
+ ok('avatar shows signed-in dot, no initials',await p.evaluate(()=>{const a=document.getElementById('avatar');return !!a.querySelector('.avdot')&&a.innerText.trim()===''&&/synced/.test(a.title);}));
  await p.waitForTimeout(2500);ok('progress pushed to account',await p.evaluate(()=>syncMode==='account')&&Object.keys(db.states).includes('user-new'),JSON.stringify(db.log.slice(-6)));
  // signed-in settings
  await go(p,'#settings');
