@@ -34,7 +34,7 @@ A single-file web app (`index.html`) for moving from non-coder toward writing re
 
 ## AI-PM Q&A
 
-A separate section (home tile, menu entry **AI-PM Q&A**, `#qa`) with 478 AI, system-design, technical and product interview questions and model answers, loaded on demand from `qa.json`. Search, topic and ★ filters, random question, and a private "I can answer this" tracker. It is optional and never blocks a day. A quiet footer on every page links to starring the repo and following on LinkedIn.
+A separate section (home tile, menu entry **AI-PM Q&A**, `#qa`) with 502 AI, system-design, technical and product interview questions and model answers, loaded on demand from `qa.json`. Search, topic and ★ filters, random question, and a private "I can answer this" tracker. It is optional and never blocks a day. A quiet footer on every page links to starring the repo and following on LinkedIn.
 
 ## Know where you stand: readiness, interview reps, error journal
 
