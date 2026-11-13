@@ -18,7 +18,7 @@ A single-file web app (`index.html`) for moving from non-coder toward writing re
 
 | Moment | What the app does |
 |---|---|
-| First open | Explains the promise, asks for your *why* and a daily practice time, then a pace. Sets honest expectations. |
+| First open | A welcome that lists what is inside and sets honest expectations, then three choices: destination (SQL preselected, because it fits a 30-minute day), rhythm and time, and a start screen with an optional *why* and calendar reminder. Strict or flexible and days a week live on the time step; everything can be changed later at `#plan`. Test: `tests/e2e40.js`. |
 | Every day | Opens on "After today you can…" and why it matters for an FDE, then a session card with one next action, time per part and a progress bar. |
 | Short on time | Suggests a 20-minute minimum day that still counts. |
 | Missed a day | One missed day a week doesn't break the streak. If you fall behind, it says that's normal and offers **Re-plan from here**, with no shaming. |

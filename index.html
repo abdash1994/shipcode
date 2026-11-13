@@ -2706,8 +2706,13 @@ function obAct(act,b){
   if(act==="ics"){downloadIcs(habitOf());return true;}
   if(act==="logbite"){markPractice();logEv("bite",{min:todayBudget(habitOf())});save();route();return true;}
   return false;}
-function obDots(){const first=ob.edit?2:0,total=ob.edit?4:6,at=ob.step-first;
+const obSeq=()=>ob.edit?[2,4,5]:[0,2,4,5];
+function obDots(){const seq=obSeq(),total=seq.length,at=Math.max(0,seq.indexOf(ob.step));
   return `<div class="wiz-dots" role="img" aria-label="Step ${at+1} of ${total}">${Array.from({length:total},(_,i)=>`<span class="${i<=at?"on":""}"></span>`).join("")}</div>`;}
+function rhythmCard(){const dpw=obDpw();return `<section class="card"><span class="eyebrow">Your rhythm</span>
+    <div class="chips"><button class="chipbtn ${ob.mode==="flex"?"on":""}" data-act="obmode" data-mode="flex" aria-pressed="${ob.mode==="flex"}">Flexible</button><button class="chipbtn ${ob.mode==="strict"?"on":""}" data-act="obmode" data-mode="strict" aria-pressed="${ob.mode==="strict"}">Strict, every day</button></div>
+    <p class="hint">${ob.mode==="flex"?"A missed day never resets your streak and your dates simply move. Best for most people with a job.":"Every day, firm dates and a daily streak that breaks if you skip. Best if you want pressure."}</p>
+    ${ob.mode==="flex"?`<span class="eyebrow">Practice days a week</span><div class="chips">${DPWOPTS.map(d=>`<button class="chipbtn ${ob.dpw===d?"on":""}" data-act="obdpw" data-dpw="${d}" aria-pressed="${ob.dpw===d}">${d===7?"Every day":d+" days"}</button>`).join("")}</div>`:""}</section>`;}
 function timeNudge(h,days){
   const by=ob.by,avail=by?diffDays(todayISO(),by)+1:0;
   if(by){
@@ -2730,9 +2735,8 @@ function timeNudge(h,days){
 function renderOnboarding(){
   if(!ob)obInit(false);
   const st=ob.step,dpw=obDpw(),h=obHabit(),g=goalById(ob.goal),days=previewDays(h),fin=shift(todayISO(),days-1),by=ob.by;
-  const first=ob.edit?2:0;
-  const back=st>first?`<button class="btn ghost" data-act="obgo" data-step="${st-1}">Back</button>`:(ob.edit?`<a class="btn ghost" href="#path">Cancel</a>`:"");
-  const eyebrow=n=>ob.edit?"Your plan":`Step ${n} of 5`;
+  const seq=obSeq(),prev=seq[seq.indexOf(st)-1],back=prev!==undefined?`<button class="btn ghost" data-act="obgo" data-step="${prev}">Back</button>`:(ob.edit?`<a class="btn ghost" href="#path">Cancel</a>`:"");
+  const eyebrow=n=>ob.edit?"Your plan":`Step ${seq.indexOf(n)+1} of ${seq.length}`;
   let body="";
   if(st===0){body=`<section class="hero"><span class="eyebrow">ShipCode</span><h1>Break it into steps. Code it. Ship it.</h1>
       <p class="lead">For people who understand the concepts but freeze when it is time to write the code. You will not get there by memorizing syntax. You will learn to break any problem into steps, turn each step into code, and repeat until it is automatic.</p>
@@ -2743,25 +2747,17 @@ function renderOnboarding(){
       <li><b>Repeat</b><span>Problems you have solved come back from a blank file until they are automatic.</span></li></ol></section>
     <section class="card"><span class="eyebrow">What is inside, all free</span><ul class="how2"><li><b>30 daily lessons</b> with runnable code labs in Python and SQL, graded in your browser.</li><li><b>Gyms</b> for extra reps, and an <b>Errors</b> tab that teaches you to read tracebacks.</li><li><b>AI-PM Q&amp;A</b>: 460+ AI, system-design and product interview questions with model answers. Open it any time, no setup.</li><li><b>Proof page</b>: a link that shows what you have passed.</li></ul></section>
     <section class="card note"><p><b>No giant countdown.</b> You pick a destination you can reach soon, and the plan shows dates for the next few wins, not a years-long total.</p></section>
-    <div class="wiz-foot"><button class="btn primary block big-cta" data-act="obgo" data-step="1">Set up my plan →</button><p class="hint" style="text-align:center">Takes about a minute. Runs on your phone, tablet or computer. Nothing to install.</p></div>`;}
-  else if(st===1){body=`<section class="hero"><span class="eyebrow">${eyebrow(1)}</span><h1>Why are you doing this?</h1><p class="lead">You will see this on the hard days.</p></section>
-    <section class="card"><label class="field"><input class="code" id="obwhy" maxlength="140" autocomplete="off" placeholder="e.g. Pass a technical screen for a solutions role by March" value="${esc(ob.why)}"></label></section>
-    <div class="wiz-foot"><button class="btn primary block big-cta" data-act="obgo" data-step="2">Continue →</button></div>`;}
+    <div class="wiz-foot"><button class="btn primary block big-cta" data-act="obgo" data-step="2">Set up my plan →</button><p class="hint" style="text-align:center">Three quick choices, about a minute. Runs on your phone, tablet or computer. Nothing to install.</p></div>`;}
   else if(st===2){body=`<section class="hero"><span class="eyebrow">${eyebrow(2)}</span><h1>Where do you want to get first?</h1><p class="lead">Pick a destination you can reach soon. You can extend it whenever you arrive.</p></section>
     <div class="choices">${GOALS.map(x=>{const rem=remainingDays(x.id).length,tm=totalMin(x.id,ob.depth,true);return `<button class="choice ${ob.goal===x.id?"on":""}" data-act="obgoal" data-goal="${x.id}" aria-pressed="${ob.goal===x.id}"><b>${esc(x.name)}${x.id==="sql"?` <span class="tier">Fastest win</span>`:""}</b><span>${esc(x.blurb)}</span><em>${rem?`${rem} lesson${rem>1?"s":""} · about ${fmtMin(tm)} of work`:"Reached ✓"}</em></button>`;}).join("")}</div>
     <section class="card"><span class="eyebrow">Practice depth</span>
       <div class="choices two"><button class="choice ${ob.depth==="core"?"on":""}" data-act="obdepth" data-depth="core" aria-pressed="${ob.depth==="core"}"><b>Core</b><span>Everything the app grades: drills, code labs and the daily check. About ${fmtMin(LESSON_CORE)} per lesson.</span></button>
       <button class="choice ${ob.depth==="full"?"on":""}" data-act="obdepth" data-depth="full" aria-pressed="${ob.depth==="full"}"><b>Full</b><span>Core plus about 2½ hours of editor and LeetCode-style practice per lesson. About ${fmtMin(LESSON_FULL)}.</span></button></div>
       <p class="hint">Core gets you through every graded lab. The extra practice is where speed comes from. The exam, not the plan, tells you when you are done, and the daily reps aim at your weak areas. Times are my estimates, not measured.</p></section>
-    <div class="wiz-foot row">${back}<button class="btn primary big-cta grow" data-act="obgo" data-step="3">Continue →</button></div>`;}
-  else if(st===3){body=`<section class="hero"><span class="eyebrow">${eyebrow(3)}</span><h1>How strict do you want to be?</h1><p class="lead">Both work. Pick the one you will actually keep.</p></section>
-    <div class="choices">
-      <button class="choice ${ob.mode==="flex"?"on":""}" data-act="obmode" data-mode="flex" aria-pressed="${ob.mode==="flex"}"><b>Flexible</b><span>Choose how many days a week. A missed day never resets your streak and your dates simply move. Best for most people with a job.</span></button>
-      <button class="choice ${ob.mode==="strict"?"on":""}" data-act="obmode" data-mode="strict" aria-pressed="${ob.mode==="strict"}"><b>Strict</b><span>Every day, firm dates and a daily streak that breaks if you skip. Best if you want pressure.</span></button></div>
-    ${ob.mode==="flex"?`<section class="card"><span class="eyebrow">Practice days a week</span><div class="chips">${DPWOPTS.map(d=>`<button class="chipbtn ${ob.dpw===d?"on":""}" data-act="obdpw" data-dpw="${d}" aria-pressed="${ob.dpw===d}">${d===7?"Every day":d+" days"}</button>`).join("")}</div></section>`:""}
     <div class="wiz-foot row">${back}<button class="btn primary big-cta grow" data-act="obgo" data-step="4">Continue →</button></div>`;}
   else if(st===4){const lad=ladderFor(h),ff=firstFour(h);
     body=`<section class="hero"><span class="eyebrow">${eyebrow(4)}</span><h1>How much time on a practice day?</h1><p class="lead">Dates below are for <b>${esc(g.name)}</b>, ${ob.depth==="core"?"Core":"Full"} depth.</p></section>
+    ${rhythmCard()}
     <div class="tiles">${MINOPTS.map(([m,name])=>{const hh={...h,min:m},d=previewDays(hh),fit=by&&d<=diffDays(todayISO(),by)+1;return `<button class="tile ${ob.min===m?"on":""}" data-act="obmin" data-min="${m}" aria-pressed="${ob.min===m}"><b>${minLabel(m)}</b><small>${name}</small><em>${fmtDateShort(shift(todayISO(),d-1))}</em>${fit?`<i class="fit">✓ deadline</i>`:""}</button>`;}).join("")}</div>
     ${ob.mode==="flex"&&dpw<7?`<section class="card"><span class="eyebrow">Optional weekend deep block</span><p class="hint">Keep weekdays tiny and spend one longer block at the weekend. It speeds things up a lot.</p>
       <div class="chips">${DEEPOPTS.map(d=>`<button class="chipbtn ${obDeep()===d?"on":""}" data-act="obdeep" data-deep="${d}" aria-pressed="${obDeep()===d}">${d?fmtMin(d):"None"}</button>`).join("")}</div>
@@ -2773,6 +2769,7 @@ function renderOnboarding(){
     ${timeNudge(h,days)}
     <div class="wiz-foot row">${back}<button class="btn primary big-cta grow" data-act="obgo" data-step="5">Continue →</button></div>`;}
   else{body=`<section class="hero"><span class="eyebrow">${eyebrow(5)}</span><h1>When will you do it?</h1><p class="lead">The same time every day works better than long weekend sessions.</p></section>
+    <section class="card"><label class="field"><span class="eyebrow">Why are you doing this? (optional)</span><input class="code" id="obwhy" maxlength="140" autocomplete="off" placeholder="e.g. Pass a technical screen for a solutions role by March" value="${esc(ob.why)}"></label><p class="hint">You will see this on the hard days.</p></section>
     <section class="card"><label class="field"><span class="eyebrow">Daily time</span><input class="code timein" type="time" id="obat" value="${esc(ob.at||"19:00")}"></label>
       <div class="row"><button class="btn" data-act="obics">Add to my calendar (.ics)</button><a class="btn" target="_blank" rel="noopener" href="${esc(gcalUrl(h))}">Add to Google Calendar</a></div>
       <p class="hint">A calendar reminder works on every phone and computer. Browser notifications are not reliable on all devices, so I did not rely on them. The Google Calendar link covers the weekday sessions only.</p>
