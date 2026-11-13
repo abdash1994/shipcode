@@ -28,6 +28,10 @@ A single-file web app (`index.html`) for going from non-coder to FDE / AI Engine
 | Week complete | A level-up (Python writer → Data wrangler → Problem solver → Interview-ready) and optional post-ready text to share your progress. |
 | Path tab | Your level, stats, a 5-week practice heatmap, and every skill you've unlocked. |
 
+## AI-PM Q&A
+
+A separate section (home tile, menu entry **AI-PM Q&A**, `#qa`) with 464 AI, system-design, technical and product interview questions and model answers, loaded on demand from `qa.json`. Search, topic and ★ filters, random question, and a private "I can answer this" tracker. It is optional and never blocks a day. A quiet footer on every page links to starring the repo and following on LinkedIn.
+
 ## Know where you stand: readiness, interview reps, error journal
 
 - **Interview readiness** (Path tab): a score for each of 11 skill areas, built from evidence. Passing a lab is worth 40; passing without help +20; needing 2 or fewer failed runs +10; each redo from scratch +15 (up to 2). It's an estimate, not a guarantee. A "Practise weakest" button opens a rep in your weakest area.

@@ -117,7 +117,7 @@ pre .hl{color:var(--bad);font-weight:500} pre .note{color:var(--muted)}
 /* bottom nav */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
-.tabs .col{display:grid;grid-template-columns:repeat(5,1fr)} .tabs a{padding:9px 2px!important;font-size:.7rem!important} .tabs a.desk{display:none} @media (min-width:1000px){.tabs a.desk{display:flex}}
+.tabs .col{display:grid;grid-template-columns:repeat(6,1fr)} .tabs a{padding:9px 2px!important;font-size:.7rem!important} .tabs a.desk{display:none} @media (min-width:1000px){.tabs a.desk{display:flex}}
 .tabs a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px;color:var(--muted);text-decoration:none;font-size:.74rem;font-weight:500}
 .tabs a svg{width:22px;height:22px}
 .tabs a[aria-current="page"]{color:var(--accent)}
@@ -513,6 +513,33 @@ pre{border-radius:14px}
   .col{max-width:720px}
   .tabs .col{max-width:600px}
 }
+/* AI-PM Q&A page, home tile, maker footer */
+.tabs a[data-tab=qa]{font-size:.6rem!important;letter-spacing:-.01em;white-space:nowrap}
+@media (min-width:1000px){.tabs a[data-tab=qa]{font-size:.7rem!important;letter-spacing:0}}
+.qa-top{display:flex;flex-direction:column;gap:10px}
+.qatile{display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px}
+.qa-groups{display:flex;gap:6px;flex-wrap:wrap}
+.qa-groups .chipbtn{font-size:.8rem;padding:6px 12px;min-height:36px}
+.qa-groups .chipbtn[aria-pressed=true]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700}
+.qa-ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.qa-ctl input[type=search],.qa-ctl select{font:inherit;font-size:.92rem;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);min-width:0;flex:1 1 150px}
+.qa-ctl label{display:inline-flex;align-items:center;gap:6px;font-size:.88rem;white-space:nowrap}
+.qa-list{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.qa-list details{border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.qa-list details[open]{border-color:var(--accent)}
+.qa-list summary{cursor:pointer;padding:12px 14px;font-weight:650;line-height:1.4;list-style:none;display:flex;gap:8px;align-items:flex-start}
+.qa-list summary::-webkit-details-marker{display:none}
+.qa-list summary .st{color:var(--accent);flex:none}
+.qa-list details.dn summary{color:var(--muted)}
+.qa-list details.dn summary::after{content:"answered";margin-left:auto;flex:none;font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ok)}
+.qa-ans{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
+.qa-ans p{margin:0;line-height:1.65}
+.qa-ans .pv{font-size:.84rem;color:var(--muted)}
+.mkfoot{max-width:820px;margin:18px auto 0;padding:12px 16px;font-size:.84rem;color:var(--muted);text-align:center;line-height:1.7}
+.mkfoot a{color:var(--accent);font-weight:700;text-decoration:none;white-space:nowrap}
+.mkfoot a:hover{text-decoration:underline}
+body.onboarding .mkfoot,body.authpage .mkfoot{display:none}
+@media (min-width:1000px){.mkfoot{max-width:820px}}
 /* desktop: sidebar navigation, wider canvas */
 @media (min-width:1000px){
   body{padding-left:calc(248px + 24px);padding-right:24px;padding-bottom:40px}
@@ -1066,6 +1093,7 @@ input.switch:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 <a class="starpill" href="https://github.com/abdash1994/shipcode" target="_blank" rel="noopener" aria-label="Star ShipCode on GitHub">★ Star</a><a class="avatar" id="avatar" href="#settings" aria-label="Account and settings"></a></div></header>
 
 <main class="col" id="app"></main>
+<footer class="mkfoot" id="mkfoot"></footer>
 
 <nav class="tabs" aria-label="Sections"><div class="col">
   <a href="#today" data-tab="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/></svg>Today</a>
@@ -1073,6 +1101,7 @@ input.switch:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   <a href="#gyms" data-tab="gyms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>Gyms</a>
   <a href="#think" data-tab="think"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>Think</a>
   <a href="#errors" data-tab="errors"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></svg>Errors</a>
+  <a href="#qa" data-tab="qa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>AI-PM Q&amp;A</a>
   <a href="#ref" data-tab="ref" class="desk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>Reference</a>
 </div></nav>
 
@@ -2189,7 +2218,7 @@ function renderToday(n){
       `<button class="btn primary block" data-act="complete" data-day="${n}" ${missing.length?"disabled":""}>Complete Day ${n}</button>
        ${missing.length?`<p class="hint" style="text-align:center">To unlock: ${missing.join(", ").replace(/, ([^,]*)$/," and $1")}.</p>`:""}`}
     ${cur&&S.start?`<div class="alsohead"><span class="eyebrow">Also today</span><p class="hint">Extras and your habit tools. The four steps above are the day.</p></div>`:""}
-    ${cur&&S.start?milestoneCards():""}${cur&&S.start&&!comeback()&&!pauseActive()?habitCard():""}${cur&&S.start?gymSlotCard(n):""}${cur&&S.start?reachedCard():""}${cur?proCard():""}${cur&&S.start?bitesCard(n):""}${sessionCard(n)}
+    ${cur&&S.start?qaTile():""}${cur&&S.start?milestoneCards():""}${cur&&S.start&&!comeback()&&!pauseActive()?habitCard():""}${cur&&S.start?gymSlotCard(n):""}${cur&&S.start?reachedCard():""}${cur?proCard():""}${cur&&S.start?bitesCard(n):""}${sessionCard(n)}
     ${cur&&S.start&&!comeback()?paceCard():""}
     ${cur?warmCard():""}${cur?repSetCard():""}${cur?reviewDueCard():""}${surveyCard()}
     <div class="daynav">${n>1?`<a class="btn small" href="#day-${n-1}">← Day ${n-1}</a>`:"<span></span>"}${n<30?`<a class="btn small" href="#day-${n+1}">Day ${n+1} →</a>`:""}</div>
@@ -2944,10 +2973,55 @@ function starAskHTML(){return `<section class="card starask" id="starAsk"><img c
 function starAsk(){return !starDone()&&S.start&&S.done.length>=1&&!usageAsk();}
 function pathFoot(){const v=app.querySelector(".view");if(v)v.insertAdjacentHTML("beforeend",builderCard());}
 document.addEventListener("click",ev=>{const b=ev.target.closest&&ev.target.closest("[data-au=star],[data-au=starno],[data-au=mail]");if(!b)return;const a=b.dataset.au;
-  if(a==="star"){starMark();const c=document.getElementById("starAsk");if(c)setTimeout(()=>c.remove(),300);toast("Thank you! Starring takes one tap on GitHub.");return;}
+  if(a==="star"){starMark();const c=document.getElementById("starAsk");if(c)setTimeout(()=>c.remove(),300);setTimeout(mkFoot,0);toast("Thank you! Starring takes one tap on GitHub.");return;}
   if(a==="starno"){starMark();const c=document.getElementById("starAsk");if(c)c.remove();return;}
   if(a==="mail"){const m=meMail();try{navigator.clipboard.writeText(m);}catch(e){}toast("Email copied: "+m);location.href="mailto:"+m+"?subject="+encodeURIComponent("ShipCode");}
 });
+
+/* ---- AI-PM Q&A: question bank, loaded on demand from qa.json ---- */
+const QAK="shipcode.qa.done";
+const QASHORT=["AI system design","System design","Technical","Product and behavioural"];
+let QA=null,QAS={g:0,sec:"",q:"",star:false,hide:false};
+const qaH=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))>>>0;return h.toString(36);};
+const qaDone=()=>{try{return JSON.parse(localStorage.getItem(QAK)||"{}")||{};}catch(e){return {};}};
+const qaSave=o=>{try{localStorage.setItem(QAK,JSON.stringify(o));}catch(e){}};
+function qaItems(){const g=QA.g[QAS.g],done=qaDone(),q=QAS.q.trim().toLowerCase(),out=[];
+  g.s.forEach(s=>{if(QAS.sec&&s.t!==QAS.sec)return;s.q.forEach(x=>{const id=qaH(x[0]);
+    if(QAS.star&&!x[1])return;if(QAS.hide&&done[id])return;if(q&&!(x[0]+" "+x[2]).toLowerCase().includes(q))return;
+    out.push({x,id,s:s.t,dn:!!done[id]});});});
+  out.sort((a,b)=>b.x[1]-a.x[1]);return out;}
+function qaListHTML(items){if(!items.length)return `<p class="hint">Nothing matches. Clear the search or the filters.</p>`;
+  return items.map((o,i)=>`<details class="${o.dn?"dn":""}" data-id="${o.id}"><summary>${o.x[1]?`<span class="st" title="High priority" aria-label="High priority">★</span>`:""}<span>${esc(o.x[0])}</span></summary><div class="qa-ans"><p>${esc(o.x[2])}</p>${o.x[3]?`<p class="pv"><b>Also covers:</b> ${esc(o.x[3])}</p>`:""}<div class="row"><button class="btn small" data-qa="done" data-id="${o.id}">${o.dn?"Mark as not answered":"I can answer this"}</button></div></div></details>`).join("");}
+function qaRefresh(){const items=qaItems(),l=document.getElementById("qaList"),c=document.getElementById("qaCount");if(!l)return;
+  l.innerHTML=qaListHTML(items);const dn=qaDone(),all=QA.g.reduce((n,g)=>n+g.s.reduce((m,s)=>m+s.q.length,0),0),mine=Object.keys(dn).length;
+  c.textContent=items.length+" shown · "+mine+" of "+all+" marked answerable";}
+function renderQA(){
+  if(!QA){app.innerHTML=`<div class="view"><section class="card"><p class="muted" role="status">Loading questions…</p></section></div>`;
+    fetch("qa.json").then(r=>{if(!r.ok)throw 0;return r.json();}).then(j=>{QA=j;if((location.hash||"")==="#qa")renderQA();}).catch(()=>{if((location.hash||"")==="#qa")app.innerHTML=`<div class="view"><section class="card"><h2>AI-PM Q&amp;A</h2><p class="hint">The question bank could not load. Check your connection and reopen this page; once loaded it also works offline.</p><button class="btn" onclick="location.reload()">Try again</button></section></div>`;});return;}
+  const g=QA.g[QAS.g];
+  app.innerHTML=`<div class="view"><section class="card qa-top"><span class="eyebrow">Interview prep</span><h2>AI-PM Q&amp;A</h2>
+    <p class="hint">${QA.g.reduce((n,x)=>n+x.s.reduce((m,s)=>m+s.q.length,0),0)} questions with model answers written the way you would say them. Answer out loud first, then tap to open. ★ marks the ones that come up most.</p><details class="hint"><summary style="cursor:pointer">How to use these answers</summary><p style="margin:6px 0 0">They are study aids, not scripts. Check company examples and regulation details yourself, and swap the sample stories for your own experience.</p></details>
+    <div class="qa-groups" role="group" aria-label="Category">${QA.g.map((x,i)=>`<button class="chipbtn" data-qa="g" data-i="${i}" aria-pressed="${i===QAS.g}">${esc(QASHORT[i]||x.t)}</button>`).join("")}</div>
+    <div class="qa-ctl"><input type="search" id="qaSearch" placeholder="Search questions and answers" aria-label="Search" value="${esc(QAS.q)}"><select id="qaSec" aria-label="Topic"><option value="">All topics</option>${g.s.map(s=>`<option ${s.t===QAS.sec?"selected":""} value="${esc(s.t)}">${esc(s.t)} (${s.q.length})</option>`).join("")}</select></div>
+    <div class="qa-ctl"><label><input type="checkbox" id="qaStar" ${QAS.star?"checked":""}> ★ only</label><label><input type="checkbox" id="qaHide" ${QAS.hide?"checked":""}> Hide answerable</label><button class="btn small" data-qa="rand">Random question</button></div>
+    <p class="hint" id="qaCount" role="status"></p></section><div class="qa-list" id="qaList"></div></div>`;
+  qaRefresh();}
+function qaTile(){return `<a class="card qatile" href="#qa" style="display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true" style="flex:none"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span><span class="eyebrow">Interview prep</span><b style="display:block">AI-PM Q&amp;A</b><span class="hint">464 AI, system design and product questions with model answers. Open any time; it never blocks your day.</span></span></a>`;}
+document.addEventListener("click",ev=>{const b=ev.target.closest&&ev.target.closest("[data-qa]");if(!b||!QA)return;const a=b.dataset.qa;
+  if(a==="g"){QAS.g=+b.dataset.i;QAS.sec="";renderQA();return;}
+  if(a==="done"){const d=qaDone(),id=b.dataset.id;if(d[id])delete d[id];else d[id]=1;qaSave(d);
+    const el=b.closest("details");if(QAS.hide){qaRefresh();}else{el.classList.toggle("dn",!!d[id]);b.textContent=d[id]?"Mark as not answered":"I can answer this";const c=document.getElementById("qaCount");if(c)c.textContent=c.textContent.replace(/· \d+ of/,"· "+Object.keys(d).length+" of");}return;}
+  if(a==="rand"){const d=qaDone(),pool=qaItems().filter(o=>!o.dn);if(!pool.length){toast("Nothing left in this view.");return;}
+    const o=pool[Math.floor(Math.random()*pool.length)],el=document.querySelector('#qaList details[data-id="'+o.id+'"]');if(el){el.open=true;el.scrollIntoView({behavior:"smooth",block:"center"});}}
+});
+document.addEventListener("input",ev=>{if(!QA)return;const t=ev.target;
+  if(t.id==="qaSearch"){QAS.q=t.value;qaRefresh();}});
+document.addEventListener("change",ev=>{if(!QA)return;const t=ev.target;
+  if(t.id==="qaSec"){QAS.sec=t.value;qaRefresh();}else if(t.id==="qaStar"){QAS.star=t.checked;qaRefresh();}else if(t.id==="qaHide"){QAS.hide=t.checked;qaRefresh();}});
+/* maker footer: a quiet, always-visible star and follow line; never a popup */
+function mkFoot(){const f=document.getElementById("mkfoot");if(!f)return;const n=(typeof S!=="undefined"&&S.done?S.done.length:0),st=starDone();
+  const lead=n>=7?`You have finished ${n} day${n===1?"":"s"}. `:"";
+  f.innerHTML=st?`Thanks for the star. <a href="${ME.li}" target="_blank" rel="noopener">Follow ${ME.name.split(" ")[0]} on LinkedIn</a>`:`${lead}Free and built solo. If ShipCode helps, <a href="${ME.repo}" target="_blank" rel="noopener" data-au="star">★ star it on GitHub</a> and <a href="${ME.li}" target="_blank" rel="noopener">follow me on LinkedIn</a>.`;}
 
 /* ---------- Router ---------- */
 function route(){
@@ -2972,6 +3046,7 @@ function route(){
   else if(h==="think"){tab="think";renderThink();}
   else if(h==="errors"){tab="errors";renderErrors();}
   else if(h==="ref"){tab="ref";renderRef();}
+  else if(h==="qa"){tab="qa";renderQA();}
   else if(h==="owner"){starMark();toast("Star prompt turned off on this device.");location.hash="#today";return;}
   else if(h==="settings"){tab="";renderSettings();}
   else if(AU_PAGES.test(h)){tab="";renderAuthPage(h);}
@@ -2981,8 +3056,9 @@ function route(){
   else renderToday(currentDay());
   if(tab==="today"&&S.start&&!/^day-/.test(h)&&starAsk()){const v=app.querySelector(".view");if(v&&!document.getElementById("starAsk"))v.insertAdjacentHTML("beforeend",starAskHTML());}
   if(tab==="today"&&S.start&&!/^day-/.test(h)&&usageAsk()){const v=app.querySelector(".view");if(v&&!document.getElementById("usageAsk"))v.insertAdjacentHTML("afterbegin",usageCard());}
-  document.body.classList.toggle("onboarding",!S.start&&!/^(day-|sql|path|think|errors|ref|report|exam|review|portfolio|diag|interview|proof|capstone|settings|signin|signup|forgot|reset)/.test(h));
+  document.body.classList.toggle("onboarding",!S.start&&!/^(day-|qa|sql|path|think|errors|ref|report|exam|review|portfolio|diag|interview|proof|capstone|settings|signin|signup|forgot|reset)/.test(h));
   document.body.classList.toggle("authpage",AU_PAGES.test(h));
+  mkFoot();
   document.querySelectorAll(".tabs a").forEach(a=>{if(a.dataset.tab===tab)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});decoratePre();
 }
 window.addEventListener("hashchange",()=>{if(/(^|[#&])(access_token|error_description)=/.test(location.hash)){acctBoot();route();acctConnect();return;}route();window.scrollTo(0,0);});
@@ -8026,7 +8102,7 @@ function cmUpgrade(){if(!cmOn()||!lab||!(lab.L.kind==="py"||lab.L.kind==="sql"))
 
 /* Reference drawer + search */
 function searchIndex(){const out=[];
-  [["Today","#today"],["Path","#path"],["Gyms","#gyms"],["Think","#think"],["Errors","#errors"],["Reference page and settings","#ref"],["30-day sprint","#sprint"],["Capstone studio","#capstone"],["Interview practice","#interview"],["Pro track","#pro"],["Proof page","#proof"],["Commitments","#commit"],["Tracks and exam","#exam"],["Weekly review","#review"],["Portfolio","#portfolio"],["Change my plan","#plan"]].forEach(([t,h])=>out.push({k:"Page",t,h}));
+  [["Today","#today"],["Path","#path"],["Gyms","#gyms"],["Think","#think"],["Errors","#errors"],["Reference page and settings","#ref"],["30-day sprint","#sprint"],["Capstone studio","#capstone"],["Interview practice","#interview"],["Pro track","#pro"],["AI-PM Q&A","#qa"],["Proof page","#proof"],["Commitments","#commit"],["Tracks and exam","#exam"],["Weekly review","#review"],["Portfolio","#portfolio"],["Change my plan","#plan"]].forEach(([t,h])=>out.push({k:"Page",t,h}));
   DAYS.forEach((d,i)=>out.push({k:"Day "+(i+1),t:d.t,h:"#day-"+(i+1)}));
   (typeof GYMS!=="undefined"?GYMS:[]).forEach(G=>G.levels.forEach(g=>out.push({k:G.short+" L"+g.lvl,t:g.name,h:"#"+G.key+"-"+g.lvl})));
   ALL_LABS.forEach(L=>out.push({k:"Lab",t:L.title,lab:L.id}));
