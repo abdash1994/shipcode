@@ -36,7 +36,7 @@ A single-file web app (`index.html`) for moving from non-coder toward writing re
 
 A separate section (home tile, menu entry **AI-PM Q&A**, `#qa`) with 502 AI, system-design, technical and product interview questions and model answers, loaded on demand from `qa.json`. Search, topic and ★ filters, random question, and a private "I can answer this" tracker. It is optional and never blocks a day. A quiet footer on every page links to starring the repo and following on LinkedIn.
 
-A second bank, **Data Science Q&A** (home tile under the AI-PM tile, `#ds`, data in `ds.json`), has 227 machine-learning, statistics, deep-learning, tools, MLOps and project-interview questions in the same format, with its own progress key (`shipcode.ds.done`) and a 272-term glossary. It was written from an older public interview-question repository, with outdated and wrong items corrected or dropped and newer topics added. It has had no expert review; verify facts before relying on them.
+A second bank, **Data Science Q&A** (home tile under the AI-PM tile, `#ds`, data in `ds.json`), has 296 machine-learning, statistics and maths, neural-network, transformer and LLM, tools, MLOps and project-interview questions in the same format, with its own progress key (`shipcode.ds.done`) and a 308-term glossary. It was written from an older public interview-question repository, with outdated and wrong items corrected or dropped and newer topics added. It has had no expert review; verify facts before relying on them.
 
 ## Know where you stand: readiness, interview reps, error journal
 
