@@ -2261,7 +2261,7 @@ function renderToday(n){
       `<button class="btn primary block" data-act="complete" data-day="${n}" ${missing.length?"disabled":""}>Complete Day ${n}</button>
        ${missing.length?`<p class="hint" style="text-align:center">To unlock: ${missing.join(", ").replace(/, ([^,]*)$/," and $1")}.</p>`:""}`}
     ${cur&&S.start?`<div class="alsohead"><span class="eyebrow">Also today</span><p class="hint">Extras and your habit tools. The four steps above are the day.</p></div>`:""}
-    ${cur&&S.start?qaTile():""}${cur&&S.start?milestoneCards():""}${cur&&S.start&&!comeback()&&!pauseActive()?habitCard():""}${cur&&S.start?gymSlotCard(n):""}${cur&&S.start?reachedCard():""}${cur?proCard():""}${cur&&S.start?bitesCard(n):""}${sessionCard(n)}
+    ${cur&&S.start?qaTile()+dsTile():""}${cur&&S.start?milestoneCards():""}${cur&&S.start&&!comeback()&&!pauseActive()?habitCard():""}${cur&&S.start?gymSlotCard(n):""}${cur&&S.start?reachedCard():""}${cur?proCard():""}${cur&&S.start?bitesCard(n):""}${sessionCard(n)}
     ${cur&&S.start&&!comeback()?paceCard():""}
     ${cur?warmCard():""}${cur?repSetCard():""}${cur?reviewDueCard():""}${surveyCard()}
     <div class="daynav">${n>1?`<a class="btn small" href="#day-${n-1}">← Day ${n-1}</a>`:"<span></span>"}${n<30?`<a class="btn small" href="#day-${n+1}">Day ${n+1} →</a>`:""}</div>
@@ -3023,12 +3023,13 @@ document.addEventListener("click",ev=>{const b=ev.target.closest&&ev.target.clos
 });
 
 /* ---- AI-PM Q&A: question bank, loaded on demand from qa.json ---- */
-const QAK="shipcode.qa.done";
+const BANKS={qa:{f:"qa.json",k:"shipcode.qa.done",t:"AI-PM Q&amp;A"},ds:{f:"ds.json",k:"shipcode.ds.done",t:"Data Science Q&amp;A"}};let BK="qa";const QAC={};
 const QASHORT=["AI system design","System design","Technical","Product and behavioural"];
 let QA=null,QAS={g:0,sec:"",q:"",star:false,hide:false};
+function qaUse(b){if(b===BK)return;BK=b;QA=QAC[b]||null;GLRE=null;GLMAP=null;QAS={g:0,sec:"",q:"",star:false,hide:false};}
 const qaH=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))>>>0;return h.toString(36);};
-const qaDone=()=>{try{return JSON.parse(localStorage.getItem(QAK)||"{}")||{};}catch(e){return {};}};
-const qaSave=o=>{try{localStorage.setItem(QAK,JSON.stringify(o));}catch(e){}};
+const qaDone=()=>{try{return JSON.parse(localStorage.getItem(BANKS[BK].k)||"{}")||{};}catch(e){return {};}};
+const qaSave=o=>{try{localStorage.setItem(BANKS[BK].k,JSON.stringify(o));}catch(e){}};
 function qaItems(){const g=QA.g[QAS.g],done=qaDone(),q=QAS.q.trim().toLowerCase(),out=[];
   g.s.forEach(s=>{if(QAS.sec&&s.t!==QAS.sec)return;s.q.forEach(x=>{const id=qaH(x[0]);
     if(QAS.star&&!x[1])return;if(QAS.hide&&done[id])return;if(q&&!(x[0]+" "+x[2]).toLowerCase().includes(q))return;
@@ -3049,18 +3050,19 @@ function qaListHTML(items){if(!items.length)return `<p class="hint">Nothing matc
 function qaRefresh(){const items=qaItems(),l=document.getElementById("qaList"),c=document.getElementById("qaCount");if(!l)return;
   l.innerHTML=qaListHTML(items);const dn=qaDone(),all=QA.g.reduce((n,g)=>n+g.s.reduce((m,s)=>m+s.q.length,0),0),mine=Object.keys(dn).length;
   c.textContent=items.length+" shown · "+mine+" of "+all+" marked answerable";}
-function renderQA(){
+function renderQA(b){if(b)qaUse(b);const bk=BK,BH="#"+bk;
   if(!QA){app.innerHTML=`<div class="view"><section class="card"><p class="muted" role="status">Loading questions…</p></section></div>`;
-    fetch("qa.json").then(r=>{if(!r.ok)throw 0;return r.json();}).then(j=>{QA=j;if((location.hash||"")==="#qa")renderQA();}).catch(()=>{if((location.hash||"")==="#qa")app.innerHTML=`<div class="view"><section class="card"><h2>AI-PM Q&amp;A</h2><p class="hint">The question bank could not load. Check your connection and reopen this page; once loaded it also works offline.</p><button class="btn" onclick="location.reload()">Try again</button></section></div>`;});return;}
+    fetch(BANKS[bk].f).then(r=>{if(!r.ok)throw 0;return r.json();}).then(j=>{QAC[bk]=j;if(bk===BK)QA=j;if(bk===BK&&(location.hash||"")===BH)renderQA();}).catch(()=>{if(bk===BK&&(location.hash||"")===BH)app.innerHTML=`<div class="view"><section class="card"><h2>${BANKS[bk].t}</h2><p class="hint">The question bank could not load. Check your connection and reopen this page; once loaded it also works offline.</p><button class="btn" onclick="location.reload()">Try again</button></section></div>`;});return;}
   const g=QA.g[QAS.g];
-  app.innerHTML=`<div class="view"><section class="card qa-top"><span class="eyebrow">Interview prep</span><h2>AI-PM Q&amp;A</h2>
+  app.innerHTML=`<div class="view"><section class="card qa-top"><span class="eyebrow">Interview prep</span><h2>${BANKS[bk].t}</h2>
     <p class="hint">${QA.g.reduce((n,x)=>n+x.s.reduce((m,s)=>m+s.q.length,0),0)} questions with model answers written the way you would say them. Answer out loud first, then tap to open. Each answer has a small example. Words with a dotted underline explain themselves when you hover or tap. ★ marks the ones that come up most.</p><details class="hint"><summary style="cursor:pointer">How to use these answers</summary><p style="margin:6px 0 0">They are study aids, not scripts. Check company examples and regulation details yourself, and swap the sample stories for your own experience.</p></details>
     ${QA.gl?`<details class="hint qa-gloss"><summary>Glossary: ${QA.gl.length} terms in plain English</summary><dl>${QA.gl.slice().sort((a,b)=>a[0].localeCompare(b[0])).map(e=>`<dt>${esc(e[0])}</dt><dd>${esc(e[2])}</dd>`).join("")}</dl></details>`:""}
-    <div class="qa-groups" role="group" aria-label="Category">${QA.g.map((x,i)=>`<button class="chipbtn" data-qa="g" data-i="${i}" aria-pressed="${i===QAS.g}">${esc(QASHORT[i]||x.t)}</button>`).join("")}</div>
+    <div class="qa-groups" role="group" aria-label="Category">${QA.g.map((x,i)=>`<button class="chipbtn" data-qa="g" data-i="${i}" aria-pressed="${i===QAS.g}">${esc((bk==="qa"&&QASHORT[i])||x.t)}</button>`).join("")}</div>
     <div class="qa-ctl"><input type="search" id="qaSearch" placeholder="Search questions and answers" aria-label="Search" value="${esc(QAS.q)}"><select id="qaSec" aria-label="Topic"><option value="">All topics</option>${g.s.map(s=>`<option ${s.t===QAS.sec?"selected":""} value="${esc(s.t)}">${esc(s.t)} (${s.q.length})</option>`).join("")}</select></div>
     <div class="qa-ctl"><label><input type="checkbox" id="qaStar" ${QAS.star?"checked":""}> ★ only</label><label><input type="checkbox" id="qaHide" ${QAS.hide?"checked":""}> Hide answerable</label><button class="btn small" data-qa="rand">Random question</button></div>
     <p class="hint" id="qaCount" role="status"></p></section><div class="qa-list" id="qaList"></div></div>`;
   qaRefresh();}
+function dsTile(){return `<a class="card qatile" href="#ds" style="display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true" style="flex:none"><path d="M4 20V4"/><path d="M4 20h16"/><path d="M8 16l4-5 3 3 5-7"/></svg><span><span class="eyebrow">Interview prep</span><b style="display:block">Data Science Q&amp;A</b><span class="hint">220+ machine learning, statistics, deep learning and project questions with model answers and examples. Open any time.</span></span></a>`;}
 function qaTile(){return `<a class="card qatile" href="#qa" style="display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true" style="flex:none"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span><span class="eyebrow">Interview prep</span><b style="display:block">AI-PM Q&amp;A</b><span class="hint">460+ AI, system design and product questions with model answers. Open any time; it never blocks your day.</span></span></a>`;}
 document.addEventListener("click",ev=>{const b=ev.target.closest&&ev.target.closest("[data-qa]");if(!b||!QA)return;const a=b.dataset.qa;
   if(a==="g"){QAS.g=+b.dataset.i;QAS.sec="";renderQA();return;}
@@ -3119,7 +3121,8 @@ function route(){
   else if(h==="think"){tab="think";renderThink();}
   else if(h==="errors"){tab="errors";renderErrors();}
   else if(h==="ref"){tab="ref";renderRef();}
-  else if(h==="qa"){tab="qa";renderQA();}
+  else if(h==="qa"){tab="qa";renderQA("qa");}
+  else if(h==="ds"){tab="";renderQA("ds");}
   else if(h==="owner"){starMark();toast("Star prompt turned off on this device.");location.hash="#today";return;}
   else if(h==="settings"){tab="";renderSettings();}
   else if(AU_PAGES.test(h)){tab="";renderAuthPage(h);}
