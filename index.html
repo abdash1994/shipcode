@@ -539,6 +539,7 @@ pre{border-radius:14px}
 .qa-ex{border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 12px 12px 0;padding:10px 14px}
 .qa-ex .lbl{display:block;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:3px}
 .qa-ex p{font-size:.94rem}
+.qa-banks{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}.qa-banks a{text-decoration:none;color:inherit}.qa-banks a[aria-current]{background:var(--accent);color:#fff}
 .qa-focus{border-left:4px solid var(--accent);margin-bottom:10px}.qa-focus .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.qa-plain{margin:2px 0 10px;padding:10px 12px;border-radius:10px;border-left:4px solid var(--accent);background:var(--bg-soft,rgba(127,127,127,.12));font-size:.92rem;line-height:1.5}.qa-plain .lbl{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;opacity:.75;margin-bottom:2px}
 .qa-code{margin:8px 0;padding:10px 12px;border-radius:10px;background:var(--bg-soft,rgba(127,127,127,.12));border:1px solid var(--line,rgba(127,127,127,.25));overflow-x:auto;max-width:100%;font-size:.8rem;line-height:1.5;white-space:pre}
 .gl{border-bottom:1.5px dotted var(--accent);cursor:help;text-decoration:none}
@@ -3063,6 +3064,7 @@ function renderQA(b,focus){if(b)qaUse(b);const bk=BK,BH="#"+bk;QAS.only="";
   const g=QA.g[QAS.g];
   const banner=focus?`<section class="card qa-focus" role="status"><b>One linked question</b><span class="hint"> from another page. Your place there is kept if this opened in a new tab.</span><div class="row"><a class="btn small" href="#${bk}">Show all of ${BANKS[bk].t}</a>${focus.from?`<a class="btn small" href="#${focus.from}">Back to ${BANKS[focus.from].t}</a>`:""}</div></section>`:"";
   app.innerHTML=`<div class="view">${banner}<section class="card qa-top"><span class="eyebrow">Interview prep</span><h2>${BANKS[bk].t}</h2>
+    <div class="qa-banks" role="navigation" aria-label="Question banks">${[["qa","AI-PM"],["ds","Data Science"],["wf","Workflow"],["sd","System Design"]].map(b=>`<a class="chipbtn" href="#${b[0]}" ${b[0]===bk?'aria-current="page" aria-pressed="true"':'aria-pressed="false"'}>${b[1]}</a>`).join("")}</div>
     <p class="hint">${QA.g.reduce((n,x)=>n+x.s.reduce((m,s)=>m+s.q.length,0),0)} questions with model answers written the way you would say them. Answer out loud first, then tap to open. Each answer has a small example. Words with a dotted underline explain themselves when you hover or tap. ★ marks the ones that come up most.</p><details class="hint"><summary style="cursor:pointer">How to use these answers</summary><p style="margin:6px 0 0">They are study aids, not scripts. Check company examples and regulation details yourself, and swap the sample stories for your own experience.</p></details>
     ${QA.gl?`<details class="hint qa-gloss"><summary>Glossary: ${QA.gl.length} terms in plain English</summary><dl>${QA.gl.slice().sort((a,b)=>a[0].localeCompare(b[0])).map(e=>`<dt>${esc(e[0])}</dt><dd>${esc(e[2])}</dd>`).join("")}</dl></details>`:""}
     <div class="qa-groups" role="group" aria-label="Category">${QA.g.map((x,i)=>`<button class="chipbtn" data-qa="g" data-i="${i}" aria-pressed="${i===QAS.g}">${esc((bk==="qa"&&QASHORT[i])||x.t)}</button>`).join("")}</div>
@@ -3148,7 +3150,7 @@ function route(){
   document.body.classList.toggle("onboarding",!S.start&&!/^(day-|qa|sql|path|think|errors|ref|report|exam|review|portfolio|diag|interview|proof|capstone|settings|signin|signup|forgot|reset)/.test(h));
   document.body.classList.toggle("authpage",AU_PAGES.test(h));
   mkFoot();
-  document.querySelectorAll(".tabs a").forEach(a=>{if(a.dataset.tab===tab)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});decoratePre();
+  document.querySelectorAll(".tabs a").forEach(a=>{if(a.dataset.tab===tab||(a.dataset.tab==="qa"&&/^(ds|wf|sd)$/.test(tab)&&getComputedStyle(a.parentNode.querySelector("a.desk")).display==="none"))a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});decoratePre();
 }
 window.addEventListener("hashchange",()=>{if(/(^|[#&])(access_token|error_description)=/.test(location.hash)){acctBoot();route();acctConnect();return;}route();window.scrollTo(0,0);});
 
