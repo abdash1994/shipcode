@@ -1,0 +1,35 @@
+// Engineering Workflow Q&A: tile, sidebar entry, #wf route, code blocks render, separate progress, no overflow at 360px
+const {chromium}=require('playwright');const {spawn}=require('child_process');const path=require('path');
+const PORT=8793;let fails=0;const ok=(n,c)=>{console.log((c?'PASS ':'FAIL ')+n);if(!c)fails++;};
+(async()=>{
+const srv=spawn('python3',['-m','http.server',PORT,'--directory',path.join(__dirname,'..')],{stdio:'ignore'});
+await new Promise(r=>setTimeout(r,1000));
+const b=await chromium.launch();
+const p=await b.newPage({viewport:{width:360,height:800}});
+const errs=[];p.on('pageerror',e=>errs.push(String(e)));
+await p.goto(`http://localhost:${PORT}/index.html`);
+const data=await p.evaluate(()=>fetch('wf.json').then(r=>r.json()));
+let n=0,ex=0,bad=0,code=0;data.g.forEach(g=>g.s.forEach(s=>s.q.forEach(q=>{n++;if(q[4]&&q[4].length>40)ex++;if(q.length!==5||!q[0]||!q[2])bad++;if(q[2].includes('```'))code++;})));
+ok('80+ questions ('+n+')',n>=80);ok('every answer has an example',ex===n);ok('no malformed entries',bad===0);ok('code exercises present',code>=5);ok('glossary 80+ terms',data.gl.length>=80);ok('4 groups',data.g.length===4);
+await p.goto(`http://localhost:${PORT}/index.html#wf`);await p.waitForSelector('#qaList details',{timeout:15000});
+ok('title',await p.evaluate(()=>/Engineering Workflow Q&A/.test(document.querySelector('.qa-top h2').textContent)));
+ok('no horizontal overflow at 360',await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+await p.selectOption('#qaSec',{index:0}).catch(()=>{});
+await p.click('.qa-groups button:last-child');await p.waitForTimeout(200);
+await p.click('#qaList details summary');
+ok('code block renders as pre in an opened answer',await p.evaluate(()=>!!document.querySelector('#qaList details[open] pre.qa-code')||!!document.querySelector('#qaList details[open] .qa-ans')));
+await p.evaluate(()=>{document.querySelectorAll('#qaList details').forEach(d=>d.open=true);});
+ok('some exercise shows a code block',await p.evaluate(()=>document.querySelectorAll('#qaList pre.qa-code').length>=3));
+ok('no horizontal overflow with code open',await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+await p.click('#qaList details[open] [data-qa=done]');
+const k=await p.evaluate(()=>({wf:Object.keys(JSON.parse(localStorage.getItem('shipcode.wf.done')||'{}')).length,ds:Object.keys(JSON.parse(localStorage.getItem('shipcode.ds.done')||'{}')).length}));
+ok('progress saved separately',k.wf===1&&k.ds===0);
+const d=await b.newPage({viewport:{width:1280,height:900}});
+await d.goto(`http://localhost:${PORT}/index.html`);await d.waitForTimeout(800);
+await d.evaluate(()=>{S.start=shift(todayISO(),-3);S.done=[];save();location.hash='#today';route();});await d.waitForTimeout(400);
+ok('home tiles in order qa, ds, wf',await d.evaluate(()=>[...document.querySelectorAll('a.qatile')].map(x=>x.getAttribute('href')).join()==='#qa,#ds,#wf'));
+ok('sidebar has Engineering Workflow entry',await d.evaluate(()=>{const a=document.querySelector('.tabs a[data-tab=wf]');const r=a.getBoundingClientRect();return r.width>30&&r.right<=innerWidth&&getComputedStyle(a).display!=='none';}));
+await d.click('.tabs a[data-tab=wf]');await d.waitForSelector('#qaList details',{timeout:15000});
+ok('sidebar entry opens and highlights',await d.evaluate(()=>location.hash==='#wf'&&document.querySelector('.tabs a[data-tab=wf]').getAttribute('aria-current')==='page'));
+ok('no page errors',errs.length===0);
+await b.close();srv.kill();console.log(fails?'FAILED '+fails:'ALL PASSED');process.exit(fails?1:0);})();

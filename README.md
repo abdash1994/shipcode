@@ -38,6 +38,8 @@ A separate section (home tile, menu entry **AI-PM Q&A**, `#qa`) with 502 AI, sys
 
 A second bank, **Data Science Q&A** (home tile under the AI-PM tile, `#ds`, data in `ds.json`), has 296 machine-learning, statistics and maths, neural-network, transformer and LLM, tools, MLOps and project-interview questions in the same format, with its own progress key (`shipcode.ds.done`) and a 308-term glossary. It was written from an older public interview-question repository, with outdated and wrong items corrected or dropped and newer topics added. It has had no expert review; verify facts before relying on them.
 
+A third bank, **Engineering Workflow Q&A** (home tile, sidebar entry on desktop, `#wf`, data in `wf.json`), has 90 questions on the software lifecycle, Git and pull requests, code review, CI/CD, testing, incidents and hands-on review exercises with code, plus a 14-day practice plan. Same format and own progress key (`shipcode.wf.done`). Written from general knowledge and the idea of a code-review interview round; no expert review, so verify tool-specific details.
+
 ## Know where you stand: readiness, interview reps, error journal
 
 - **Interview readiness** (Path tab): a score for each of 11 skill areas, built from evidence. Passing a lab is worth 40; passing without help +20; needing 2 or fewer failed runs +10; each redo from scratch +15 (up to 2). It's an estimate, not a guarantee. A "Practise weakest" button opens a rep in your weakest area.

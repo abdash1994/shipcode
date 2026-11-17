@@ -33,7 +33,7 @@ ok('AI bank still 502',await p.evaluate(()=>/AI-PM Q&A/.test(document.querySelec
 const d=await b.newPage({viewport:{width:390,height:900}});
 await d.goto(`http://localhost:${PORT}/index.html`);await d.waitForTimeout(800);
 await d.evaluate(()=>{S.start=shift(todayISO(),-3);S.done=[];save();location.hash='#today';route();});await d.waitForTimeout(400);
-ok('home has DS tile right after AI tile',await d.evaluate(()=>{const t=[...document.querySelectorAll('a.qatile')].map(x=>x.getAttribute('href'));return t.join()==='#qa,#ds';}));
+ok('home has DS tile right after AI tile',await d.evaluate(()=>{const t=[...document.querySelectorAll('a.qatile')].map(x=>x.getAttribute('href'));return t.join().startsWith('#qa,#ds');}));
 ok('DS tile is below AI tile',await d.evaluate(()=>{const a=document.querySelector('a.qatile[href="#qa"]').getBoundingClientRect(),c=document.querySelector('a.qatile[href="#ds"]').getBoundingClientRect();return c.top>=a.bottom-1;}));
 await d.setViewportSize({width:1280,height:900});await d.waitForTimeout(300);
 ok('sidebar has Data Science Q&A entry on desktop',await d.evaluate(()=>{const a=document.querySelector('.tabs a[data-tab=ds]');const r=a.getBoundingClientRect();return r.width>30&&r.right<=innerWidth&&/Data Science Q&A/.test(a.textContent)&&getComputedStyle(a).display!=='none';}));
