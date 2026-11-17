@@ -5,7 +5,7 @@ Run before every commit (the pre-commit hook installed by tools/install-hooks.sh
 import hashlib,re,pathlib
 root=pathlib.Path(__file__).resolve().parent.parent
 h=hashlib.sha1()
-for f in ["index.html","qa.json","ds.json","wf.json","manifest.webmanifest"]:
+for f in ["index.html","qa.json","ds.json","wf.json","sd.json","manifest.webmanifest"]:
     h.update((root/f).read_bytes())
 v="shipcode-"+h.hexdigest()[:10]
 sw=root/"sw.js";t=sw.read_text()

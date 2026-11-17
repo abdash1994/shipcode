@@ -1,0 +1,40 @@
+// System Design Fundamentals Q&A: tile, sidebar, #sd route, plain-words boxes, deep-linked Related questions (new tab + back link), no overflow at 360px
+const {chromium}=require('playwright');const {spawn}=require('child_process');const path=require('path');
+const PORT=8794;let fails=0;const ok=(n,c)=>{console.log((c?'PASS ':'FAIL ')+n);if(!c)fails++;};
+(async()=>{
+const srv=spawn('python3',['-m','http.server',PORT,'--directory',path.join(__dirname,'..')],{stdio:'ignore'});
+await new Promise(r=>setTimeout(r,1000));
+const b=await chromium.launch();
+const p=await b.newPage({viewport:{width:360,height:800}});
+const errs=[];p.on('pageerror',e=>errs.push(String(e)));
+await p.goto(`http://localhost:${PORT}/index.html`);
+const data=await p.evaluate(()=>fetch('sd.json').then(r=>r.json()));
+let n=0,bad=0,plain=0,rel=0;data.g.forEach(g=>g.s.forEach(s=>s.q.forEach(q=>{n++;if((q.length<6||q.length>7)||!q[0]||!q[2]||!q[4])bad++;if(q[5])plain++;if(q[6])rel+=q[6].length;})));
+ok('150+ questions ('+n+')',n>=150);ok('no malformed entries',bad===0);ok('plain-words on every question',plain===n);ok('related links present ('+rel+')',rel>=20);ok('glossary 60+ terms',data.gl.length>=60);ok('5 groups F,A,D,M,O',data.g.map(g=>g.k).join('')==='FADMO');
+await p.goto(`http://localhost:${PORT}/index.html#sd`);await p.waitForSelector('#qaList details',{timeout:15000});
+ok('title',await p.evaluate(()=>/System Design Fundamentals/.test(document.querySelector('.qa-top h2').textContent)));
+ok('no horizontal overflow at 360',await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+await p.evaluate(()=>{document.querySelectorAll('#qaList details').forEach(d=>d.open=true);});
+ok('plain-words boxes render',await p.evaluate(()=>document.querySelectorAll('#qaList .qa-plain').length>=5));
+ok('related links open in a new tab and deep-link',await p.evaluate(()=>{const a=[...document.querySelectorAll('#qaList .pv a')];return a.length>0&&a.every(x=>x.target==='_blank'&&/^#(qa|ds|wf)\/[a-z0-9]+\/sd$/.test(x.getAttribute('href')));}));
+// follow a related link in the same tab to check the focused view
+const href=await p.evaluate(()=>{const a=[...document.querySelectorAll('#qaList .pv a')].find(x=>/#qa\//.test(x.getAttribute('href')));return a?a.getAttribute('href'):null;});
+await p.goto(`http://localhost:${PORT}/index.html${href}`);await p.waitForSelector('.qa-focus',{timeout:15000});
+ok('focused view shows exactly one open question',await p.evaluate(()=>document.querySelectorAll('#qaList details').length===1&&document.querySelector('#qaList details').open));
+ok('banner has back link to System Design bank',await p.evaluate(()=>[...document.querySelectorAll('.qa-focus a')].some(a=>a.getAttribute('href')==='#sd')));
+ok('banner can show whole bank',await p.evaluate(()=>[...document.querySelectorAll('.qa-focus a')].some(a=>a.getAttribute('href')==='#qa')));
+await p.click('.qa-focus a[href="#qa"]');await p.waitForSelector('#qaList details',{timeout:15000});
+ok('whole bank shows many questions',await p.evaluate(()=>document.querySelectorAll('#qaList details').length>20&&!document.querySelector('.qa-focus')));
+await p.goto(`http://localhost:${PORT}/index.html#sd`);await p.waitForSelector('#qaList details',{timeout:15000});
+await p.click('#qaList details summary');await p.click('#qaList details[open] [data-qa=done]');
+const k=await p.evaluate(()=>({sd:Object.keys(JSON.parse(localStorage.getItem('shipcode.sd.done')||'{}')).length,wf:Object.keys(JSON.parse(localStorage.getItem('shipcode.wf.done')||'{}')).length}));
+ok('progress saved separately',k.sd===1&&k.wf===0);
+const d=await b.newPage({viewport:{width:1280,height:900}});
+await d.goto(`http://localhost:${PORT}/index.html`);await d.waitForTimeout(800);
+await d.evaluate(()=>{S.start=shift(todayISO(),-3);S.done=[];save();location.hash='#today';route();});await d.waitForTimeout(400);
+ok('home tiles in order qa, ds, wf, sd',await d.evaluate(()=>[...document.querySelectorAll('a.qatile')].map(x=>x.getAttribute('href')).join()==='#qa,#ds,#wf,#sd'));
+ok('sidebar has System Design entry',await d.evaluate(()=>{const a=document.querySelector('.tabs a[data-tab=sd]');const r=a.getBoundingClientRect();return r.width>30&&r.right<=innerWidth&&getComputedStyle(a).display!=='none';}));
+await d.click('.tabs a[data-tab=sd]');await d.waitForSelector('#qaList details',{timeout:15000});
+ok('sidebar entry opens and highlights',await d.evaluate(()=>location.hash==='#sd'&&document.querySelector('.tabs a[data-tab=sd]').getAttribute('aria-current')==='page'));
+ok('no page errors',errs.length===0);
+await b.close();srv.kill();console.log(fails?'FAILED '+fails:'ALL PASSED');process.exit(fails?1:0);})();

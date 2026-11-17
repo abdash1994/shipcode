@@ -515,8 +515,8 @@ pre{border-radius:14px}
 }
 /* AI-PM Q&A page, home tile, maker footer */
 .how2{margin:6px 0 0;padding-left:1.1rem;display:flex;flex-direction:column;gap:6px;line-height:1.5}
-.tabs a[data-tab=qa],.tabs a[data-tab=ds],.tabs a[data-tab=wf]{font-size:.6rem!important;letter-spacing:-.01em;white-space:nowrap}
-@media (min-width:1000px){.tabs a[data-tab=qa],.tabs a[data-tab=ds],.tabs a[data-tab=wf]{font-size:.7rem!important;letter-spacing:0}}
+.tabs a[data-tab=qa],.tabs a[data-tab=ds],.tabs a[data-tab=wf],.tabs a[data-tab=sd]{font-size:.6rem!important;letter-spacing:-.01em;white-space:nowrap}
+@media (min-width:1000px){.tabs a[data-tab=qa],.tabs a[data-tab=ds],.tabs a[data-tab=wf],.tabs a[data-tab=sd]{font-size:.7rem!important;letter-spacing:0}}
 .qa-top{display:flex;flex-direction:column;gap:10px}
 .qatile{display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px}
 .qa-groups{display:flex;gap:6px;flex-wrap:wrap}
@@ -539,7 +539,7 @@ pre{border-radius:14px}
 .qa-ex{border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 12px 12px 0;padding:10px 14px}
 .qa-ex .lbl{display:block;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:3px}
 .qa-ex p{font-size:.94rem}
-.qa-plain{margin:2px 0 10px;padding:10px 12px;border-radius:10px;border-left:4px solid var(--accent);background:var(--bg-soft,rgba(127,127,127,.12));font-size:.92rem;line-height:1.5}.qa-plain .lbl{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;opacity:.75;margin-bottom:2px}
+.qa-focus{border-left:4px solid var(--accent);margin-bottom:10px}.qa-focus .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.qa-plain{margin:2px 0 10px;padding:10px 12px;border-radius:10px;border-left:4px solid var(--accent);background:var(--bg-soft,rgba(127,127,127,.12));font-size:.92rem;line-height:1.5}.qa-plain .lbl{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;opacity:.75;margin-bottom:2px}
 .qa-code{margin:8px 0;padding:10px 12px;border-radius:10px;background:var(--bg-soft,rgba(127,127,127,.12));border:1px solid var(--line,rgba(127,127,127,.25));overflow-x:auto;max-width:100%;font-size:.8rem;line-height:1.5;white-space:pre}
 .gl{border-bottom:1.5px dotted var(--accent);cursor:help;text-decoration:none}
 .gl:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
@@ -1149,6 +1149,7 @@ input.switch:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   <a href="#qa" data-tab="qa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>AI-PM Q&amp;A</a>
   <a href="#ds" data-tab="ds" class="desk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20V4"/><path d="M4 20h16"/><path d="M8 16l4-5 3 3 5-7"/></svg>Data Science Q&amp;A</a>
   <a href="#wf" data-tab="wf" class="desk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="9" r="2"/><path d="M6 8v8"/><path d="M18 11c0 4-6 3-10 6"/></svg>Engineering Workflow Q&amp;A</a>
+  <a href="#sd" data-tab="sd" class="desk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="7" height="5" rx="1"/><rect x="14" y="4" width="7" height="5" rx="1"/><rect x="8.5" y="15" width="7" height="5" rx="1"/><path d="M6.5 9v3h11V9M12 12v3"/></svg>System Design Q&amp;A</a>
   <a href="#ref" data-tab="ref" class="desk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>Reference</a>
 </div></nav>
 
@@ -2265,7 +2266,7 @@ function renderToday(n){
       `<button class="btn primary block" data-act="complete" data-day="${n}" ${missing.length?"disabled":""}>Complete Day ${n}</button>
        ${missing.length?`<p class="hint" style="text-align:center">To unlock: ${missing.join(", ").replace(/, ([^,]*)$/," and $1")}.</p>`:""}`}
     ${cur&&S.start?`<div class="alsohead"><span class="eyebrow">Also today</span><p class="hint">Extras and your habit tools. The four steps above are the day.</p></div>`:""}
-    ${cur&&S.start?qaTile()+dsTile()+wfTile():""}${cur&&S.start?milestoneCards():""}${cur&&S.start&&!comeback()&&!pauseActive()?habitCard():""}${cur&&S.start?gymSlotCard(n):""}${cur&&S.start?reachedCard():""}${cur?proCard():""}${cur&&S.start?bitesCard(n):""}${sessionCard(n)}
+    ${cur&&S.start?qaTile()+dsTile()+wfTile()+sdTile():""}${cur&&S.start?milestoneCards():""}${cur&&S.start&&!comeback()&&!pauseActive()?habitCard():""}${cur&&S.start?gymSlotCard(n):""}${cur&&S.start?reachedCard():""}${cur?proCard():""}${cur&&S.start?bitesCard(n):""}${sessionCard(n)}
     ${cur&&S.start&&!comeback()?paceCard():""}
     ${cur?warmCard():""}${cur?repSetCard():""}${cur?reviewDueCard():""}${surveyCard()}
     <div class="daynav">${n>1?`<a class="btn small" href="#day-${n-1}">← Day ${n-1}</a>`:"<span></span>"}${n<30?`<a class="btn small" href="#day-${n+1}">Day ${n+1} →</a>`:""}</div>
@@ -3027,16 +3028,16 @@ document.addEventListener("click",ev=>{const b=ev.target.closest&&ev.target.clos
 });
 
 /* ---- AI-PM Q&A: question bank, loaded on demand from qa.json ---- */
-const BANKS={qa:{f:"qa.json",k:"shipcode.qa.done",t:"AI-PM Q&amp;A"},ds:{f:"ds.json",k:"shipcode.ds.done",t:"Data Science Q&amp;A"},wf:{f:"wf.json",k:"shipcode.wf.done",t:"Engineering Workflow Q&amp;A"}};let BK="qa";const QAC={};
+const BANKS={qa:{f:"qa.json",k:"shipcode.qa.done",t:"AI-PM Q&amp;A"},ds:{f:"ds.json",k:"shipcode.ds.done",t:"Data Science Q&amp;A"},wf:{f:"wf.json",k:"shipcode.wf.done",t:"Engineering Workflow Q&amp;A"},sd:{f:"sd.json",k:"shipcode.sd.done",t:"System Design Fundamentals Q&amp;A"}};let BK="qa";const QAC={};
 const QASHORT=["AI system design","System design","Technical","Product and behavioural"];
 let QA=null,QAS={g:0,sec:"",q:"",star:false,hide:false};
-function qaUse(b){if(b===BK)return;BK=b;QA=QAC[b]||null;GLRE=null;GLMAP=null;QAS={g:0,sec:"",q:"",star:false,hide:false};}
+function qaUse(b){if(b===BK)return;BK=b;QA=QAC[b]||null;GLRE=null;GLMAP=null;QAS={g:0,sec:"",q:"",star:false,hide:false,only:""};}
 const qaH=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))>>>0;return h.toString(36);};
 const qaDone=()=>{try{return JSON.parse(localStorage.getItem(BANKS[BK].k)||"{}")||{};}catch(e){return {};}};
 const qaSave=o=>{try{localStorage.setItem(BANKS[BK].k,JSON.stringify(o));}catch(e){}};
 function qaItems(){const g=QA.g[QAS.g],done=qaDone(),q=QAS.q.trim().toLowerCase(),out=[];
   g.s.forEach(s=>{if(QAS.sec&&s.t!==QAS.sec)return;s.q.forEach(x=>{const id=qaH(x[0]);
-    if(QAS.star&&!x[1])return;if(QAS.hide&&done[id])return;if(q&&!(x[0]+" "+x[2]).toLowerCase().includes(q))return;
+    if(QAS.only&&id!==QAS.only)return;if(QAS.star&&!x[1])return;if(QAS.hide&&done[id])return;if(q&&!(x[0]+" "+x[2]).toLowerCase().includes(q))return;
     out.push({x,id,s:s.t,dn:!!done[id]});});});
   out.sort((a,b)=>b.x[1]-a.x[1]);return out;}
 let GLRE=null,GLMAP=null;
@@ -3051,15 +3052,17 @@ function glz(html,seen){glInit();if(!GLRE)return html;
     return pre+'<span class="gl" tabindex="0" role="note" data-gl="'+esc(e[0])+'" aria-label="'+esc(t+": "+e[2])+'">'+t+'</span>';});}
 function qaFmt(t,seen){return String(t).split("```").map((p,i)=>i%2?`<pre class="qa-code">${esc(p.trim())}</pre>`:(p.trim()?`<p>${glz(esc(p.trim()),seen)}</p>`:"")).join("");}
 function qaListHTML(items){if(!items.length)return `<p class="hint">Nothing matches. Clear the search or the filters.</p>`;
-  return items.map((o,i)=>`<details class="${o.dn?"dn":""}" data-id="${o.id}"><summary>${o.x[1]?`<span class="st" title="High priority" aria-label="High priority">★</span>`:""}<span>${esc(o.x[0])}</span></summary><div class="qa-ans">${o.x[5]?`<div class="qa-plain"><span class="lbl">In plain words</span>${esc(o.x[5])}</div>`:""}${(()=>{const seen={};return `${qaFmt(o.x[2],seen)}${o.x[4]?`<div class="qa-ex"><span class="lbl">Example</span>${qaFmt(o.x[4],seen)}</div>`:""}`;})()}${o.x[3]?`<p class="pv"><b>Also covers:</b> ${esc(o.x[3])}</p>`:""}<div class="row"><button class="btn small" data-qa="done" data-id="${o.id}">${o.dn?"Mark as not answered":"I can answer this"}</button></div></div></details>`).join("");}
+  return items.map((o,i)=>`<details class="${o.dn?"dn":""}" data-id="${o.id}"${QAS.only?" open":""}><summary>${o.x[1]?`<span class="st" title="High priority" aria-label="High priority">★</span>`:""}<span>${esc(o.x[0])}</span></summary><div class="qa-ans">${o.x[5]?`<div class="qa-plain"><span class="lbl">In plain words</span>${esc(o.x[5])}</div>`:""}${(()=>{const seen={};return `${qaFmt(o.x[2],seen)}${o.x[4]?`<div class="qa-ex"><span class="lbl">Example</span>${qaFmt(o.x[4],seen)}</div>`:""}`;})()}${o.x[3]?`<p class="pv"><b>Also covers:</b> ${esc(o.x[3])}</p>`:""}${Array.isArray(o.x[6])&&o.x[6].length?`<p class="pv"><b>Related:</b> ${o.x[6].map(r=>`<a href="#${esc(r[0])}/${qaH(r[1])}/${BK}" target="_blank" rel="noopener">${esc(r[1])} (${esc(BANKS[r[0]].t)}, new tab)</a>`).join("; ")}</p>`:""}<div class="row"><button class="btn small" data-qa="done" data-id="${o.id}">${o.dn?"Mark as not answered":"I can answer this"}</button></div></div></details>`).join("");}
 function qaRefresh(){const items=qaItems(),l=document.getElementById("qaList"),c=document.getElementById("qaCount");if(!l)return;
   l.innerHTML=qaListHTML(items);const dn=qaDone(),all=QA.g.reduce((n,g)=>n+g.s.reduce((m,s)=>m+s.q.length,0),0),mine=Object.keys(dn).length;
   c.textContent=items.length+" shown · "+mine+" of "+all+" marked answerable";}
-function renderQA(b){if(b)qaUse(b);const bk=BK,BH="#"+bk;
+function renderQA(b,focus){if(b)qaUse(b);const bk=BK,BH="#"+bk;QAS.only="";
   if(!QA){app.innerHTML=`<div class="view"><section class="card"><p class="muted" role="status">Loading questions…</p></section></div>`;
-    fetch(BANKS[bk].f).then(r=>{if(!r.ok)throw 0;return r.json();}).then(j=>{QAC[bk]=j;if(bk===BK)QA=j;if(bk===BK&&(location.hash||"")===BH)renderQA();}).catch(()=>{if(bk===BK&&(location.hash||"")===BH)app.innerHTML=`<div class="view"><section class="card"><h2>${BANKS[bk].t}</h2><p class="hint">The question bank could not load. Check your connection and reopen this page; once loaded it also works offline.</p><button class="btn" onclick="location.reload()">Try again</button></section></div>`;});return;}
+    fetch(BANKS[bk].f).then(r=>{if(!r.ok)throw 0;return r.json();}).then(j=>{QAC[bk]=j;if(bk===BK)QA=j;if(bk===BK&&(location.hash||"").startsWith(BH))renderQA(null,focus);}).catch(()=>{if(bk===BK&&(location.hash||"").startsWith(BH))app.innerHTML=`<div class="view"><section class="card"><h2>${BANKS[bk].t}</h2><p class="hint">The question bank could not load. Check your connection and reopen this page; once loaded it also works offline.</p><button class="btn" onclick="location.reload()">Try again</button></section></div>`;});return;}
+  if(focus){let gi=-1;QA.g.forEach((x,i)=>x.s.forEach(s2=>s2.q.forEach(q2=>{if(qaH(q2[0])===focus.id)gi=i;})));if(gi>=0){QAS.g=gi;QAS.sec="";QAS.q="";QAS.star=false;QAS.hide=false;QAS.only=focus.id;}else focus=null;}
   const g=QA.g[QAS.g];
-  app.innerHTML=`<div class="view"><section class="card qa-top"><span class="eyebrow">Interview prep</span><h2>${BANKS[bk].t}</h2>
+  const banner=focus?`<section class="card qa-focus" role="status"><b>One linked question</b><span class="hint"> from another page. Your place there is kept if this opened in a new tab.</span><div class="row"><a class="btn small" href="#${bk}">Show all of ${BANKS[bk].t}</a>${focus.from?`<a class="btn small" href="#${focus.from}">Back to ${BANKS[focus.from].t}</a>`:""}</div></section>`:"";
+  app.innerHTML=`<div class="view">${banner}<section class="card qa-top"><span class="eyebrow">Interview prep</span><h2>${BANKS[bk].t}</h2>
     <p class="hint">${QA.g.reduce((n,x)=>n+x.s.reduce((m,s)=>m+s.q.length,0),0)} questions with model answers written the way you would say them. Answer out loud first, then tap to open. Each answer has a small example. Words with a dotted underline explain themselves when you hover or tap. ★ marks the ones that come up most.</p><details class="hint"><summary style="cursor:pointer">How to use these answers</summary><p style="margin:6px 0 0">They are study aids, not scripts. Check company examples and regulation details yourself, and swap the sample stories for your own experience.</p></details>
     ${QA.gl?`<details class="hint qa-gloss"><summary>Glossary: ${QA.gl.length} terms in plain English</summary><dl>${QA.gl.slice().sort((a,b)=>a[0].localeCompare(b[0])).map(e=>`<dt>${esc(e[0])}</dt><dd>${esc(e[2])}</dd>`).join("")}</dl></details>`:""}
     <div class="qa-groups" role="group" aria-label="Category">${QA.g.map((x,i)=>`<button class="chipbtn" data-qa="g" data-i="${i}" aria-pressed="${i===QAS.g}">${esc((bk==="qa"&&QASHORT[i])||x.t)}</button>`).join("")}</div>
@@ -3069,6 +3072,7 @@ function renderQA(b){if(b)qaUse(b);const bk=BK,BH="#"+bk;
   qaRefresh();}
 function dsTile(){return `<a class="card qatile" href="#ds" style="display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true" style="flex:none"><path d="M4 20V4"/><path d="M4 20h16"/><path d="M8 16l4-5 3 3 5-7"/></svg><span><span class="eyebrow">Interview prep</span><b style="display:block">Data Science Q&amp;A</b><span class="hint">290+ questions on statistics, maths, neural networks, transformers and modern LLM techniques, machine learning and projects, with model answers and examples. Open any time.</span></span></a>`;}
 function wfTile(){return `<a class="card qatile" href="#wf" style="display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true" style="flex:none"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="9" r="2"/><path d="M6 8v8"/><path d="M18 11c0 4-6 3-10 6"/></svg><span><span class="eyebrow">Interview prep</span><b style="display:block">Engineering Workflow Q&amp;A</b><span class="hint">Start from zero: plain-English explanations with everyday analogies, then pull requests, code review, CI/CD and modern tools, and 'what happens when...' stories that follow an event through its blast radius and consequences.</span></span></a>`;}
+function sdTile(){return `<a class="card qatile" href="#sd" style="display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true" style="flex:none"><rect x="3" y="4" width="7" height="5" rx="1"/><rect x="14" y="4" width="7" height="5" rx="1"/><rect x="8.5" y="15" width="7" height="5" rx="1"/><path d="M6.5 9v3h11V9M12 12v3"/></svg><span><span class="eyebrow">Interview prep</span><b style="display:block">System Design Fundamentals Q&amp;A</b><span class="hint">Every building block explained from zero: networking, load balancing, APIs and auth, caching, databases, microservice patterns, distributed systems and observability, with failure scenarios.</span></span></a>`;}
 function qaTile(){return `<a class="card qatile" href="#qa" style="display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true" style="flex:none"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span><span class="eyebrow">Interview prep</span><b style="display:block">AI-PM Q&amp;A</b><span class="hint">460+ AI, system design and product questions with model answers. Open any time; it never blocks your day.</span></span></a>`;}
 document.addEventListener("click",ev=>{const b=ev.target.closest&&ev.target.closest("[data-qa]");if(!b||!QA)return;const a=b.dataset.qa;
   if(a==="g"){QAS.g=+b.dataset.i;QAS.sec="";renderQA();return;}
@@ -3127,9 +3131,11 @@ function route(){
   else if(h==="think"){tab="think";renderThink();}
   else if(h==="errors"){tab="errors";renderErrors();}
   else if(h==="ref"){tab="ref";renderRef();}
+  else if(/^(qa|ds|wf|sd)\/[^/]+/.test(h)){const m=h.split("/");tab=m[0];renderQA(m[0],{id:m[1],from:BANKS[m[2]]?m[2]:""});}
   else if(h==="qa"){tab="qa";renderQA("qa");}
   else if(h==="ds"){tab="ds";renderQA("ds");}
   else if(h==="wf"){tab="wf";renderQA("wf");}
+  else if(h==="sd"){tab="sd";renderQA("sd");}
   else if(h==="owner"){starMark();toast("Star prompt turned off on this device.");location.hash="#today";return;}
   else if(h==="settings"){tab="";renderSettings();}
   else if(AU_PAGES.test(h)){tab="";renderAuthPage(h);}

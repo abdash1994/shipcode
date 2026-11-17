@@ -28,7 +28,7 @@ ok('progress saved separately',k.wf===1&&k.ds===0);
 const d=await b.newPage({viewport:{width:1280,height:900}});
 await d.goto(`http://localhost:${PORT}/index.html`);await d.waitForTimeout(800);
 await d.evaluate(()=>{S.start=shift(todayISO(),-3);S.done=[];save();location.hash='#today';route();});await d.waitForTimeout(400);
-ok('home tiles in order qa, ds, wf',await d.evaluate(()=>[...document.querySelectorAll('a.qatile')].map(x=>x.getAttribute('href')).join()==='#qa,#ds,#wf'));
+ok('home tiles start with qa, ds, wf',await d.evaluate(()=>[...document.querySelectorAll('a.qatile')].map(x=>x.getAttribute('href')).join().startsWith('#qa,#ds,#wf')));
 ok('sidebar has Engineering Workflow entry',await d.evaluate(()=>{const a=document.querySelector('.tabs a[data-tab=wf]');const r=a.getBoundingClientRect();return r.width>30&&r.right<=innerWidth&&getComputedStyle(a).display!=='none';}));
 await d.click('.tabs a[data-tab=wf]');await d.waitForSelector('#qaList details',{timeout:15000});
 ok('sidebar entry opens and highlights',await d.evaluate(()=>location.hash==='#wf'&&document.querySelector('.tabs a[data-tab=wf]').getAttribute('aria-current')==='page'));
