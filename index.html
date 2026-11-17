@@ -118,6 +118,8 @@ pre .hl{color:var(--bad);font-weight:500} pre .note{color:var(--muted)}
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
 .tabs .col{display:grid;grid-template-columns:repeat(6,1fr)} .tabs a{padding:9px 2px!important;font-size:.7rem!important} .tabs a.desk{display:none} @media (min-width:1000px){.tabs a.desk{display:flex}}
+.tabs a .sh,.tabs a .lg{font-size:inherit;font-weight:inherit;letter-spacing:inherit}.tabs a .sh{display:inline}.tabs a .lg{display:none}@media (min-width:1000px){.tabs a .sh{display:none}.tabs a .lg{display:inline}}
+@media (max-width:999px){.tabs .col{display:flex;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch}.tabs .col::-webkit-scrollbar{display:none}.tabs .col a{flex:0 0 calc((100% - 12px)/5.5);scroll-snap-align:center;white-space:nowrap;min-width:0}}
 .tabs a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px;color:var(--muted);text-decoration:none;font-size:.74rem;font-weight:500}
 .tabs a svg{width:22px;height:22px}
 .tabs a[aria-current="page"]{color:var(--accent)}
@@ -1147,10 +1149,10 @@ input.switch:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   <a href="#gyms" data-tab="gyms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>Gyms</a>
   <a href="#think" data-tab="think"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>Think</a>
   <a href="#errors" data-tab="errors"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></svg>Errors</a>
-  <a href="#qa" data-tab="qa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>AI-PM Q&amp;A</a>
-  <a href="#ds" data-tab="ds" class="desk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20V4"/><path d="M4 20h16"/><path d="M8 16l4-5 3 3 5-7"/></svg>Data Science Q&amp;A</a>
-  <a href="#wf" data-tab="wf" class="desk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="9" r="2"/><path d="M6 8v8"/><path d="M18 11c0 4-6 3-10 6"/></svg>Engineering Workflow Q&amp;A</a>
-  <a href="#sd" data-tab="sd" class="desk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="7" height="5" rx="1"/><rect x="14" y="4" width="7" height="5" rx="1"/><rect x="8.5" y="15" width="7" height="5" rx="1"/><path d="M6.5 9v3h11V9M12 12v3"/></svg>System Design Q&amp;A</a>
+  <a href="#qa" data-tab="qa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span class="lg">AI-PM Q&amp;A</span><span class="sh">AI-PM</span></a>
+  <a href="#ds" data-tab="ds"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20V4"/><path d="M4 20h16"/><path d="M8 16l4-5 3 3 5-7"/></svg><span class="lg">Data Science Q&amp;A</span><span class="sh">Data Sci</span></a>
+  <a href="#wf" data-tab="wf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="9" r="2"/><path d="M6 8v8"/><path d="M18 11c0 4-6 3-10 6"/></svg><span class="lg">Engineering Workflow Q&amp;A</span><span class="sh">Workflow</span></a>
+  <a href="#sd" data-tab="sd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="7" height="5" rx="1"/><rect x="14" y="4" width="7" height="5" rx="1"/><rect x="8.5" y="15" width="7" height="5" rx="1"/><path d="M6.5 9v3h11V9M12 12v3"/></svg><span class="lg">System Design Q&amp;A</span><span class="sh">Sys Design</span></a>
   <a href="#ref" data-tab="ref" class="desk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>Reference</a>
 </div></nav>
 
@@ -3150,7 +3152,7 @@ function route(){
   document.body.classList.toggle("onboarding",!S.start&&!/^(day-|qa|sql|path|think|errors|ref|report|exam|review|portfolio|diag|interview|proof|capstone|settings|signin|signup|forgot|reset)/.test(h));
   document.body.classList.toggle("authpage",AU_PAGES.test(h));
   mkFoot();
-  document.querySelectorAll(".tabs a").forEach(a=>{if(a.dataset.tab===tab||(a.dataset.tab==="qa"&&/^(ds|wf|sd)$/.test(tab)&&getComputedStyle(a.parentNode.querySelector("a.desk")).display==="none"))a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});decoratePre();
+  document.querySelectorAll(".tabs a").forEach(a=>{if(a.dataset.tab===tab)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});{const c=document.querySelector(".tabs a[aria-current]"),col=c&&c.parentNode;if(col&&col.scrollWidth>col.clientWidth&&getComputedStyle(col).flexDirection!=="column")col.scrollLeft=c.offsetLeft-(col.clientWidth-c.offsetWidth)/2;}decoratePre();
 }
 window.addEventListener("hashchange",()=>{if(/(^|[#&])(access_token|error_description)=/.test(location.hash)){acctBoot();route();acctConnect();return;}route();window.scrollTo(0,0);});
 

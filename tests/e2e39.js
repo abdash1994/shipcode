@@ -9,7 +9,7 @@ for(const w of [360,390,1280]){
  await p.evaluate(()=>{S.start=shift(todayISO(),-3);S.done=[];save();location.hash='#today';route();});await p.waitForTimeout(400);
  ok(w+' home has Q&A tile',await p.evaluate(()=>!!document.querySelector('a.qatile[href="#qa"]')));
  ok(w+' footer shows star + linkedin on home',await p.evaluate(()=>{const f=document.getElementById('mkfoot');return f.offsetHeight>0&&/star it on GitHub/.test(f.innerText)&&!!f.querySelector('a[href*=linkedin]');}));
- ok(w+' nav entry visible',await p.evaluate(()=>{const a=document.querySelector('.tabs a[data-tab=qa]');const r=a.getBoundingClientRect();return r.width>30&&r.right<=innerWidth+1&&/AI-PM Q&A/.test(a.innerText);}));
+ ok(w+' nav entry visible',await p.evaluate(()=>{const a=document.querySelector('.tabs a[data-tab=qa]');a.scrollIntoView({inline:'center',block:'nearest'});const r=a.getBoundingClientRect();return r.width>30&&r.left>=-1&&r.right<=innerWidth+1&&/AI-PM/.test(a.innerText);}));
  await p.click('.tabs a[data-tab=qa]');await p.waitForTimeout(900);
  ok(w+' qa page loads 244 AI questions',await p.evaluate(()=>document.querySelectorAll('#qaList details').length===244&&/244 shown/.test(document.getElementById('qaCount').innerText)));
  ok(w+' no horizontal scroll',await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));

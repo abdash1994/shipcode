@@ -38,7 +38,8 @@ await d.click('.tabs a[data-tab=sd]');await d.waitForSelector('#qaList details',
 ok('sidebar entry opens and highlights',await d.evaluate(()=>location.hash==='#sd'&&document.querySelector('.tabs a[data-tab=sd]').getAttribute('aria-current')==='page'));
 const m=await b.newPage({viewport:{width:390,height:844}});await m.goto(`http://localhost:${PORT}/index.html#sd`);await m.waitForSelector('#qaList details',{timeout:15000});
 ok('phone: bank switcher lists all four banks',await m.evaluate(()=>[...document.querySelectorAll('.qa-banks a')].map(a=>a.getAttribute('href')).join()==='#qa,#ds,#wf,#sd'));
-ok('phone: Q&A tab highlighted while in System Design',await m.evaluate(()=>document.querySelector('.tabs a[data-tab=qa]').getAttribute('aria-current')==='page'));
+ok('phone: all four Q&A tabs are in the bottom menu',await m.evaluate(()=>['qa','ds','wf','sd'].every(t=>{const a=document.querySelector('.tabs a[data-tab='+t+']');return a&&getComputedStyle(a).display!=='none';})));
+ok('phone: System Design tab highlighted and scrolled into view',await m.evaluate(()=>{const a=document.querySelector('.tabs a[data-tab=sd]');const r=a.getBoundingClientRect();return a.getAttribute('aria-current')==='page'&&r.left>=-1&&r.right<=innerWidth+1&&/Sys Design/.test(a.innerText);}));
 await m.click('.qa-banks a[href="#wf"]');await m.waitForSelector('.qa-banks a[href="#wf"][aria-current]',{timeout:15000});
 ok('phone: switcher moves to Workflow bank',await m.evaluate(()=>/Engineering Workflow/.test(document.querySelector('.qa-top h2').textContent)));
 ok('no page errors',errs.length===0);

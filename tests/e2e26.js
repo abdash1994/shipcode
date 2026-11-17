@@ -3,7 +3,7 @@ await p.goto('file://'+require('path').join(__dirname,'..','index.html'));await 
 const base=`S.habit={min:120,dpw:7,mode:'flex',at:'19:00',deep:0,deepDay:6,goal:'sprint',depth:'core'};S.start=shift(todayISO(),-3);S.done=[1];S.dates=[shift(todayISO(),-2),shift(todayISO(),-1)];S.frozen=[];S.pause=null;S.pledge=null;S.ifthen=null;S.cele={};S.labs={};S.errs={TypeError:3};save();`;
 const go=async h=>{await p.evaluate(h=>{location.hash=h;route();},h);await p.waitForTimeout(250);};
 await p.evaluate(base);await go('#today');
-ok('6 tabs on phone',await p.evaluate(()=>[...document.querySelectorAll('.tabs a')].filter(a=>getComputedStyle(a).display!=='none').length===6));
+ok('9 tabs on phone (scrollable)',await p.evaluate(()=>[...document.querySelectorAll('.tabs a')].filter(a=>getComputedStyle(a).display!=='none').length===9));
 ok('reference tab hidden on phone',await p.evaluate(()=>getComputedStyle(document.querySelector('.tabs a[data-tab=ref]')).display==='none'));
 ok('7 week dots',await p.evaluate(()=>document.querySelectorAll('#wkDots .wd').length===7));
 ok('header fits (no horizontal overflow)',await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
