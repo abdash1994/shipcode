@@ -10,7 +10,7 @@ const errs=[];p.on('pageerror',e=>errs.push(String(e)));
 await p.goto(`http://localhost:${PORT}/index.html`);
 const data=await p.evaluate(()=>fetch('wf.json').then(r=>r.json()));
 let n=0,ex=0,bad=0,code=0;data.g.forEach(g=>g.s.forEach(s=>s.q.forEach(q=>{n++;if(q[4]&&q[4].length>40)ex++;if(q.length!==5||!q[0]||!q[2])bad++;if(q[2].includes('```'))code++;})));
-ok('80+ questions ('+n+')',n>=80);ok('every answer has an example',ex===n);ok('no malformed entries',bad===0);ok('code exercises present',code>=5);ok('glossary 80+ terms',data.gl.length>=80);ok('4 groups',data.g.length===4);
+ok('120+ questions ('+n+')',n>=120);ok('every answer has an example',ex===n);ok('no malformed entries',bad===0);ok('code exercises present',code>=12);ok('glossary 100+ terms',data.gl.length>=100);ok('4 groups',data.g.length===4);
 await p.goto(`http://localhost:${PORT}/index.html#wf`);await p.waitForSelector('#qaList details',{timeout:15000});
 ok('title',await p.evaluate(()=>/Engineering Workflow Q&A/.test(document.querySelector('.qa-top h2').textContent)));
 ok('no horizontal overflow at 360',await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
